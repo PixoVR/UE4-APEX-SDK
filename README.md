@@ -4,7 +4,7 @@ This plugin is compatible with Unreal Engine 4.26.0 to 4.27.2.
 
 Demo project will be provided in another repository.
 
-# Understanding xAPI and TinCan.NET
+# Understanding xAPI
 
 Data sent to Apex is formatted using the xAPI Standard.
 
