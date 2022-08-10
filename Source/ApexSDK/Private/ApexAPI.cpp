@@ -73,6 +73,7 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
     BIND_REQUEST_DELEGATE(Login);
     BIND_REQUEST_DELEGATE(JoinSession);
     BIND_REQUEST_DELEGATE(CompleteSession);
+    BIND_REQUEST_DELEGATE(SendSessionEvent);
 }
 
 void UApexAPI::Ping()
@@ -91,11 +92,15 @@ void UApexAPI::Ping()
 void UApexAPI::OnPingComplete(UVaRestRequestJSON* Request)
 {
     LogAPEX("On Ping Completed!");
+    OnRequestComplete.Broadcast(ApexRequestType::Ping, Request);
+    OnStaticRequestComplete.Broadcast(ApexRequestType::Ping, Request);
 }
 
 void UApexAPI::OnPingFail(UVaRestRequestJSON* Request)
 {
     LogAPEX("On Ping Failed!");
+    OnRequestFail.Broadcast(ApexRequestType::Ping, Request);
+    OnStaticRequestFail.Broadcast(ApexRequestType::Ping, Request);
 }
 
 void UApexAPI::Login(const FApexLoginInfo& InLoginInfo)
@@ -130,11 +135,16 @@ void UApexAPI::OnLoginComplete(UVaRestRequestJSON* Request)
 
         CurrentActiveLogin.FromJsonObject(Request->GetResponseObject()->GetRootObject());
     }
+
+    OnRequestComplete.Broadcast(ApexRequestType::Login, Request);
+    OnStaticRequestComplete.Broadcast(ApexRequestType::Login, Request);
 }
 
 void UApexAPI::OnLoginFail(UVaRestRequestJSON* Request)
 {
     LogAPEX("Login failed with response code %i", Request->GetResponseCode());
+    OnRequestFail.Broadcast(ApexRequestType::Login, Request);
+    OnStaticRequestFail.Broadcast(ApexRequestType::Login, Request);
 }
 
 bool UApexAPI::JoinSession(FString InScenarioID, const FXAPIExtension& InContextExtension)
@@ -226,6 +236,8 @@ void UApexAPI::OnJoinSessionComplete(UVaRestRequestJSON* Request)
 {
     LogAPEX("Session was successfully joined.");
     SessionInProgress = true;
+    OnRequestComplete.Broadcast(ApexRequestType::JoinSession, Request);
+    OnStaticRequestComplete.Broadcast(ApexRequestType::JoinSession, Request);
 }
 
 void UApexAPI::OnJoinSessionFail(UVaRestRequestJSON* Request)
@@ -233,6 +245,8 @@ void UApexAPI::OnJoinSessionFail(UVaRestRequestJSON* Request)
     LogAPEX("Failed to join session. %d", Request->GetResponseCode());
     SessionInProgress = false;
     CurrentSessionGuid.Invalidate();
+    OnRequestFail.Broadcast(ApexRequestType::JoinSession, Request);
+    OnStaticRequestFail.Broadcast(ApexRequestType::JoinSession, Request);
 }
 
 bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
@@ -327,11 +341,15 @@ void UApexAPI::OnCompleteSessionComplete(UVaRestRequestJSON* Request)
     LogAPEX("Session complete!");
     SessionInProgress = false;
     CurrentSessionGuid.Invalidate();
+    OnRequestComplete.Broadcast(ApexRequestType::CompleteSession, Request);
+    OnStaticRequestComplete.Broadcast(ApexRequestType::CompleteSession, Request);
 }
 
 void UApexAPI::OnCompleteSessionFail(UVaRestRequestJSON* Request)
 {
     WarnAPEX("Failed to complete session. %d", Request->GetResponseCode());
+    OnRequestFail.Broadcast(ApexRequestType::CompleteSession, Request);
+    OnStaticRequestFail.Broadcast(ApexRequestType::CompleteSession, Request);
 }
 
 bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
@@ -417,11 +435,15 @@ bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
 void UApexAPI::OnSendSessionEventComplete(class UVaRestRequestJSON* Request)
 {
     LogAPEX("Session event was sent successfully.");
+    OnRequestComplete.Broadcast(ApexRequestType::SessionEvent, Request);
+    OnStaticRequestComplete.Broadcast(ApexRequestType::SessionEvent, Request);
 }
 
 void UApexAPI::OnSendSessionEventFail(class UVaRestRequestJSON* Request)
 {
     WarnAPEX("Failed to send session event. %d", Request->GetResponseCode());
+    OnRequestFail.Broadcast(ApexRequestType::SessionEvent, Request);
+    OnStaticRequestFail.Broadcast(ApexRequestType::SessionEvent, Request);
 }
 
 #undef FatalAPEX

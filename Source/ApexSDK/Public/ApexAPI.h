@@ -9,6 +9,22 @@
 #include "ApexTypes.h"
 #include "ApexAPI.generated.h"
 
+UENUM(BlueprintType, Category = "APEX Responses", meta = (ScriptName = "MultiUserConnectionErrorType"))
+enum ApexRequestType
+{
+	Ping,
+	Login,
+	JoinSession,
+	SessionEvent,
+	CompleteSession
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexRequestComplete, ApexRequestType, RequestType, class UVaRestRequestJSON*, Request);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexRequestFail, ApexRequestType, RequestType, class UVaRestRequestJSON*, Request);
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestComplete, ApexRequestType, class UVaRestRequestJSON*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestFail, ApexRequestType, class UVaRestRequestJSON*);
+
 /**
  *
  */
@@ -81,8 +97,6 @@ protected:
 
 	FString AuthorizationToken;
 
-public:
-
 	FScriptDelegate OnPingCompleteDelegate;
 	FScriptDelegate OnPingFailDelegate;
 	FScriptDelegate OnLoginCompleteDelegate;
@@ -93,6 +107,24 @@ public:
 	FScriptDelegate OnCompleteSessionFailDelegate;
 	FScriptDelegate OnSendSessionEventCompleteDelegate;
 	FScriptDelegate OnSendSessionEventFailDelegate;
+
+public:
+
+	/** Event occured when the request has been completed */
+	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	FOnApexRequestComplete OnRequestComplete;
+
+	/** Event occured when the request wasn't successfull */
+	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	FOnApexRequestFail OnRequestFail;
+
+	/** Event occured when the request has been completed */
+	FOnStaticApexRequestComplete OnStaticRequestComplete;
+
+	/** Event occured when the request wasn't successfull */
+	FOnStaticApexRequestFail OnStaticRequestFail;
+
+public:
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void OnLoginComplete(class UVaRestRequestJSON* Request);
