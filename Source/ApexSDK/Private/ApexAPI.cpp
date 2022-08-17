@@ -124,20 +124,33 @@ void UApexAPI::Login(const FApexLoginInfo& InLoginInfo)
 
 void UApexAPI::OnLoginComplete(UVaRestRequestJSON* Request)
 {
-    LogAPEX("Login Completed!");
+    // We have to handle errors that show up as valid messages.
+    bool FailedResponse = true;
     if (Request->GetResponseCode() == 200)
     {
-        if (CurrentActiveLogin.IsSet())
+        if (!Request->GetResponseObject()->GetRootObject()->HasField("Error"))
         {
-            WarnAPEX("Replacing the current login.");
-            CurrentActiveLogin.Invalidate();
-        }
+            LogAPEX("Login Completed!");
+            if (CurrentActiveLogin.IsSet())
+            {
+                WarnAPEX("Replacing the current login.");
+                CurrentActiveLogin.Invalidate();
+            }
 
-        CurrentActiveLogin.FromJsonObject(Request->GetResponseObject()->GetRootObject());
+            // It's not a failed response!
+            FailedResponse = false;
+
+            CurrentActiveLogin.FromJsonObject(Request->GetResponseObject()->GetRootObject());
+
+            OnRequestComplete.Broadcast(ApexRequestType::Login, Request);
+            OnStaticRequestComplete.Broadcast(ApexRequestType::Login, Request);
+        }
     }
 
-    OnRequestComplete.Broadcast(ApexRequestType::Login, Request);
-    OnStaticRequestComplete.Broadcast(ApexRequestType::Login, Request);
+    if (FailedResponse)
+    {
+        OnLoginFail(Request);
+    }
 }
 
 void UApexAPI::OnLoginFail(UVaRestRequestJSON* Request)
