@@ -15,7 +15,7 @@ public:
 
 	/** Module ID */
 	UPROPERTY(Config, EditAnywhere, Category = "Apex")
-	int ModuleID;
+	int ModuleId;
 
 	/** Module major version */
 	UPROPERTY(Config, EditAnywhere, Category = "Apex", meta=(DisplayName = "Module Major Version"))

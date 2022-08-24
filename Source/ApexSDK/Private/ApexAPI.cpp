@@ -51,29 +51,29 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
             URL.InsertAt(0, "https://");
         }
 
-        LoadedModuleId = ApexSettings->ModuleID;
+        LoadedModuleId = ApexSettings->ModuleId;
 
         ModuleVersion = FString::Printf(TEXT("%i.%.2i.%.2i"), ApexSettings->MajorVerison, ApexSettings->MinorVersion, ApexSettings->PatchVersion);
         LogAPEX("Launching module %d version %s", LoadedModuleId, *ModuleVersion);
     }
 
     DeviceModel = UHeadMountedDisplayFunctionLibrary::GetHMDDeviceName().ToString();
-    // Tag PC launches specifically if there is no HMD available.
-    if (DeviceModel.Equals("None", ESearchCase::IgnoreCase))
-    {
-        DeviceModel = "PC";
-    }
-    DeviceId = FGenericPlatformMisc::GetDeviceId();
-    if (DeviceId.IsEmpty())
-    {
-        DeviceId = FGenericPlatformMisc::GetDeviceMakeAndModel();
-    }
+// Tag PC launches specifically if there is no HMD available.
+if (DeviceModel.Equals("None", ESearchCase::IgnoreCase))
+{
+    DeviceModel = "PC";
+}
+DeviceId = FGenericPlatformMisc::GetDeviceId();
+if (DeviceId.IsEmpty())
+{
+    DeviceId = FGenericPlatformMisc::GetDeviceMakeAndModel();
+}
 
-    BIND_REQUEST_DELEGATE(Ping);
-    BIND_REQUEST_DELEGATE(Login);
-    BIND_REQUEST_DELEGATE(JoinSession);
-    BIND_REQUEST_DELEGATE(CompleteSession);
-    BIND_REQUEST_DELEGATE(SendSessionEvent);
+BIND_REQUEST_DELEGATE(Ping);
+BIND_REQUEST_DELEGATE(Login);
+BIND_REQUEST_DELEGATE(JoinSession);
+BIND_REQUEST_DELEGATE(CompleteSession);
+BIND_REQUEST_DELEGATE(SendSessionEvent);
 }
 
 void UApexAPI::Ping()
@@ -99,7 +99,13 @@ void UApexAPI::OnPingComplete(UVaRestRequestJSON* Request)
 void UApexAPI::OnPingFail(UVaRestRequestJSON* Request)
 {
     LogAPEX("On Ping Failed!");
-    OnRequestFail.Broadcast(ApexRequestType::Ping, Request);
+
+    UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+    FAPEXRequestFailed APEXFailedRequest;
+
+    APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
+
+    OnRequestFail.Broadcast(ApexRequestType::Ping, Request, APEXFailedRequest);
     OnStaticRequestFail.Broadcast(ApexRequestType::Ping, Request);
 }
 
@@ -156,7 +162,13 @@ void UApexAPI::OnLoginComplete(UVaRestRequestJSON* Request)
 void UApexAPI::OnLoginFail(UVaRestRequestJSON* Request)
 {
     LogAPEX("Login failed with response code %i", Request->GetResponseCode());
-    OnRequestFail.Broadcast(ApexRequestType::Login, Request);
+
+    UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+    FAPEXRequestFailed APEXFailedRequest;
+    
+    APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
+
+    OnRequestFail.Broadcast(ApexRequestType::Login, Request, APEXFailedRequest);
     OnStaticRequestFail.Broadcast(ApexRequestType::Login, Request);
 }
 
@@ -221,7 +233,7 @@ bool UApexAPI::JoinSession(FString InScenarioID, const FXAPIExtension& InContext
     FJoinSessionData JoinData;
     JoinData.DeviceId = DeviceId;
     JoinData.IpAddress = "0.0.0.0"; // We should get rid of this as there isn't a good way to get external IP addresses
-    JoinData.ModuleID = LoadedModuleId;
+    JoinData.ModuleId = LoadedModuleId;
     JoinData.Uuid = CurrentSessionGuid.ToString();
     JoinData.EventType = Apex::EventTypes::PIXOVR_SESSION_JOINED;
     JoinData.JsonData = Statement;
@@ -258,7 +270,13 @@ void UApexAPI::OnJoinSessionFail(UVaRestRequestJSON* Request)
     LogAPEX("Failed to join session. %d", Request->GetResponseCode());
     SessionInProgress = false;
     CurrentSessionGuid.Invalidate();
-    OnRequestFail.Broadcast(ApexRequestType::JoinSession, Request);
+
+    UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+    FAPEXRequestFailed APEXFailedRequest;
+
+    APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
+
+    OnRequestFail.Broadcast(ApexRequestType::JoinSession, Request, APEXFailedRequest);
     OnStaticRequestFail.Broadcast(ApexRequestType::JoinSession, Request);
 }
 
@@ -324,7 +342,7 @@ bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
 
     FCompleteSessionData SessionData;
     SessionData.DeviceId = DeviceId;
-    SessionData.ModuleID = LoadedModuleId;
+    SessionData.ModuleId = LoadedModuleId;
     SessionData.Uuid = CurrentSessionGuid.ToString();
     SessionData.EventType = Apex::EventTypes::PIXOVR_SESSION_COMPLETE;
     SessionData.JsonData = Statement;
@@ -361,7 +379,13 @@ void UApexAPI::OnCompleteSessionComplete(UVaRestRequestJSON* Request)
 void UApexAPI::OnCompleteSessionFail(UVaRestRequestJSON* Request)
 {
     WarnAPEX("Failed to complete session. %d", Request->GetResponseCode());
-    OnRequestFail.Broadcast(ApexRequestType::CompleteSession, Request);
+
+    UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+    FAPEXRequestFailed APEXFailedRequest;
+
+    APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
+
+    OnRequestFail.Broadcast(ApexRequestType::CompleteSession, Request, APEXFailedRequest);
     OnStaticRequestFail.Broadcast(ApexRequestType::CompleteSession, Request);
 }
 
@@ -421,7 +445,7 @@ bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
 
     FSessionEventData Event;
     Event.DeviceId = DeviceId;
-    Event.ModuleID = LoadedModuleId;
+    Event.ModuleId = LoadedModuleId;
     Event.Uuid = CurrentSessionGuid.ToString();
     Event.EventType = Apex::EventTypes::PIXOVR_SESSION_EVENT;
     Event.JsonData = InStatement;
@@ -455,7 +479,13 @@ void UApexAPI::OnSendSessionEventComplete(class UVaRestRequestJSON* Request)
 void UApexAPI::OnSendSessionEventFail(class UVaRestRequestJSON* Request)
 {
     WarnAPEX("Failed to send session event. %d", Request->GetResponseCode());
-    OnRequestFail.Broadcast(ApexRequestType::SessionEvent, Request);
+
+    UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+    FAPEXRequestFailed APEXFailedRequest;
+
+    APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
+
+    OnRequestFail.Broadcast(ApexRequestType::SessionEvent, Request, APEXFailedRequest);
     OnStaticRequestFail.Broadcast(ApexRequestType::SessionEvent, Request);
 }
 

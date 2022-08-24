@@ -6,7 +6,7 @@ UApexSDKSettings::UApexSDKSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	ServerURI = "";
-	ModuleID = -1;
+	ModuleId = -1;
 	MajorVerison = 1;
 	MinorVersion = 0;
 	PatchVersion = 0;

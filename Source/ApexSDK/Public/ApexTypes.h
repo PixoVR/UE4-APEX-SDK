@@ -42,7 +42,7 @@ struct APEXSDK_API FJoinSessionData : public FJsonable
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
     FString EventType;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    int ModuleID;
+    int ModuleId;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
     FString DeviceId;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
@@ -65,7 +65,7 @@ struct APEXSDK_API FJoinSessionData : public FJsonable
             Result->SetStringField("eventType", EventType);
         }
 
-        Result->SetNumberField("moduleId", ModuleID);
+        Result->SetNumberField("moduleId", ModuleId);
 
         if (!DeviceId.IsEmpty())
         {
@@ -85,6 +85,34 @@ struct APEXSDK_API FJoinSessionData : public FJsonable
         }
 
         return Result;
+    }
+};
+
+USTRUCT(BlueprintType)
+struct APEXSDK_API FAPEXRequestFailed : public FJsonable
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
+    bool Error;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
+    FString Message;
+
+    FAPEXRequestFailed()
+    {
+        // Create a default
+        Error = true;
+        Message = TEXT("There is a server connection error. Please check that there is a valid URL being used or check if APEX is down.");
+    }
+
+    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+    {
+        if(JObject->HasField("Error"))
+            Error = JObject->GetBoolField("Error");
+    
+        if (JObject->HasField("Message"))
+            Message = JObject->GetStringField("Message");
     }
 };
 
@@ -125,7 +153,7 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
     FString EventType;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
-    int ModuleID;
+    int ModuleId;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
     FString DeviceId;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
@@ -152,7 +180,7 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
             Result->SetStringField("eventType", EventType);
         }
 
-        Result->SetNumberField("moduleId", ModuleID);
+        Result->SetNumberField("moduleId", ModuleId);
 
         if (!DeviceId.IsEmpty())
         {
@@ -176,7 +204,7 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
                 LessonStatus = "passed";
             }
             JsonDataObject->SetStringField("lessonStatus", LessonStatus);
-            JsonDataObject->SetStringField("moduleName", FString::FromInt(ModuleID));
+            JsonDataObject->SetStringField("moduleName", FString::FromInt(ModuleId));
 
             Result->SetObjectField("jsonData", JsonDataObject);
         }
@@ -195,7 +223,7 @@ struct APEXSDK_API FSessionEventData : public FJsonable
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
     FString EventType;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
-    int ModuleID;
+    int ModuleId;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
     FString DeviceId;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
@@ -218,7 +246,7 @@ public:
             Result->SetStringField("eventType", EventType);
         }
 
-        Result->SetNumberField("moduleId", ModuleID);
+        Result->SetNumberField("moduleId", ModuleId);
 
         if (!DeviceId.IsEmpty())
         {
