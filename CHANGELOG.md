@@ -6,3 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.0] - 2022-08-09
 ### This is the first release of *UE4 APEX SDK*.
+
+## [1.0.1] - TBD
+### Add FAPEXRequestFail struct to the OnApexRequestFail event to capture simple error data returned from the APEX API.
+### Change ModuleID to ModuleId across the whole code base.

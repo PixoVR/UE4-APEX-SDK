@@ -20,7 +20,7 @@ enum ApexRequestType
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexRequestComplete, ApexRequestType, RequestType, class UVaRestRequestJSON*, Request);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexRequestFail, ApexRequestType, RequestType, class UVaRestRequestJSON*, Request);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnApexRequestFail, ApexRequestType, RequestType, class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse);
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestComplete, ApexRequestType, class UVaRestRequestJSON*);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestFail, ApexRequestType, class UVaRestRequestJSON*);
