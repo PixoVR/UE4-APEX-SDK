@@ -366,7 +366,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct APEXSDK_API FUserData : public FJsonable
+struct APEXSDK_API FApexUserData : public FJsonable
 {
     GENERATED_BODY()
 
@@ -418,7 +418,7 @@ struct APEXSDK_API FTopTenData : public FJsonable
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
     FString Message;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
-    FUserData User;
+    FApexUserData User;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
     TArray<FCompleteSessionData> Sessions;
 

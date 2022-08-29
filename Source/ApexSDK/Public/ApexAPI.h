@@ -94,11 +94,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	bool FetchTopTen();
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	bool FetchTopTen(int UserId);
+	UFUNCTION(BlueprintCallable, Category = "Apex|API", meta=(DisplayName = "Fetch Top Ten By User"))
+	bool FetchTopTenByUser(int UserId);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	bool FetchTopTen(float TimePriorToToday);
+	bool FetchTopTenByTimeRange(float TimePriorToToday);
 
 protected:
 

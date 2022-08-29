@@ -573,12 +573,12 @@ bool UApexAPI::FetchTopTen()
     return FetchTopTen(-1, -1.f);
 }
 
-bool UApexAPI::FetchTopTen(int UserId)
+bool UApexAPI::FetchTopTenByUser(int UserId)
 {
     return FetchTopTen(UserId, -1.f);
 }
 
-bool UApexAPI::FetchTopTen(float TimePriorToToday)
+bool UApexAPI::FetchTopTenByTimeRange(float TimePriorToToday)
 {
     return FetchTopTen(-1, TimePriorToToday);
 }
@@ -664,24 +664,24 @@ void UApexAPI::OnTopTenEventFail(class UVaRestRequestJSON* Request)
 
 }
 
-void UApexAPI::OnLoginComplete(UVaRestRequestJSON* Request)
-{
-    // We have to handle errors that show up as valid messages.
-    
-}
-
-void UApexAPI::OnLoginFail(UVaRestRequestJSON* Request)
-{
-    LogAPEX("Login failed with response code %i", Request->GetResponseCode());
-
-    UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
-    FAPEXRequestFailed APEXFailedRequest;
-
-    APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
-
-    OnRequestFail.Broadcast(ApexRequestType::Login, Request, APEXFailedRequest);
-    OnStaticRequestFail.Broadcast(ApexRequestType::Login, Request);
-}
+//void UApexAPI::OnLoginComplete(UVaRestRequestJSON* Request)
+//{
+//    // We have to handle errors that show up as valid messages.
+//    
+//}
+//
+//void UApexAPI::OnLoginFail(UVaRestRequestJSON* Request)
+//{
+//    LogAPEX("Login failed with response code %i", Request->GetResponseCode());
+//
+//    UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+//    FAPEXRequestFailed APEXFailedRequest;
+//
+//    APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
+//
+//    OnRequestFail.Broadcast(ApexRequestType::Login, Request, APEXFailedRequest);
+//    OnStaticRequestFail.Broadcast(ApexRequestType::Login, Request);
+//}
 
 #undef FatalAPEX
 #undef ErrorAPEX
