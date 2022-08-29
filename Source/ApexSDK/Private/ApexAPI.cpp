@@ -58,22 +58,23 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
     }
 
     DeviceModel = UHeadMountedDisplayFunctionLibrary::GetHMDDeviceName().ToString();
-// Tag PC launches specifically if there is no HMD available.
-if (DeviceModel.Equals("None", ESearchCase::IgnoreCase))
-{
-    DeviceModel = "PC";
-}
-DeviceId = FGenericPlatformMisc::GetDeviceId();
-if (DeviceId.IsEmpty())
-{
-    DeviceId = FGenericPlatformMisc::GetDeviceMakeAndModel();
-}
+    // Tag PC launches specifically if there is no HMD available.
+    if (DeviceModel.Equals("None", ESearchCase::IgnoreCase))
+    {
+        DeviceModel = "PC";
+    }
+    DeviceId = FGenericPlatformMisc::GetDeviceId();
+    if (DeviceId.IsEmpty())
+    {
+        DeviceId = FGenericPlatformMisc::GetDeviceMakeAndModel();
+    }
 
-BIND_REQUEST_DELEGATE(Ping);
-BIND_REQUEST_DELEGATE(Login);
-BIND_REQUEST_DELEGATE(JoinSession);
-BIND_REQUEST_DELEGATE(CompleteSession);
-BIND_REQUEST_DELEGATE(SendSessionEvent);
+    BIND_REQUEST_DELEGATE(Ping);
+    BIND_REQUEST_DELEGATE(Login);
+    BIND_REQUEST_DELEGATE(UserVerification);
+    BIND_REQUEST_DELEGATE(JoinSession);
+    BIND_REQUEST_DELEGATE(CompleteSession);
+    BIND_REQUEST_DELEGATE(SendSessionEvent);
 }
 
 void UApexAPI::Ping()
@@ -148,8 +149,9 @@ void UApexAPI::OnLoginComplete(UVaRestRequestJSON* Request)
 
             CurrentActiveLogin.FromJsonObject(Request->GetResponseObject()->GetRootObject());
 
-            OnRequestComplete.Broadcast(ApexRequestType::Login, Request);
-            OnStaticRequestComplete.Broadcast(ApexRequestType::Login, Request);
+            VerifyModuleAcess();
+            /*OnRequestComplete.Broadcast(ApexRequestType::Login, Request);
+            OnStaticRequestComplete.Broadcast(ApexRequestType::Login, Request);*/
         }
     }
 
@@ -172,7 +174,84 @@ void UApexAPI::OnLoginFail(UVaRestRequestJSON* Request)
     OnStaticRequestFail.Broadcast(ApexRequestType::Login, Request);
 }
 
-bool UApexAPI::JoinSession(FString InScenarioID, const FXAPIExtension& InContextExtension)
+void UApexAPI::VerifyModuleAcess()
+{
+    UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::GET, EVaRestRequestContentType::none);
+
+    FStringFormatOrderedArguments FormatArguments;
+    FormatArguments.Add(FStringFormatArg(URL));
+    FormatArguments.Add(FStringFormatArg(CurrentActiveLogin.ID));
+    FormatArguments.Add(FStringFormatArg(LoadedModuleId));
+    FString AccessURL = FString::Format(TEXT("{0}/access/user/{1}/module/{2}"), FormatArguments);
+    Request->SetURL(AccessURL);
+    Request->SetHeader("Authorization: Bearer", CurrentActiveLogin.SessionToken);
+
+    /*UVaRestJsonObject* LoginJson = VaRestSubsystem->ConstructVaRestJsonObject();
+    LoginJson->SetField("login", VaRestSubsystem->ConstructJsonValueString(InLoginInfo.Username));
+    LoginJson->SetField("password", VaRestSubsystem->ConstructJsonValueString(InLoginInfo.Password));
+
+    Request->SetRequestObject(LoginJson);*/
+
+    // Add call backs from our lovely generated delegates
+    Request->OnRequestComplete.Add(OnUserVerificationCompleteDelegate);
+    Request->OnRequestFail.Add(OnUserVerificationFailDelegate);
+
+    Request->ExecuteProcessRequest();
+}
+
+void UApexAPI::OnUserVerificationComplete(class UVaRestRequestJSON* Request)
+{
+    bool FailedResponse = true;
+    if (Request->GetResponseCode() == 200)
+    {
+        UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+        if (!ResponseObject->GetRootObject()->HasField("Error"))
+        {
+            LogAPEX("User Verification Completed!");
+
+            if (ResponseObject->HasField("access"))
+            {
+                FailedResponse = !ResponseObject->GetBoolField("access");
+            }
+
+            if (FailedResponse == false)
+            {
+                OnRequestComplete.Broadcast(ApexRequestType::Login, Request);
+                OnStaticRequestComplete.Broadcast(ApexRequestType::Login, Request);
+            }
+        }
+    }
+
+    if (FailedResponse)
+    {
+        OnUserVerificationFail(Request);
+    }
+}
+
+void UApexAPI::OnUserVerificationFail(class UVaRestRequestJSON* Request)
+{
+    LogAPEX("User module access verification failed with response code %i", Request->GetResponseCode());
+
+    UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+    FAPEXRequestFailed APEXFailedRequest;
+    if (Request->GetResponseCode() == 200)
+    {
+        if (ResponseObject->GetRootObject()->HasField("access"))
+        {
+            APEXFailedRequest.Error = true;
+            APEXFailedRequest.Message = "User does not have access to this module.";
+        }
+        else
+        {
+            APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
+        }
+    }
+
+    OnRequestFail.Broadcast(ApexRequestType::Login, Request, APEXFailedRequest);
+    OnStaticRequestFail.Broadcast(ApexRequestType::Login, Request);
+}
+
+bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension)
 {
     if (!CurrentActiveLogin.IsSet())
     {
@@ -180,9 +259,9 @@ bool UApexAPI::JoinSession(FString InScenarioID, const FXAPIExtension& InContext
         return false;
     }
 
-    if (!InScenarioID.IsEmpty())
+    if (!InScenarioId.IsEmpty())
     {
-        ScenarioId = InScenarioID;
+        ScenarioId = InScenarioId;
     }
     else
     {
@@ -487,6 +566,121 @@ void UApexAPI::OnSendSessionEventFail(class UVaRestRequestJSON* Request)
 
     OnRequestFail.Broadcast(ApexRequestType::SessionEvent, Request, APEXFailedRequest);
     OnStaticRequestFail.Broadcast(ApexRequestType::SessionEvent, Request);
+}
+
+bool UApexAPI::FetchTopTen()
+{
+    return FetchTopTen(-1, -1.f);
+}
+
+bool UApexAPI::FetchTopTen(int UserId)
+{
+    return FetchTopTen(UserId, -1.f);
+}
+
+bool UApexAPI::FetchTopTen(float TimePriorToToday)
+{
+    return FetchTopTen(-1, TimePriorToToday);
+}
+
+bool UApexAPI::FetchTopTen(int UserId, float TimePriorToToday)
+{
+    if (!CurrentActiveLogin.IsSet())
+    {
+        ErrorAPEX("Cannot complete session with no active login.");
+        return false;
+    }
+
+    if (SessionInProgress == false)
+    {
+        ErrorAPEX("No current session in progress.");
+        return false;
+    }
+
+    UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::GET, EVaRestRequestContentType::none);
+    FString URLFormat = "{url}/analytics/top10/module/{moduleId}";
+    FStringFormatNamedArguments FormatArguments;
+
+    if (UserId >= 0)
+    {
+        URLFormat += "/user/{userId}";
+    }
+    
+    if (TimePriorToToday > 0.0f)
+    {
+        URLFormat += "?dateRange={dateRange}";
+    }
+
+    FormatArguments.Add("url", FStringFormatArg(URL));
+    FormatArguments.Add("moduleId", FStringFormatArg(LoadedModuleId));
+    FormatArguments.Add("userId", FStringFormatArg(UserId));
+    FormatArguments.Add("dateRange", FStringFormatArg(TimePriorToToday));
+    FString AnalyticsURL = FString::Format(*URLFormat, FormatArguments);
+    Request->SetURL(AnalyticsURL);
+    Request->SetHeader("Authorization: Bearer", CurrentActiveLogin.SessionToken);
+
+    // Add call backs from our lovely generated delegates
+    Request->OnRequestComplete.Add(OnUserVerificationCompleteDelegate);
+    Request->OnRequestFail.Add(OnUserVerificationFailDelegate);
+
+    Request->ExecuteProcessRequest();
+
+    return true;
+}
+
+void UApexAPI::OnTopTenEventComplete(class UVaRestRequestJSON* Request)
+{
+    bool FailedResponse = true;
+    if (Request->GetResponseCode() == 200)
+    {
+        if (!Request->GetResponseObject()->GetRootObject()->HasField("Error"))
+        {
+            LogAPEX("Login Completed!");
+            if (CurrentActiveLogin.IsSet())
+            {
+                WarnAPEX("Replacing the current login.");
+                CurrentActiveLogin.Invalidate();
+            }
+
+            // It's not a failed response!
+            FailedResponse = false;
+
+            CurrentActiveLogin.FromJsonObject(Request->GetResponseObject()->GetRootObject());
+
+            VerifyModuleAcess();
+            OnRequestComplete.Broadcast(ApexRequestType::Login, Request);
+            OnStaticRequestComplete.Broadcast(ApexRequestType::Login, Request);
+        }
+    }
+
+    if (FailedResponse)
+    {
+        OnLoginFail(Request);
+    }
+}
+
+void UApexAPI::OnTopTenEventFail(class UVaRestRequestJSON* Request)
+{
+
+}
+
+void UApexAPI::OnLoginComplete(UVaRestRequestJSON* Request)
+{
+    // We have to handle errors that show up as valid messages.
+    
+}
+
+void UApexAPI::OnLoginFail(UVaRestRequestJSON* Request)
+{
+    LogAPEX("Login failed with response code %i", Request->GetResponseCode());
+
+    UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+    FAPEXRequestFailed APEXFailedRequest;
+
+    APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
+
+    OnRequestFail.Broadcast(ApexRequestType::Login, Request, APEXFailedRequest);
+    OnStaticRequestFail.Broadcast(ApexRequestType::Login, Request);
 }
 
 #undef FatalAPEX

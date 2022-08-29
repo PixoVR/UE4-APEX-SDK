@@ -211,6 +211,8 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
 
         return Result;
     }
+
+    // TODO: Implement a FromJsonObject function. IMPORTANT TO DO!
 };
 
 USTRUCT(BlueprintType)
@@ -362,3 +364,102 @@ public:
         return Result;
     }
 };
+
+USTRUCT(BlueprintType)
+struct APEXSDK_API FUserData : public FJsonable
+{
+    GENERATED_BODY()
+
+        UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
+        int Id;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
+        FString FirstName;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
+        FString LastName;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
+        FString Email;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
+        FString Username;
+
+    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+    {
+        Id = JObject->GetIntegerField("id");
+        FirstName = JObject->GetStringField("first");
+        LastName = JObject->GetStringField("last");
+        Email = JObject->GetStringField("email");
+        Username = JObject->GetStringField("username");
+    }
+
+    virtual TSharedPtr<FJsonObject> ToJsonObject() const override
+    {
+        TSharedPtr<FJsonObject> Result(new FJsonObject);
+
+        Result->SetNumberField("id", Id);
+        Result->SetStringField("first", FirstName);
+        Result->SetStringField("last", LastName);
+        Result->SetStringField("email", Email);
+        Result->SetStringField("username", Username);
+
+        return Result;
+    }
+};
+
+USTRUCT(BlueprintType)
+struct APEXSDK_API FTopTenData : public FJsonable
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
+    bool Error;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
+    FString Message;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
+    FUserData User;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
+    TArray<FCompleteSessionData> Sessions;
+
+public:
+    virtual ~FTopTenData() { }
+
+    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+    {
+        Error = JObject->GetBoolField("error");
+        Message = JObject->GetStringField("message");
+        
+        TArray<TSharedPtr<FJsonValue>> SessionDataArray;
+        // This confirms if it's a user with session data or just session data
+        if (JObject->HasTypedField<EJson::Array>("data"))
+        {
+            SessionDataArray = JObject->GetArrayField("data");
+        }
+        else
+        {
+            auto DataObject = JObject->GetObjectField("data");
+
+            User.FromJsonObject(DataObject->GetObjectField("user"));
+            SessionDataArray = DataObject->GetArrayField("sessions");
+        }
+
+        FCompleteSessionData CompleteSessionData;
+        for (auto SessionData : SessionDataArray)
+        {
+            CompleteSessionData.FromJsonObject(SessionData->AsObject());
+
+            Sessions.Push(CompleteSessionData);
+        }
+    }
+
+    virtual TSharedPtr<FJsonObject> ToJsonObject() const override
+    {
+        TSharedPtr<FJsonObject> Result(new FJsonObject);
+
+        // TODO (MGruber): Fill this in later. It's not super important right now.
+
+        return Result;
+    }
+};
+

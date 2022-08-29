@@ -7,6 +7,7 @@
 #include "ApexSDKDefines.h"
 #include "XAPITypes.h"
 #include "ApexTypes.h"
+#include "Misc/DateTime.h"
 #include "ApexAPI.generated.h"
 
 UENUM(BlueprintType, Category = "APEX Responses", meta = (ScriptName = "MultiUserConnectionErrorType"))
@@ -82,7 +83,7 @@ public:
 	void Login(const FApexLoginInfo& InLoginInfo);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	bool JoinSession(FString InScenarioID, const FXAPIExtension& InContextExtension);
+	bool JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	bool CompleteSession(const FSessionData& InSessionData);
@@ -90,6 +91,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	bool SendSessionEvent(const FXAPIStatement& InStatement);
 
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	bool FetchTopTen();
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	bool FetchTopTen(int UserId);
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	bool FetchTopTen(float TimePriorToToday);
+
+protected:
+
+	bool FetchTopTen(int UserId, float TimePriorToToday);
+	void VerifyModuleAcess();
 
 protected:
 	class UVaRestSubsystem* VaRestSubsystem;
@@ -101,12 +115,16 @@ protected:
 	FScriptDelegate OnPingFailDelegate;
 	FScriptDelegate OnLoginCompleteDelegate;
 	FScriptDelegate OnLoginFailDelegate;
+	FScriptDelegate OnUserVerificationCompleteDelegate;
+	FScriptDelegate OnUserVerificationFailDelegate;
 	FScriptDelegate OnJoinSessionCompleteDelegate;
 	FScriptDelegate OnJoinSessionFailDelegate;
 	FScriptDelegate OnCompleteSessionCompleteDelegate;
 	FScriptDelegate OnCompleteSessionFailDelegate;
 	FScriptDelegate OnSendSessionEventCompleteDelegate;
 	FScriptDelegate OnSendSessionEventFailDelegate;
+	FScriptDelegate OnTopTenEventCompleteDelegate;
+	FScriptDelegate OnTopTenEventFailDelegate;
 
 public:
 
@@ -126,33 +144,45 @@ public:
 
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	UFUNCTION(Category = "Apex|API")
 	void OnLoginComplete(class UVaRestRequestJSON* Request);
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	UFUNCTION(Category = "Apex|API")
 	void OnLoginFail(class UVaRestRequestJSON* Request);
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	UFUNCTION(Category = "Apex|API")
+	void OnUserVerificationComplete(class UVaRestRequestJSON* Request);
+
+	UFUNCTION(Category = "Apex|API")
+	void OnUserVerificationFail(class UVaRestRequestJSON* Request);
+
+	UFUNCTION(Category = "Apex|API")
 	void OnPingComplete(class UVaRestRequestJSON* Request);
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	UFUNCTION(Category = "Apex|API")
 	void OnPingFail(class UVaRestRequestJSON* Request);
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	UFUNCTION(Category = "Apex|API")
 	void OnJoinSessionComplete(class UVaRestRequestJSON* Request);
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	UFUNCTION(Category = "Apex|API")
 	void OnJoinSessionFail(class UVaRestRequestJSON* Request);
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	UFUNCTION(Category = "Apex|API")
 	void OnCompleteSessionComplete(class UVaRestRequestJSON* Request);
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	UFUNCTION(Category = "Apex|API")
 	void OnCompleteSessionFail(class UVaRestRequestJSON* Request);
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	UFUNCTION(Category = "Apex|API")
 	void OnSendSessionEventComplete(class UVaRestRequestJSON* Request);
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	UFUNCTION(Category = "Apex|API")
 	void OnSendSessionEventFail(class UVaRestRequestJSON* Request);
+
+	UFUNCTION(Category = "Apex|API")
+	void OnTopTenEventComplete(class UVaRestRequestJSON* Request);
+
+	UFUNCTION(Category = "Apex|API")
+	void OnTopTenEventFail(class UVaRestRequestJSON* Request);
 };
