@@ -11,7 +11,7 @@
 #include "ApexAPI.generated.h"
 
 UENUM(BlueprintType, Category = "APEX Responses", meta = (ScriptName = "MultiUserConnectionErrorType"))
-enum ApexRequestType
+enum EApexRequestType
 {
 	Ping,
 	Login,
@@ -20,11 +20,18 @@ enum ApexRequestType
 	CompleteSession
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexRequestComplete, ApexRequestType, RequestType, class UVaRestRequestJSON*, Request);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnApexRequestFail, ApexRequestType, RequestType, class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexRequestComplete, EApexRequestType, RequestType, class UVaRestRequestJSON*, Request);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnApexRequestFail, EApexRequestType, RequestType, class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse);
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestComplete, ApexRequestType, class UVaRestRequestJSON*);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestFail, ApexRequestType, class UVaRestRequestJSON*);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexTopTenDataComplete, class UVaRestRequestJSON*, Request, FTopTenData, TopTenData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexTopTenDataFail, class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedFetchResponse);
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestComplete, EApexRequestType, class UVaRestRequestJSON*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestFail, EApexRequestType, class UVaRestRequestJSON*);
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexTopTenDataComplete, class UVaRestRequestJSON*, FTopTenData);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexTopTenDataFail, class UVaRestRequestJSON*, FAPEXRequestFailed);
+
 
 /**
  *
@@ -141,6 +148,16 @@ public:
 
 	/** Event occured when the request wasn't successfull */
 	FOnStaticApexRequestFail OnStaticRequestFail;
+
+	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	FOnApexTopTenDataComplete OnFetchTopTenComplete;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	FOnApexTopTenDataFail OnFetchTopTenFail;
+
+	FOnStaticApexTopTenDataComplete OnStaticFetchTopTenComplete;
+
+	FOnStaticApexTopTenDataFail OnStaticFetchTopTenFail;
 
 public:
 

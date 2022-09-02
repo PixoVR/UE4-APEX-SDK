@@ -150,6 +150,14 @@ struct APEXSDK_API FXAPIInteractionComponent : public FXAPIBase
 		return Empty;
 	}
 
+	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+	{
+		FXAPIBase::FromJsonObject(JObject);
+
+		UApexLibrary::TryFillFromStringField(JObject, "id", ID);
+		UApexLibrary::TryFillFromObjectField(JObject, "description", Description);
+	}
+
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const override
 	{
 		TSharedPtr<FJsonObject> Result(new FJsonObject);
@@ -216,6 +224,26 @@ struct APEXSDK_API FXAPIActivityDefinition : public FXAPIBase
 		return Empty;
 	}
 
+	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+	{
+		FXAPIBase::FromJsonObject(JObject);
+
+		UApexLibrary::TryFillFromStringField(JObject, "type", Type);
+		UApexLibrary::TryFillFromStringField(JObject, "moreInfo", MoreInfo);
+		FString InteractionTypeString;
+		UApexLibrary::TryFillFromStringField(JObject, "interactionType", InteractionTypeString);
+		InteractionType->FromValue(InteractionTypeString);
+		UApexLibrary::TryFillFromObjectField(JObject, "name", Name);
+		UApexLibrary::TryFillFromObjectField(JObject, "description", Description);
+		UApexLibrary::TryFillFromObjectField(JObject, "extensions", Extensions);
+		UApexLibrary::TryFillFromStringArrayField(JObject, "correctResponsesPattern", CorrectResponsesPattern);
+		UApexLibrary::TryFillFromObjectArrayField(JObject, "choices", (TArray<FJsonable>&)Choices);
+		UApexLibrary::TryFillFromObjectArrayField(JObject, "scale", (TArray<FJsonable>&)Scale);
+		UApexLibrary::TryFillFromObjectArrayField(JObject, "source", (TArray<FJsonable>&)Source);
+		UApexLibrary::TryFillFromObjectArrayField(JObject, "target", (TArray<FJsonable>&)Target);
+		UApexLibrary::TryFillFromObjectArrayField(JObject, "steps", (TArray<FJsonable>&)Steps);
+	}
+
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const override
 	{
 		TSharedPtr<FJsonObject> Result(new FJsonObject);
@@ -254,7 +282,7 @@ struct APEXSDK_API FXAPIActivityDefinition : public FXAPIBase
 		}
 		if (Scale.Num() > 0)
 		{
-			Result->SetArrayField("choices", UApexLibrary::ConvertToJsonValueObjectArray((TArray<FJsonable>)Scale));
+			Result->SetArrayField("scale", UApexLibrary::ConvertToJsonValueObjectArray((TArray<FJsonable>)Scale));
 		}
 		if (Source.Num() > 0)
 		{
@@ -308,6 +336,36 @@ struct APEXSDK_API FXAPIAgent : public FXAPIBase
 		return TEXT("Agent");
 	}
 
+	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+	{
+		FXAPIBase::FromJsonObject(JObject);
+
+		if (JObject->HasField("name"))
+		{
+			Name = JObject->GetStringField("name");
+		}
+
+		if (JObject->HasField("mbox"))
+		{
+			MBox = JObject->GetStringField("mbox");
+		}
+
+		if (JObject->HasField("mbox_sha1sum"))
+		{
+			MBoxSha1Sum = JObject->GetStringField("mbox_sha1sum");
+		}
+
+		if (JObject->HasField("openid"))
+		{
+			OpenId = JObject->GetStringField("openid");
+		}
+
+		if (JObject->HasField("extensions"))
+		{
+			Extensions.FromJsonObject(JObject->GetObjectField("extensions"));
+		}
+	}
+
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const override
 	{
 		TSharedPtr<FJsonObject> Result(new FJsonObject);
@@ -334,6 +392,11 @@ struct APEXSDK_API FXAPIAgent : public FXAPIBase
 			Result->SetStringField("openid", OpenId);
 		}
 
+		if (!Extensions.IsEmpty())
+		{
+			Result->SetObjectField("extensions", Extensions.ToJsonObject());
+		}
+
 		return Result;
 	}
 };
@@ -354,6 +417,21 @@ struct APEXSDK_API FXAPIVerb : public FXAPIBase
 		bool Empty = ID.IsEmpty() && Display.IsEmpty();
 
 		return Empty;
+	}
+
+	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+	{
+		FXAPIBase::FromJsonObject(JObject);
+
+		if (JObject->HasField("id"))
+		{
+			ID = JObject->GetStringField("id");
+		}
+
+		if (JObject->HasField("display"))
+		{
+			Display.FromJsonObject(JObject->GetObjectField("display"));
+		}
 	}
 
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const override
@@ -398,6 +476,26 @@ struct APEXSDK_API FXAPIActivity : public FXAPIBase
 		bool Empty = ID.IsEmpty() && Definition.IsEmpty() && Extensions.IsEmpty();
 
 		return Empty;
+	}
+
+	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+	{
+		FXAPIBase::FromJsonObject(JObject);
+
+		if (JObject->HasField("id"))
+		{
+			ID = JObject->GetStringField("id");
+		}
+
+		if (JObject->HasField("definition"))
+		{
+			Definition.FromJsonObject(JObject->GetObjectField("definition"));
+		}
+
+		if (JObject->HasField("extensions"))
+		{
+			Extensions.FromJsonObject(JObject->GetObjectField("extensions"));
+		}
 	}
 
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const override
@@ -459,6 +557,46 @@ struct APEXSDK_API FXAPIContext : public FXAPIBase
 			&& Language.IsEmpty() && Team.IsEmpty() && Instructor.IsEmpty();
 
 		return Empty;
+	}
+
+	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+	{
+		FXAPIBase::FromJsonObject(JObject);
+
+		if (JObject->HasField("registration"))
+		{
+			FGuid::Parse(JObject->GetStringField("registration"), Registration);
+		}
+
+		if (JObject->HasField("instructor"))
+		{
+			Instructor.FromJsonObject(JObject->GetObjectField("instructor"));
+		}
+
+		if (JObject->HasField("team"))
+		{
+			Instructor.FromJsonObject(JObject->GetObjectField("team"));
+		}
+
+		if (JObject->HasField("revision"))
+		{
+			Revision = JObject->GetStringField("revision");
+		}
+
+		if (JObject->HasField("platform"))
+		{
+			Platform = JObject->GetStringField("platform");
+		}
+
+		if (JObject->HasField("language"))
+		{
+			Language = JObject->GetStringField("language");
+		}
+
+		if (JObject->HasField("extensions"))
+		{
+			Extensions.FromJsonObject(JObject->GetObjectField("extensions"));
+		}
 	}
 
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const override
@@ -527,6 +665,31 @@ struct APEXSDK_API FXAPIScore : public FXAPIBase
 		return Empty;
 	}
 
+	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+	{
+		FXAPIBase::FromJsonObject(JObject);
+
+		if (JObject->HasField("scaled"))
+		{
+			Scaled = JObject->GetNumberField("scaled");
+		}
+
+		if (JObject->HasField("raw"))
+		{
+			Raw = JObject->GetNumberField("raw");
+		}
+
+		if (JObject->HasField("min"))
+		{
+			Min = JObject->GetNumberField("min");
+		}
+
+		if (JObject->HasField("max"))
+		{
+			Max = JObject->GetNumberField("max");
+		}
+	}
+
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const
 	{
 		TSharedPtr<FJsonObject> Result(new FJsonObject);
@@ -580,6 +743,44 @@ struct FXAPIResult : public FXAPIBase
 		bool Empty = !Completion.IsSet() && !Success.IsSet() && Response.IsEmpty() && !Duration.IsSet() && Score.IsEmpty() && Extensions.IsEmpty();
 
 		return Empty;
+	}
+
+	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+	{
+		FXAPIBase::FromJsonObject(JObject);
+
+		if (JObject->HasField("completion"))
+		{
+			Completion = JObject->GetBoolField("completion");
+		}
+
+		if (JObject->HasField("success"))
+		{
+			Success = JObject->GetBoolField("success");
+		}
+
+		if (JObject->HasField("response"))
+		{
+			Response = JObject->GetStringField("response");
+		}
+
+		if (JObject->HasField("duration"))
+		{
+			FString StoredString = JObject->GetStringField("duration");
+			FTimespan Timespan;
+			FTimespan::Parse(StoredString, Timespan);
+			Duration = Timespan;
+		}
+
+		if (JObject->HasField("score"))
+		{
+			Score.FromJsonObject(JObject->GetObjectField("score"));
+		}
+
+		if (JObject->HasField("extensions"))
+		{
+			Extensions.FromJsonObject(JObject->GetObjectField("extensions"));
+		}
 	}
 
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const override
@@ -656,6 +857,44 @@ public:
 		return Empty;
 	}
 
+	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+	{
+		FXAPIBase::FromJsonObject(JObject);
+
+		if (JObject->HasField("actor"))
+		{
+			Actor.FromJsonObject(JObject->GetObjectField("actor"));
+		}
+
+		if (JObject->HasField("verb"))
+		{
+			Verb.FromJsonObject(JObject->GetObjectField("verb"));
+		}
+
+		if (JObject->HasField("object"))
+		{
+			Target.FromJsonObject(JObject->GetObjectField("object"));
+		}
+
+		if (JObject->HasField("result"))
+		{
+			Result.FromJsonObject(JObject->GetObjectField("result"));
+		}
+
+		if (JObject->HasField("context"))
+		{
+			Context.FromJsonObject(JObject->GetObjectField("context"));
+		}
+
+		if (JObject->HasField("timestamp"))
+		{
+			FString StoredString = JObject->GetStringField("timestamp");
+			FDateTime StoredDateTime;
+			FDateTime::Parse(StoredString, StoredDateTime);
+			TimeStamp = StoredDateTime;
+		}
+	}
+
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const override
 	{
 		TSharedPtr<FJsonObject> JsonResult(new FJsonObject);
@@ -675,7 +914,7 @@ public:
 			JsonResult->SetObjectField("object", Target.ToJsonObject());
 		}
 
-		if (!this->Result.IsEmpty())
+		if (!Result.IsEmpty())
 		{
 			JsonResult->SetObjectField("result", Result.ToJsonObject());
 		}
@@ -726,6 +965,29 @@ struct APEXSDK_API FXAPIStatement : public FXAPIStatementBase
 		return Empty;
 	}
 
+	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+	{
+		FXAPIStatementBase::FromJsonObject(JObject);
+
+		if (JObject->HasField("id"))
+		{
+			FGuid::Parse(JObject->GetStringField("id"), Id);
+		}
+
+		if (JObject->HasField("stored"))
+		{
+			FString StoredString = JObject->GetStringField("stored");
+			FDateTime StoredDateTime;
+			FDateTime::Parse(StoredString, StoredDateTime);
+			Stored = StoredDateTime;
+		}
+
+		if (JObject->HasField("authority"))
+		{
+			Authority.FromJsonObject(JObject->GetObjectField("authority"));
+		}
+	}
+
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const override
 	{
 		TSharedPtr<FJsonObject> JsonResult = FXAPIStatementBase::ToJsonObject();
@@ -742,10 +1004,8 @@ struct APEXSDK_API FXAPIStatement : public FXAPIStatementBase
 		{
 			JsonResult->SetObjectField("authority", Authority.ToJsonObject());
 		}
-		/*if (version != null)
-		{
-			result.Add("version", version.ToString());
-		}*/
+		
+		JsonResult->SetStringField("version", TEXT("1.0.3"));
 
 		return JsonResult;
 	}

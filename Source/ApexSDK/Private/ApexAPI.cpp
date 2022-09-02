@@ -93,8 +93,8 @@ void UApexAPI::Ping()
 void UApexAPI::OnPingComplete(UVaRestRequestJSON* Request)
 {
     LogAPEX("On Ping Completed!");
-    OnRequestComplete.Broadcast(ApexRequestType::Ping, Request);
-    OnStaticRequestComplete.Broadcast(ApexRequestType::Ping, Request);
+    OnRequestComplete.Broadcast(EApexRequestType::Ping, Request);
+    OnStaticRequestComplete.Broadcast(EApexRequestType::Ping, Request);
 }
 
 void UApexAPI::OnPingFail(UVaRestRequestJSON* Request)
@@ -106,8 +106,8 @@ void UApexAPI::OnPingFail(UVaRestRequestJSON* Request)
 
     APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
 
-    OnRequestFail.Broadcast(ApexRequestType::Ping, Request, APEXFailedRequest);
-    OnStaticRequestFail.Broadcast(ApexRequestType::Ping, Request);
+    OnRequestFail.Broadcast(EApexRequestType::Ping, Request, APEXFailedRequest);
+    OnStaticRequestFail.Broadcast(EApexRequestType::Ping, Request);
 }
 
 void UApexAPI::Login(const FApexLoginInfo& InLoginInfo)
@@ -150,8 +150,8 @@ void UApexAPI::OnLoginComplete(UVaRestRequestJSON* Request)
             CurrentActiveLogin.FromJsonObject(Request->GetResponseObject()->GetRootObject());
 
             VerifyModuleAcess();
-            /*OnRequestComplete.Broadcast(ApexRequestType::Login, Request);
-            OnStaticRequestComplete.Broadcast(ApexRequestType::Login, Request);*/
+            /*OnRequestComplete.Broadcast(EApexRequestType::Login, Request);
+            OnStaticRequestComplete.Broadcast(EApexRequestType::Login, Request);*/
         }
     }
 
@@ -170,8 +170,8 @@ void UApexAPI::OnLoginFail(UVaRestRequestJSON* Request)
     
     APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
 
-    OnRequestFail.Broadcast(ApexRequestType::Login, Request, APEXFailedRequest);
-    OnStaticRequestFail.Broadcast(ApexRequestType::Login, Request);
+    OnRequestFail.Broadcast(EApexRequestType::Login, Request, APEXFailedRequest);
+    OnStaticRequestFail.Broadcast(EApexRequestType::Login, Request);
 }
 
 void UApexAPI::VerifyModuleAcess()
@@ -216,8 +216,8 @@ void UApexAPI::OnUserVerificationComplete(class UVaRestRequestJSON* Request)
 
             if (FailedResponse == false)
             {
-                OnRequestComplete.Broadcast(ApexRequestType::Login, Request);
-                OnStaticRequestComplete.Broadcast(ApexRequestType::Login, Request);
+                OnRequestComplete.Broadcast(EApexRequestType::Login, Request);
+                OnStaticRequestComplete.Broadcast(EApexRequestType::Login, Request);
             }
         }
     }
@@ -247,8 +247,8 @@ void UApexAPI::OnUserVerificationFail(class UVaRestRequestJSON* Request)
         }
     }
 
-    OnRequestFail.Broadcast(ApexRequestType::Login, Request, APEXFailedRequest);
-    OnStaticRequestFail.Broadcast(ApexRequestType::Login, Request);
+    OnRequestFail.Broadcast(EApexRequestType::Login, Request, APEXFailedRequest);
+    OnStaticRequestFail.Broadcast(EApexRequestType::Login, Request);
 }
 
 bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension)
@@ -340,8 +340,8 @@ void UApexAPI::OnJoinSessionComplete(UVaRestRequestJSON* Request)
 {
     LogAPEX("Session was successfully joined.");
     SessionInProgress = true;
-    OnRequestComplete.Broadcast(ApexRequestType::JoinSession, Request);
-    OnStaticRequestComplete.Broadcast(ApexRequestType::JoinSession, Request);
+    OnRequestComplete.Broadcast(EApexRequestType::JoinSession, Request);
+    OnStaticRequestComplete.Broadcast(EApexRequestType::JoinSession, Request);
 }
 
 void UApexAPI::OnJoinSessionFail(UVaRestRequestJSON* Request)
@@ -355,8 +355,8 @@ void UApexAPI::OnJoinSessionFail(UVaRestRequestJSON* Request)
 
     APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
 
-    OnRequestFail.Broadcast(ApexRequestType::JoinSession, Request, APEXFailedRequest);
-    OnStaticRequestFail.Broadcast(ApexRequestType::JoinSession, Request);
+    OnRequestFail.Broadcast(EApexRequestType::JoinSession, Request, APEXFailedRequest);
+    OnStaticRequestFail.Broadcast(EApexRequestType::JoinSession, Request);
 }
 
 bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
@@ -451,8 +451,8 @@ void UApexAPI::OnCompleteSessionComplete(UVaRestRequestJSON* Request)
     LogAPEX("Session complete!");
     SessionInProgress = false;
     CurrentSessionGuid.Invalidate();
-    OnRequestComplete.Broadcast(ApexRequestType::CompleteSession, Request);
-    OnStaticRequestComplete.Broadcast(ApexRequestType::CompleteSession, Request);
+    OnRequestComplete.Broadcast(EApexRequestType::CompleteSession, Request);
+    OnStaticRequestComplete.Broadcast(EApexRequestType::CompleteSession, Request);
 }
 
 void UApexAPI::OnCompleteSessionFail(UVaRestRequestJSON* Request)
@@ -464,8 +464,8 @@ void UApexAPI::OnCompleteSessionFail(UVaRestRequestJSON* Request)
 
     APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
 
-    OnRequestFail.Broadcast(ApexRequestType::CompleteSession, Request, APEXFailedRequest);
-    OnStaticRequestFail.Broadcast(ApexRequestType::CompleteSession, Request);
+    OnRequestFail.Broadcast(EApexRequestType::CompleteSession, Request, APEXFailedRequest);
+    OnStaticRequestFail.Broadcast(EApexRequestType::CompleteSession, Request);
 }
 
 bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
@@ -551,8 +551,8 @@ bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
 void UApexAPI::OnSendSessionEventComplete(class UVaRestRequestJSON* Request)
 {
     LogAPEX("Session event was sent successfully.");
-    OnRequestComplete.Broadcast(ApexRequestType::SessionEvent, Request);
-    OnStaticRequestComplete.Broadcast(ApexRequestType::SessionEvent, Request);
+    OnRequestComplete.Broadcast(EApexRequestType::SessionEvent, Request);
+    OnStaticRequestComplete.Broadcast(EApexRequestType::SessionEvent, Request);
 }
 
 void UApexAPI::OnSendSessionEventFail(class UVaRestRequestJSON* Request)
@@ -564,8 +564,8 @@ void UApexAPI::OnSendSessionEventFail(class UVaRestRequestJSON* Request)
 
     APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
 
-    OnRequestFail.Broadcast(ApexRequestType::SessionEvent, Request, APEXFailedRequest);
-    OnStaticRequestFail.Broadcast(ApexRequestType::SessionEvent, Request);
+    OnRequestFail.Broadcast(EApexRequestType::SessionEvent, Request, APEXFailedRequest);
+    OnStaticRequestFail.Broadcast(EApexRequestType::SessionEvent, Request);
 }
 
 bool UApexAPI::FetchTopTen()
@@ -633,55 +633,43 @@ void UApexAPI::OnTopTenEventComplete(class UVaRestRequestJSON* Request)
     bool FailedResponse = true;
     if (Request->GetResponseCode() == 200)
     {
-        if (!Request->GetResponseObject()->GetRootObject()->HasField("Error"))
+        UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+        if (ResponseObject->HasField("Error"))
         {
-            LogAPEX("Login Completed!");
-            if (CurrentActiveLogin.IsSet())
+            if (!ResponseObject->GetBoolField("Error"))
             {
-                WarnAPEX("Replacing the current login.");
-                CurrentActiveLogin.Invalidate();
+                LogAPEX("Successfully fetched top ten data!");
+
+                // It's not a failed response!
+                FailedResponse = false;
+
+                FTopTenData FetchedTopTenData;
+                FetchedTopTenData.FromJsonObject(ResponseObject->GetRootObject());
+
+                OnFetchTopTenComplete.Broadcast(Request, FetchedTopTenData);
+                OnStaticFetchTopTenComplete.Broadcast(Request, FetchedTopTenData);
             }
-
-            // It's not a failed response!
-            FailedResponse = false;
-
-            CurrentActiveLogin.FromJsonObject(Request->GetResponseObject()->GetRootObject());
-
-            VerifyModuleAcess();
-            OnRequestComplete.Broadcast(ApexRequestType::Login, Request);
-            OnStaticRequestComplete.Broadcast(ApexRequestType::Login, Request);
         }
     }
 
     if (FailedResponse)
     {
-        OnLoginFail(Request);
+        OnTopTenEventFail(Request);
     }
 }
 
 void UApexAPI::OnTopTenEventFail(class UVaRestRequestJSON* Request)
 {
+    LogAPEX("Fetch Top Ten failed with response code %i", Request->GetResponseCode());
 
+    UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+    FAPEXRequestFailed APEXFailedRequest;
+
+    APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
+
+    OnFetchTopTenFail.Broadcast(Request, APEXFailedRequest);
+    OnStaticFetchTopTenFail.Broadcast(Request, APEXFailedRequest);
 }
-
-//void UApexAPI::OnLoginComplete(UVaRestRequestJSON* Request)
-//{
-//    // We have to handle errors that show up as valid messages.
-//    
-//}
-//
-//void UApexAPI::OnLoginFail(UVaRestRequestJSON* Request)
-//{
-//    LogAPEX("Login failed with response code %i", Request->GetResponseCode());
-//
-//    UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
-//    FAPEXRequestFailed APEXFailedRequest;
-//
-//    APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
-//
-//    OnRequestFail.Broadcast(ApexRequestType::Login, Request, APEXFailedRequest);
-//    OnStaticRequestFail.Broadcast(ApexRequestType::Login, Request);
-//}
 
 #undef FatalAPEX
 #undef ErrorAPEX

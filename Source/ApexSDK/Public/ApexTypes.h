@@ -117,7 +117,7 @@ struct APEXSDK_API FAPEXRequestFailed : public FJsonable
 };
 
 USTRUCT(BlueprintType)
-struct APEXSDK_API FSessionData
+struct APEXSDK_API FSessionData : public FJsonable
 {
     GENERATED_BODY()
 
@@ -140,6 +140,29 @@ struct APEXSDK_API FSessionData
     FXAPIExtension AdditionalContextData;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
     FXAPIExtension AdditionalResultData;
+
+    virtual ~FSessionData() { }
+
+    // TODO: Implement a FromJsonObject function. IMPORTANT TO DO!
+    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+    {
+        Score = JObject->GetNumberField("score");
+        ScoreScaled = JObject->GetNumberField("scoreScaled");
+        ScoreMin = JObject->GetNumberField("scoreMin");
+        ScoreMax = JObject->GetNumberField("scoreMax");
+        Duration = JObject->GetNumberField("sessionDuration");
+        Complete = JObject->GetBoolField("success");
+        FString LessonStatus = JObject->GetStringField("lessonStatus");
+        
+        if (LessonStatus.Equals("passed"))
+        {
+            Complete = true;
+        }
+        else
+        {
+            Complete = false;
+        }
+    }
 };
 
 
@@ -165,6 +188,33 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
     
 
     virtual ~FCompleteSessionData() { }
+
+    // TODO: Implement a FromJsonObject function. IMPORTANT TO DO!
+    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+    {
+        if (JObject->HasField("uuid"))
+        {
+            Uuid = JObject->GetStringField("uuid");
+        }
+
+        if (JObject->HasField("eventType"))
+        {
+            EventType = JObject->GetStringField("eventType");
+        }
+
+        ModuleId = JObject->GetNumberField("moduleId");
+
+        if (JObject->HasField("deviceId"))
+        {
+            DeviceId = JObject->GetStringField("deviceId");
+        }
+
+        if (JObject->HasField("jsonData"))
+        {
+            JsonData.FromJsonObject(JObject->GetObjectField("jsonData"));
+            SessionData.FromJsonObject(JObject->GetObjectField("jsonData"));
+        }
+    }
 
     virtual TSharedPtr<FJsonObject> ToJsonObject() const override
     {
@@ -198,6 +248,7 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
             JsonDataObject->SetNumberField("scoreMin", SessionData.ScoreMin);
             JsonDataObject->SetNumberField("scoreMax", SessionData.ScoreMax);
             JsonDataObject->SetNumberField("sessionDuration", SessionData.Duration);
+            JsonDataObject->SetBoolField("success", SessionData.Success);
             FString LessonStatus = "failed";
             if (SessionData.Complete)
             {
@@ -212,7 +263,6 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
         return Result;
     }
 
-    // TODO: Implement a FromJsonObject function. IMPORTANT TO DO!
 };
 
 USTRUCT(BlueprintType)
