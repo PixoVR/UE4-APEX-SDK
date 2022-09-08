@@ -591,12 +591,6 @@ bool UApexAPI::FetchTopTen(int UserId, float TimePriorToToday)
         return false;
     }
 
-    if (SessionInProgress == false)
-    {
-        ErrorAPEX("No current session in progress.");
-        return false;
-    }
-
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::GET, EVaRestRequestContentType::none);
     FString URLFormat = "{url}/analytics/top10/module/{moduleId}";
     FStringFormatNamedArguments FormatArguments;
