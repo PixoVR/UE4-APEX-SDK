@@ -17,3 +17,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixes an incorrect field in FXAPIActivityDefinition when converting to a JSON Object.
 ### Adds simplified functionality to try to fill various field types from the json object.
 ### Adds a TopTenData type exposed for displaying users Top Ten score data.
+
+## [1.1.1] - 2022-09-14
+### Fixes up TopTenData fetching for newly structured data.
+### Adds ability to get Top Ten for the current user.
+### Adds scenario and org unit parameters to Fetch Top Ten.

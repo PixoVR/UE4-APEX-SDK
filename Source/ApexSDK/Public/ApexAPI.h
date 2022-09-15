@@ -99,17 +99,20 @@ public:
 	bool SendSessionEvent(const FXAPIStatement& InStatement);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	bool FetchTopTen();
+	bool FetchTopTen(FString Scenario, int OrgUnit);
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API", meta = (DisplayName = "Fetch Top Ten By User"))
+	bool FetchTopTenByCurrentUser(FString Scenario);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API", meta=(DisplayName = "Fetch Top Ten By User"))
-	bool FetchTopTenByUser(int UserId);
+	bool FetchTopTenByUser(int UserId, FString Scenario, int OrgUnit);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	bool FetchTopTenByTimeRange(float TimePriorToToday);
+	bool FetchTopTenByTimeRange(float TimePriorToToday, FString Scenario, int OrgUnit);
 
 protected:
 
-	bool FetchTopTen(int UserId, float TimePriorToToday);
+	bool FetchTopTen(int UserId, float TimePriorToToday, FString Scenario, int OrgUnit);
 	void VerifyModuleAcess();
 
 protected:
@@ -130,8 +133,8 @@ protected:
 	FScriptDelegate OnCompleteSessionFailDelegate;
 	FScriptDelegate OnSendSessionEventCompleteDelegate;
 	FScriptDelegate OnSendSessionEventFailDelegate;
-	FScriptDelegate OnTopTenEventCompleteDelegate;
-	FScriptDelegate OnTopTenEventFailDelegate;
+	FScriptDelegate OnTopTenCompleteDelegate;
+	FScriptDelegate OnTopTenFailDelegate;
 
 public:
 
@@ -198,8 +201,8 @@ public:
 	void OnSendSessionEventFail(class UVaRestRequestJSON* Request);
 
 	UFUNCTION(Category = "Apex|API")
-	void OnTopTenEventComplete(class UVaRestRequestJSON* Request);
+	void OnTopTenComplete(class UVaRestRequestJSON* Request);
 
 	UFUNCTION(Category = "Apex|API")
-	void OnTopTenEventFail(class UVaRestRequestJSON* Request);
+	void OnTopTenFail(class UVaRestRequestJSON* Request);
 };

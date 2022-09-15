@@ -75,6 +75,7 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
     BIND_REQUEST_DELEGATE(JoinSession);
     BIND_REQUEST_DELEGATE(CompleteSession);
     BIND_REQUEST_DELEGATE(SendSessionEvent);
+    BIND_REQUEST_DELEGATE(TopTen);
 }
 
 void UApexAPI::Ping()
@@ -568,22 +569,27 @@ void UApexAPI::OnSendSessionEventFail(class UVaRestRequestJSON* Request)
     OnStaticRequestFail.Broadcast(EApexRequestType::SessionEvent, Request);
 }
 
-bool UApexAPI::FetchTopTen()
+bool UApexAPI::FetchTopTen(FString Scenario, int OrgUnit)
 {
-    return FetchTopTen(-1, -1.f);
+    return FetchTopTen(-1, -1.f, Scenario, OrgUnit);
 }
 
-bool UApexAPI::FetchTopTenByUser(int UserId)
+bool UApexAPI::FetchTopTenByCurrentUser(FString Scenario)
 {
-    return FetchTopTen(UserId, -1.f);
+    return FetchTopTen(CurrentActiveLogin.ID, -1.f, Scenario, CurrentActiveLogin.OrgUnit);
 }
 
-bool UApexAPI::FetchTopTenByTimeRange(float TimePriorToToday)
+bool UApexAPI::FetchTopTenByUser(int UserId, FString Scenario, int OrgUnit)
 {
-    return FetchTopTen(-1, TimePriorToToday);
+    return FetchTopTen(UserId, -1.f, Scenario, OrgUnit);
 }
 
-bool UApexAPI::FetchTopTen(int UserId, float TimePriorToToday)
+bool UApexAPI::FetchTopTenByTimeRange(float TimePriorToToday, FString Scenario, int OrgUnit)
+{
+    return FetchTopTen(-1, TimePriorToToday, Scenario, OrgUnit);
+}
+
+bool UApexAPI::FetchTopTen(int UserId, float TimePriorToToday, FString Scenario, int OrgUnit)
 {
     if (!CurrentActiveLogin.IsSet())
     {
@@ -599,30 +605,51 @@ bool UApexAPI::FetchTopTen(int UserId, float TimePriorToToday)
     {
         URLFormat += "/user/{userId}";
     }
+
+    FString DataQueryFormat = "?";
     
+    if (!Scenario.IsEmpty())
+    {
+        DataQueryFormat += "scenario={moduleId}/{scenario}&";
+    }
+
     if (TimePriorToToday > 0.0f)
     {
-        URLFormat += "?dateRange={dateRange}";
+        DataQueryFormat += "dateRange={dateRange}&";
     }
+
+    if (OrgUnit >= 0)
+    {
+        DataQueryFormat += "orgUnit={orgUnit}&";
+    }
+
+    if (DataQueryFormat.EndsWith("&"))
+    {
+        DataQueryFormat.RemoveFromEnd("&");
+    }
+
+    URLFormat += DataQueryFormat;
 
     FormatArguments.Add("url", FStringFormatArg(URL));
     FormatArguments.Add("moduleId", FStringFormatArg(LoadedModuleId));
     FormatArguments.Add("userId", FStringFormatArg(UserId));
     FormatArguments.Add("dateRange", FStringFormatArg(TimePriorToToday));
+    FormatArguments.Add("scenario", FStringFormatArg(Scenario));
+    FormatArguments.Add("orgUnit", FStringFormatArg(OrgUnit));
     FString AnalyticsURL = FString::Format(*URLFormat, FormatArguments);
     Request->SetURL(AnalyticsURL);
     Request->SetHeader("Authorization: Bearer", CurrentActiveLogin.SessionToken);
 
     // Add call backs from our lovely generated delegates
-    Request->OnRequestComplete.Add(OnUserVerificationCompleteDelegate);
-    Request->OnRequestFail.Add(OnUserVerificationFailDelegate);
+    Request->OnRequestComplete.Add(OnTopTenCompleteDelegate);
+    Request->OnRequestFail.Add(OnTopTenFailDelegate);
 
     Request->ExecuteProcessRequest();
 
     return true;
 }
 
-void UApexAPI::OnTopTenEventComplete(class UVaRestRequestJSON* Request)
+void UApexAPI::OnTopTenComplete(class UVaRestRequestJSON* Request)
 {
     bool FailedResponse = true;
     if (Request->GetResponseCode() == 200)
@@ -648,11 +675,11 @@ void UApexAPI::OnTopTenEventComplete(class UVaRestRequestJSON* Request)
 
     if (FailedResponse)
     {
-        OnTopTenEventFail(Request);
+        OnTopTenFail(Request);
     }
 }
 
-void UApexAPI::OnTopTenEventFail(class UVaRestRequestJSON* Request)
+void UApexAPI::OnTopTenFail(class UVaRestRequestJSON* Request)
 {
     LogAPEX("Fetch Top Ten failed with response code %i", Request->GetResponseCode());
 

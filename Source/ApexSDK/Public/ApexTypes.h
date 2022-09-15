@@ -165,7 +165,6 @@ struct APEXSDK_API FSessionData : public FJsonable
     }
 };
 
-
 USTRUCT(BlueprintType)
 struct APEXSDK_API FCompleteSessionData : public FJsonable
 {
@@ -262,7 +261,6 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
 
         return Result;
     }
-
 };
 
 USTRUCT(BlueprintType)
@@ -365,6 +363,8 @@ struct APEXSDK_API FUserSessionData : public FJsonable
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
     int OrgId;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
+    int OrgUnit;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
     FString FirstName;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
     FString LastName;
@@ -392,6 +392,14 @@ public:
     {
         ID = JObject->GetIntegerField("ID");
         OrgId = JObject->GetIntegerField("OrgId");
+        if (JObject->HasField("OrgUnit"))
+        {
+            OrgUnit = JObject->GetIntegerField("OrgUnit");
+        }
+        else
+        {
+            OrgUnit = -1;
+        }
         FirstName = JObject->GetStringField("First");
         LastName = JObject->GetStringField("Last");
         Email = JObject->GetStringField("Email");
@@ -405,6 +413,10 @@ public:
 
         Result->SetNumberField("ID", ID);
         Result->SetNumberField("OrgId", OrgId);
+        if (OrgUnit >= 0)
+        {
+            Result->SetNumberField("OrgUnit", OrgUnit);
+        }
         Result->SetStringField("First", FirstName);
         Result->SetStringField("Last", LastName);
         Result->SetStringField("Email", Email);
@@ -420,24 +432,35 @@ struct APEXSDK_API FApexUserData : public FJsonable
 {
     GENERATED_BODY()
 
-        UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-        int Id;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
+    int Id;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-        FString FirstName;
+    int OrgUnit;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-        FString LastName;
+    FString FirstName;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-        FString Email;
+    FString LastName;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-        FString Username;
+    FString Email;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
+    FString Username;
 
     virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
     {
         Id = JObject->GetIntegerField("id");
+        if (JObject->HasField("orgunit"))
+        {
+            OrgUnit = JObject->GetIntegerField("orgunit");
+        }
+        else
+        {
+            OrgUnit = -1;
+        }
         FirstName = JObject->GetStringField("first");
         LastName = JObject->GetStringField("last");
         Email = JObject->GetStringField("email");
@@ -449,12 +472,98 @@ struct APEXSDK_API FApexUserData : public FJsonable
         TSharedPtr<FJsonObject> Result(new FJsonObject);
 
         Result->SetNumberField("id", Id);
+        if (OrgUnit >= 0)
+        {
+            Result->SetNumberField("orgunit", OrgUnit);
+        }
         Result->SetStringField("first", FirstName);
         Result->SetStringField("last", LastName);
         Result->SetStringField("email", Email);
         Result->SetStringField("username", Username);
 
         return Result;
+    }
+};
+
+USTRUCT(BlueprintType)
+struct APEXSDK_API FSessionReportData : public FJsonable
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
+    FString Id;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
+    FString EventType;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
+    int UserId;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
+    int ModuleId;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
+    int SessionId;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
+    float SessionDuration;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
+    bool LessonStatus;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
+    FString CreatedAt;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
+    FString UpdatedAt;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
+    FXAPIStatement JsonData;
+
+    virtual ~FSessionReportData() { }
+
+    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+    {
+        if (JObject->HasField("id"))
+        {
+            Id = JObject->GetStringField("id");
+        }
+
+        if (JObject->HasField("eventType"))
+        {
+            EventType = JObject->GetStringField("eventType");
+        }
+
+        if (JObject->HasField("sessionId"))
+        {
+            SessionId = JObject->GetNumberField("sessionId");
+        }
+
+        if (JObject->HasField("userId"))
+        {
+            UserId = JObject->GetNumberField("userId");
+        }
+
+        if (JObject->HasField("moduleId"))
+        {
+            ModuleId = JObject->GetNumberField("moduleId");
+        }
+
+        if (JObject->HasField("createdAt"))
+        {
+            CreatedAt = JObject->GetStringField("createdAt");
+        }
+
+        if (JObject->HasField("updatedAt"))
+        {
+            UpdatedAt = JObject->GetStringField("updatedAt");
+        }
+
+        if (JObject->HasField("jsonData"))
+        {
+            TSharedPtr<FJsonObject> JsonDataObject = JObject->GetObjectField("jsonData");
+            JsonData.FromJsonObject(JsonDataObject);
+            if (JsonDataObject->HasField("sessionDuration"))
+            {
+                SessionDuration = JsonDataObject->GetNumberField("sessionDuration");
+            }
+
+            if (JsonDataObject->HasField("lessonStatus"))
+            {
+                LessonStatus = JsonDataObject->GetBoolField("lessonStatus");
+            }
+        }
     }
 };
 
@@ -470,7 +579,7 @@ struct APEXSDK_API FTopTenData : public FJsonable
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
     FApexUserData User;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
-    TArray<FCompleteSessionData> Sessions;
+    TArray<FSessionReportData> Sessions;
 
 public:
     virtual ~FTopTenData() { }
@@ -494,7 +603,7 @@ public:
             SessionDataArray = DataObject->GetArrayField("sessions");
         }
 
-        FCompleteSessionData CompleteSessionData;
+        FSessionReportData CompleteSessionData;
         for (auto SessionData : SessionDataArray)
         {
             CompleteSessionData.FromJsonObject(SessionData->AsObject());
