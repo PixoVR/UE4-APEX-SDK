@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "OptionalBase.h"
+#include "OptionalTypeLibrary.h"
 
 int UOptionalLibrary::GetInt(const FOptionalInt& Optional)
 {

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "OptionalTypes.h"
-#include "OptionalBase.generated.h"
+#include "OptionalTypeLibrary.generated.h"
 
 /**
  *
