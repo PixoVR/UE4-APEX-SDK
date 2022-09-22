@@ -11,6 +11,7 @@
 #include "XAPIBase.h"
 #include "XAPIExtension.h"
 #include "ApexLibrary.h"
+#include "OptionalTypes.h"
 #include "XAPITypes.generated.h"
 
 USTRUCT()
@@ -650,13 +651,17 @@ struct APEXSDK_API FXAPIScore : public FXAPIBase
 {
 	GENERATED_BODY()
 
-	TOptional<float> Scaled;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Score")
+	FOptionalFloat Scaled;
 
-	TOptional<float> Raw;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Score")
+	FOptionalFloat Raw;
 
-	TOptional<float> Min;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Score")
+	FOptionalFloat Min;
 
-	TOptional<float> Max;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Score")
+	FOptionalFloat Max;
 
 	virtual bool IsEmpty() const override
 	{
@@ -696,22 +701,22 @@ struct APEXSDK_API FXAPIScore : public FXAPIBase
 
 		if (Scaled.IsSet())
 		{
-			Result->SetNumberField("scaled", Scaled.GetValue());
+			Result->SetNumberField("scaled", Scaled.Get());
 		}
 
 		if (Raw.IsSet())
 		{
-			Result->SetNumberField("raw", Raw.GetValue());
+			Result->SetNumberField("raw", Raw.Get());
 		}
 
 		if (Min.IsSet())
 		{
-			Result->SetNumberField("min", Min.GetValue());
+			Result->SetNumberField("min", Min.Get());
 		}
 
 		if (Max.IsSet())
 		{
-			Result->SetNumberField("max", Max.GetValue());
+			Result->SetNumberField("max", Max.Get());
 		}
 
 		return Result;

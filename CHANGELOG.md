@@ -22,3 +22,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixes up TopTenData fetching for newly structured data.
 ### Adds ability to get Top Ten for the current user.
 ### Adds scenario and org unit parameters to Fetch Top Ten.
+
+## [1.1.2] - 2022-
+### Creates Optional types that wrap TOptional types needed for XAPI.
+### Adds library function support for Optional types.
+### Exposes all Optional types as properties.
