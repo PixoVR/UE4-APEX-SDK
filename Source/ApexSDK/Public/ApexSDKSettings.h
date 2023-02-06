@@ -14,7 +14,7 @@ public:
 	FString ServerURI;
 
 	/** Module ID */
-	UPROPERTY(Config, EditAnywhere, Category = "Apex")
+	UPROPERTY(Config, EditAnywhere, Category = "Apex", meta = (DisplayName = "Module ID"))
 	int ModuleId;
 
 	/** Module major version */
@@ -28,4 +28,14 @@ public:
 	/** Module patch version */
 	UPROPERTY(Config, EditAnywhere, Category = "Apex", meta=(DisplayName = "Module Patch Version"))
 	int PatchVersion;
+
+	/** Module patch version */
+	UPROPERTY(Config, EditAnywhere, Category = "Apex", meta = (DisplayName = "Sync Module Version", Tooltip = "If sync is enabled, this will make Android and Project version match the Module version."))
+	bool bSyncVersion;
+
+#if WITH_EDITORONLY_DATA
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+
+	virtual void UpdateVersion();
+#endif
 };
