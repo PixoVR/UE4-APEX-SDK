@@ -23,7 +23,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Adds ability to get Top Ten for the current user.
 ### Adds scenario and org unit parameters to Fetch Top Ten.
 
-## [1.1.2] - 2022-
+## [1.1.2] - 2022-11-28
 ### Creates Optional types that wrap TOptional types needed for XAPI.
 ### Adds library function support for Optional types.
 ### Exposes all Optional types as properties.
+
+## [1.1.3] - 2023-02-06
+### Adds a plugin Property that syncs Module version with the Project version and Android Release version.
