@@ -30,3 +30,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.1.3] - 2023-02-06
 ### Adds a plugin Property that syncs Module version with the Project version and Android Release version.
+
+## [1.1.4] - 2023-02-17
+### Changes if LessonStatus is 'passed' or 'failed' based on Result::Status instead of Result::Completion.
