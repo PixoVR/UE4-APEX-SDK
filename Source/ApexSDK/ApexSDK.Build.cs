@@ -29,6 +29,12 @@ namespace UnrealBuildTool.Rules
 					"EngineSettings",
 					"AndroidRuntimeSettings"
 				});
+
+			PrivateDependencyModuleNames.AddRange(
+				new string[]
+				{
+					"WebSockets"
+				});
 		}
 	}
 }

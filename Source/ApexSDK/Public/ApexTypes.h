@@ -249,7 +249,7 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
             JsonDataObject->SetNumberField("sessionDuration", SessionData.Duration);
             JsonDataObject->SetBoolField("success", SessionData.Success);
             FString LessonStatus = "failed";
-            if (SessionData.Complete)
+            if (SessionData.Success)
             {
                 LessonStatus = "passed";
             }

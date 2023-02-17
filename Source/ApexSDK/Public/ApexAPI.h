@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Misc/DateTime.h"
 #include "ApexSDKDefines.h"
 #include "XAPITypes.h"
 #include "ApexTypes.h"
-#include "Misc/DateTime.h"
+#include "ApexWebsocket.h"
 #include "ApexAPI.generated.h"
 
 UENUM(BlueprintType, Category = "APEX Responses", meta = (ScriptName = "MultiUserConnectionErrorType"))
@@ -31,7 +32,6 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestFail, EApexRequestType,
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexTopTenDataComplete, class UVaRestRequestJSON*, FTopTenData);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexTopTenDataFail, class UVaRestRequestJSON*, FAPEXRequestFailed);
-
 
 /**
  *
@@ -89,6 +89,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void Login(const FApexLoginInfo& InLoginInfo);
 
+	// Login with Auth Code
+	// Uses OnLoginCompleteDelegate and OnLoginFailDelegate
+
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	bool JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension);
 
@@ -135,6 +138,8 @@ protected:
 	FScriptDelegate OnSendSessionEventFailDelegate;
 	FScriptDelegate OnTopTenCompleteDelegate;
 	FScriptDelegate OnTopTenFailDelegate;
+
+	TUniquePtr<ApexWebSocket> ApexSocket;
 
 public:
 

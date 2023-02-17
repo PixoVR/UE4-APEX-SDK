@@ -69,6 +69,8 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
         DeviceId = FGenericPlatformMisc::GetDeviceMakeAndModel();
     }
 
+    ApexSocket = MakeUnique<ApexWebSocket>("ws://127.0.0.1:8080");
+
     BIND_REQUEST_DELEGATE(Ping);
     BIND_REQUEST_DELEGATE(Login);
     BIND_REQUEST_DELEGATE(UserVerification);
