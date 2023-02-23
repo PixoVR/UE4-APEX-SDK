@@ -3,6 +3,13 @@
 
 #include "ApexSDKSettings.generated.h"
 
+UENUM(BlueprintType)
+enum class EPVRVersionFields : uint8
+{
+	AndroidStoreVersion UMETA(DisplayName = "Android Store Version"),
+	PixoVRPluginVersion UMETA(DisplayName = "PixoVR Plugin Version")
+};
+
 UCLASS(config = Engine, defaultconfig)
 class APEXSDK_API UApexSDKSettings : public UObject
 {
@@ -29,13 +36,17 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Apex", meta=(DisplayName = "Module Patch Version"))
 	int PatchVersion;
 
-	/** Module patch version */
-	UPROPERTY(Config, EditAnywhere, Category = "Apex", meta = (DisplayName = "Sync Module Version", Tooltip = "If sync is enabled, this will make Android and Project version match the Module version."))
+	/** Sync versioning */
+	UPROPERTY(Config, EditAnywhere, Category = "Apex", meta = (DisplayName = "Sync Module Version", Tooltip = "If sync is enabled, this will make at least the Android and Project version match the Module version. See Synchronized Version Fields"))
 	bool bSyncVersion;
+
+	/** Sync versioning */
+	UPROPERTY(Config, EditAnywhere, Category = "Apex", meta = (DisplayName = "Additional Synchronized Version Fields", Tooltip = "Additional version fields that are synchronized with the module version."))
+	TArray<TEnumAsByte<EPVRVersionFields>> AdditionalVersionFields;
 
 #if WITH_EDITORONLY_DATA
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
-	virtual void UpdateVersion();
+	virtual void UpdateVersion(const TArray<TEnumAsByte<EPVRVersionFields>>& Fields);
 #endif
 };
