@@ -31,9 +31,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.1.3] - 2023-02-06
 ### Adds a plugin Property that syncs Module version with the Project version and Android Release version.
 
-## [1.1.5] - 2023-02-17
+## [1.1.4] - 2023-02-17
 ### Changes if LessonStatus is 'passed' or 'failed' based on Result::Status instead of Result::Completion.
 
-## [1.1.4] - 2023-02-21
+## [1.1.5] - 2023-02-21
 ### Changed to bSyncVersion to synchronize the full module version instead of the shortened version.
 ### Added extended property fields to be synchronized, currently for Android Store Version and the PixoVR plugin Module Version.
