@@ -26,9 +26,13 @@ namespace UnrealBuildTool.Rules
 					"VaRest",
 					"Json",
 					"HeadMountedDisplay",
-					"EngineSettings",
-					"AndroidRuntimeSettings"
+					"EngineSettings"
 				});
+
+			if (Target.bBuildEditor == true)
+			{
+				PublicDependencyModuleNames.Add("AndroidRuntimeSettings");
+			}
 		}
 	}
 }

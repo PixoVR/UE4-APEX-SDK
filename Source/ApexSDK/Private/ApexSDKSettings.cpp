@@ -1,8 +1,11 @@
 // Copyright 2022 PixoVR Corp. All Rights Reserved.
 
 #include "ApexSDKSettings.h"
+
+#if WITH_EDITORONLY_DATA
 #include "GeneralProjectSettings.h"
 #include "AndroidRuntimeSettings.h"
+#endif
 
 UApexSDKSettings::UApexSDKSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
