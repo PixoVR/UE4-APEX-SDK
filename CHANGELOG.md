@@ -37,3 +37,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.1.5] - 2023-02-21
 ### Changed to bSyncVersion to synchronize the full module version instead of the shortened version.
 ### Added extended property fields to be synchronized, currently for Android Store Version and the PixoVR plugin Module Version.
+
+## [1.1.6] - 2023-03-03
+### Fixed issue with AndroidRuntimeSettings in Windows build and simplified version setting.

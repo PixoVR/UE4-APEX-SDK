@@ -5,6 +5,7 @@
 #include "VaRest/Public/VaRestSubsystem.h"
 #include "ApexSDK.h"
 #include "ApexSDKSettings.h"
+#include "GeneralProjectSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "GenericPlatform/GenericPlatformMisc.h"
 
@@ -52,8 +53,12 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
         }
 
         LoadedModuleId = ApexSettings->ModuleId;
-
-        ModuleVersion = FString::Printf(TEXT("%i.%.2i.%.2i"), ApexSettings->MajorVerison, ApexSettings->MinorVersion, ApexSettings->PatchVersion);
+        
+        if (UGeneralProjectSettings* Settings = GetMutableDefault<UGeneralProjectSettings>())
+        {            
+            ModuleVersion = Settings->ProjectVersion;
+        }
+        
         LogAPEX("Launching module %d version %s", LoadedModuleId, *ModuleVersion);
     }
 
