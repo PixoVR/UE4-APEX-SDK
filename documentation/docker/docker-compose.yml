@@ -1,9 +1,0 @@
-documentation:
-  image: [pixo docker registry]:5050/ApexSDK:latest
-  dns:
-    - 127.0.0.1
-    - 8.8.8.8
-    - 1.1.1.1
-  ports:
-    - "0.0.0.0:80:80"
-    - "0.0.0.0:443:443"
