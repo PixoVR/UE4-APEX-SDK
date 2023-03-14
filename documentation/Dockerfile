@@ -1,17 +1,19 @@
-FROM nginx
+FROM nginx AS builder
 
 MAINTAINER Chris Healer "chris.healer@pixovr.com"
 
-WORKDIR /server
+WORKDIR /build
 
-COPY Source		     ./
-COPY Resources	   ./
-COPY documentation ./
+COPY Source		     ./Source
+COPY Resources	   ./Resources
+COPY documentation ./documentation
 
 RUN	apt-get update && \
     apt-get install doxygen -y		# may want to add a version when installing doxygen
 
-RUN	./build.sh
+RUN	./documentation/build.sh
 
-RUN	cp -r ./html/ /usr/share/nginx/html
+
+FROM nginx:alpine-slim
+COPY --from=builder /build/documentation/html/ /usr/share/nginx/html
 
