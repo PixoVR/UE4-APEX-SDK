@@ -12,10 +12,12 @@ RUN	apt-get update && \
     apt-get install doxygen -y		# may want to add a version when installing doxygen
 
 RUN	./documentation/build.sh
-RUN ls
 
 
-FROM nginx:alpine-slim
+FROM nginx:1.23.3-alpine
+
+COPY documentation/nginx.conf /etc/nginx/
+RUN rm /etc/nginx/conf.d/default.conf
+
 COPY --from=builder /build/documentation/html/ /var/www/html
-RUN ls /var/www/html
 
