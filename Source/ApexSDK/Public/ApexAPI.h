@@ -46,12 +46,22 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexTopTenDataFail, class UVaRestR
 	\note blah blah
  */
 UCLASS(BlueprintType, Blueprintable)
+/**
+	\qualifier BlueprintType
+	\qualifier Blueprintable
+*/
 class APEXSDK_API UApexAPI : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
 public:
 
+	/**
+	* \property blueprint URL
+	* \brief The API URL
+	* 
+	* \sa ScenarioId
+	*/
 	UPROPERTY(BlueprintReadOnly)
 	FString URL;
 

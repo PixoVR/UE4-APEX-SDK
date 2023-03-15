@@ -325,3 +325,18 @@ a
 	color: #D39304;
 }
 
+span.mlabels
+{
+	float: right;
+	clear: right;
+}
+
+div.summary
+{
+	clear: both;
+}
+
+div.headertitle
+{
+	clear: both;
+}

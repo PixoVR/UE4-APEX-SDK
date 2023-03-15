@@ -5,15 +5,14 @@ MAINTAINER Chris Healer "chris.healer@pixovr.com"
 
 WORKDIR	/build
 
-COPY	Source		./Source
-COPY	Resources	./Resources
-COPY	documentation	./documentation
-
 RUN	apt-get update && \
 	apt-get install python3 doxygen -y	# may want to add a version when installing doxygen
 
-RUN	./documentation/build.sh
+COPY	Source		./
+COPY	Resources	./
+COPY	documentation	./
 
+RUN	./documentation/build.sh
 
 FROM nginx:1.23.3-alpine
 
