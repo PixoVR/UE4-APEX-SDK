@@ -12,9 +12,8 @@ COPY	Source		./Source
 COPY	Resources	./Resources
 COPY	documentation	./documentation
 
-RUN	ls -al *
-
-RUN	./documentation/build.sh
+RUN	chmod 755 ./documentation/doxygen/scripts/* && \
+	./documentation/build.sh
 
 FROM nginx:1.23.3-alpine
 
