@@ -8,9 +8,9 @@ WORKDIR	/build
 RUN	apt-get update && \
 	apt-get install python3 doxygen -y	# may want to add a version when installing doxygen
 
-COPY	Source		./
-COPY	Resources	./
-COPY	documentation	./
+COPY	Source		./Source
+COPY	Resources	./Resources
+COPY	documentation	./documentation
 
 RUN	ls -al *
 
