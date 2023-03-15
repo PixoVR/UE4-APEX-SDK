@@ -1,5 +1,5 @@
 
-FROM nginx AS builder
+FROM	nginx AS builder
 
 MAINTAINER Chris Healer "chris.healer@pixovr.com"
 

@@ -3,6 +3,8 @@ $(document).ready(function()
 	$(".directory > tbody > tr > .desc").addClass("hide");
 //	addBreaks();
 
+console.log("document ready, going to make responsive...");
+
 	makeResponsive();
 
 	$(".entry").on("change", "input[data-toggle='toggle']", function() {
