@@ -15,11 +15,11 @@ COPY	documentation	./documentation
 RUN	chmod 755 ./documentation/doxygen/scripts/* && \
 	./documentation/build.sh
 
-FROM nginx:1.23.3-alpine
+FROM	nginx:1.23.3-alpine
 
-COPY documentation/nginx.conf /etc/nginx/
-RUN rm /etc/nginx/conf.d/default.conf
+COPY	documentation/nginx.conf /etc/nginx/
+RUN	rm /etc/nginx/conf.d/default.conf
 
-COPY --from=builder /build/documentation/html/ /var/www/html
+COPY	--from=builder /build/documentation/html/ /var/www/html
 
 
