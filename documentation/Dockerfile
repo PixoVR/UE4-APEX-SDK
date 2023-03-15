@@ -1,18 +1,19 @@
+
 FROM nginx AS builder
 
 MAINTAINER Chris Healer "chris.healer@pixovr.com"
 
-WORKDIR /build
-
-COPY Source		     ./Source
-COPY Resources	   ./Resources
-COPY documentation ./documentation
+WORKDIR	/build
 
 RUN	apt-get update && \
-    apt-get install doxygen -y		# may want to add a version when installing doxygen
+	apt-get install python3 doxygen -y	# may want to add a version when installing doxygen
 
-RUN	./documentation/build.sh
+COPY	Source		./Source
+COPY	Resources	./Resources
+COPY	documentation	./documentation
 
+RUN	chmod 755 ./documentation/doxygen/scripts/* && \
+	./documentation/build.sh
 
 FROM nginx:1.23.3-alpine
 
@@ -20,4 +21,5 @@ COPY documentation/nginx.conf /etc/nginx/
 RUN rm /etc/nginx/conf.d/default.conf
 
 COPY --from=builder /build/documentation/html/ /var/www/html
+
 

@@ -423,7 +423,7 @@ SUBGROUPING            = YES
 # SEPARATE_MEMBER_PAGES.
 # The default value is: NO.
 
-INLINE_GROUPED_CLASSES = NO
+INLINE_GROUPED_CLASSES = YES
 
 # When the INLINE_SIMPLE_STRUCTS tag is set to YES, structs, classes, and unions
 # with only public data fields or simple typedef fields will be shown inline in
@@ -606,13 +606,13 @@ SHOW_INCLUDE_FILES     = YES
 # which file to include in order to use the member.
 # The default value is: NO.
 
-SHOW_GROUPED_MEMB_INC  = NO
+SHOW_GROUPED_MEMB_INC  = YES
 
 # If the FORCE_LOCAL_INCLUDES tag is set to YES then doxygen will list include
 # files with double quotes in the documentation rather than with sharp brackets.
 # The default value is: NO.
 
-FORCE_LOCAL_INCLUDES   = NO
+FORCE_LOCAL_INCLUDES   = YES
 
 # If the INLINE_INFO tag is set to YES then a tag [inline] is inserted in the
 # documentation for inline members.
@@ -1154,7 +1154,9 @@ ALPHABETICAL_INDEX     = YES
 # while generating the index headers.
 # This tag requires that the tag ALPHABETICAL_INDEX is set to YES.
 
-IGNORE_PREFIX          = VFS_
+IGNORE_PREFIX          = U \
+			F \
+			FX
 
 #---------------------------------------------------------------------------
 # Configuration options related to the HTML output
@@ -1244,7 +1246,6 @@ HTML_EXTRA_STYLESHEET  = html/custom.css
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_EXTRA_FILES       = html/custom.js
-			html/images/dots.jpg
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to
