@@ -12,6 +12,8 @@ COPY	Source		./
 COPY	Resources	./
 COPY	documentation	./
 
+RUN	ls -al *
+
 RUN	./documentation/build.sh
 
 FROM nginx:1.23.3-alpine
