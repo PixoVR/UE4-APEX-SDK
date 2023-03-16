@@ -3,10 +3,19 @@ FROM	nginx AS builder
 
 MAINTAINER Chris Healer "chris.healer@pixovr.com"
 
-WORKDIR	/build
+#RUN	apt-get update && \
+#	apt-get install -y graphviz python3 doxygen	# may want to add a version when installing doxygen
 
 RUN	apt-get update && \
-	apt-get install graphviz python3 doxygen -y	# may want to add a version when installing doxygen
+	apt-get install -y wget tar python3
+
+WORKDIR	/build
+
+RUN	wget https://www.doxygen.nl/files/doxygen-1.9.6.linux.bin.tar.gz && \
+	mkdir doxygen && \
+	mv doxygen-1.9.6.linux.bin.tar.gz doxygen/ && \
+	tar -zxvf doxygen-1.9.6.linux.bin.tar.gz && \
+	ln -s /build/doxygen-1.9.6/bin/doxygen /usr/local/bin/doxygen
 
 COPY	Source		./Source
 COPY	Resources	./Resources
