@@ -1,5 +1,5 @@
 
-\page json JSON implementation in Unreal Engine 4.27
+\page json JSON in Unreal Engine
 
 \section json_blueprint JSON in blueprint
 

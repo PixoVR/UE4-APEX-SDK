@@ -21,8 +21,15 @@
 
 #define STRING(NAME) #NAME
 
+/**
+	\namespace Apex
+	\brief The Apex root namespace
+*/
 namespace Apex
 {
+	/**
+		\namespace Apex::Verbs
+	*/
 	namespace Verbs
 	{
 		static const FString JOINED_SESSION = TEXT("https://pixovr.com/xapi/verbs/joined_session");
