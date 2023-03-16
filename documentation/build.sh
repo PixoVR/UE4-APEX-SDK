@@ -5,12 +5,6 @@ cd $DIR/doxygen
 
 source ../env.sh
 
-# may want to add this someday...
-# http://coherent-labs.com/blog/documenting-javascript-with-doxygen/
-
-# added unreal filter, but renamed the script
-# https://github.com/normalvector/ue4_doxygen_source_filter
-
 rm -rf ../html
 
 doxygen doxyfile
