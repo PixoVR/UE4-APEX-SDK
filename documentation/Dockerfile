@@ -6,7 +6,7 @@ MAINTAINER Chris Healer "chris.healer@pixovr.com"
 WORKDIR	/build
 
 RUN	apt-get update && \
-	apt-get install python3 doxygen -y	# may want to add a version when installing doxygen
+	apt-get install graphviz python3 doxygen -y	# may want to add a version when installing doxygen
 
 COPY	Source		./Source
 COPY	Resources	./Resources
