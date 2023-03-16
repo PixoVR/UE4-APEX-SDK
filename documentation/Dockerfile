@@ -7,11 +7,11 @@ MAINTAINER Chris Healer "chris.healer@pixovr.com"
 #	apt-get install -y graphviz python3 doxygen	# may want to add a version when installing doxygen
 
 RUN	apt-get update && \
-	apt-get install -y wget tar python3
+	apt-get install -y wget tar graphviz python3
 
 WORKDIR	/build
 
-RUN	wget https://www.doxygen.nl/files/doxygen-1.9.6.linux.bin.tar.gz && \
+RUN	wget -nv https://www.doxygen.nl/files/doxygen-1.9.6.linux.bin.tar.gz && \
 	tar -zxf doxygen-1.9.6.linux.bin.tar.gz && \
 	ln -s /build/doxygen-1.9.6/bin/doxygen /usr/local/bin/doxygen && \
 	doxygen -v
