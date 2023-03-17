@@ -32,7 +32,6 @@ DOXYFILE_ENCODING      = UTF-8
 # title of most generated pages and in a few other places.
 # The default value is: My Project.
 
-#PROJECT_NAME           = "ApexSDK"
 PROJECT_NAME           = $(PROJECT_NAME)
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. This
@@ -159,7 +158,7 @@ INLINE_INHERITED_MEMB  = NO
 # shortest path that makes the file name unique will be used
 # The default value is: YES.
 
-FULL_PATH_NAMES        = NO
+FULL_PATH_NAMES        = YES
 
 # The STRIP_FROM_PATH tag can be used to strip a user-defined part of the path.
 # Stripping is only done if one of the specified strings matches the left-hand
@@ -187,7 +186,7 @@ STRIP_FROM_INC_PATH    =
 # 
 # The default value is: NO.
 
-SHORT_NAMES            = NO
+SHORT_NAMES            = YES
 
 # If the JAVADOC_AUTOBRIEF tag is set to YES then doxygen will interpret the
 # first line (until the first dot) of a Javadoc-style comment as the brief
@@ -326,8 +325,9 @@ OPTIMIZE_OUTPUT_SLICE  = NO
 # Note that for custom extensions you also need to set FILE_PATTERNS otherwise
 # the files are not read by doxygen.
 
-EXTENSION_MAPPING      = js=Javascript \
-                         css=xml
+EXTENSION_MAPPING     = js=Javascript \
+			css=xml \
+			md=markdown
 
 # If the MARKDOWN_SUPPORT tag is enabled then doxygen pre-processes all comments
 # according to the Markdown format, which allows for more readable
@@ -470,7 +470,7 @@ LOOKUP_CACHE_SIZE      = 0
 # DOT_NUM_THREADS setting.
 # Minimum value: 0, maximum value: 32, default value: 1.
 
-NUM_PROC_THREADS       = 1
+NUM_PROC_THREADS       = 0
 
 #---------------------------------------------------------------------------
 # Build related configuration options
@@ -846,7 +846,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = "../pages" \
+INPUT                  = "../pages"		\
                          "../../Source/ApexSDK"
 
 # This tag can be used to specify the character encoding of the source files
@@ -1020,7 +1020,8 @@ INPUT_FILTER           = ./scripts/unreal_filter.py
 # need to set EXTENSION_MAPPING for the extension otherwise the files are not
 # properly processed by doxygen.
 
-FILTER_PATTERNS        = *.js=./scripts/javascriptFilter.bash
+FILTER_PATTERNS       = *.js=./scripts/javascriptFilter.bash \
+			*.md=./scripts/markdownFilter.bash
 
 # If the FILTER_SOURCE_FILES tag is set to YES, the input filter (if set using
 # INPUT_FILTER) will also be used to filter the input files that are used for
@@ -1042,7 +1043,8 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE = "../pages/main.md"
+#USE_MDFILE_AS_MAINPAGE = "../pages/main.md"
+USE_MDFILE_AS_MAINPAGE = $(MAIN_PAGE)
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
@@ -1154,9 +1156,8 @@ ALPHABETICAL_INDEX     = YES
 # while generating the index headers.
 # This tag requires that the tag ALPHABETICAL_INDEX is set to YES.
 
-IGNORE_PREFIX          = U \
-			F \
-			FX
+IGNORE_PREFIX         = U \
+			F
 
 #---------------------------------------------------------------------------
 # Configuration options related to the HTML output

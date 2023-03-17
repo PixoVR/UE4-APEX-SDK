@@ -238,6 +238,16 @@ div.contents ul li {
 	color: white;
 }
 
+#projectlogo
+{
+	padding: 3px;
+}
+
+#projectname
+{
+	text-shadow: 3px 3px 5px #000;
+}
+
 .navpath ul
 {
 	background-image: url('images/dots.jpg');
