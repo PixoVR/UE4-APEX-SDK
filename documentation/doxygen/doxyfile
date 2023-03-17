@@ -326,8 +326,7 @@ OPTIMIZE_OUTPUT_SLICE  = NO
 # the files are not read by doxygen.
 
 EXTENSION_MAPPING     = js=Javascript \
-			css=xml \
-			md=markdown
+			css=xml
 
 # If the MARKDOWN_SUPPORT tag is enabled then doxygen pre-processes all comments
 # according to the Markdown format, which allows for more readable

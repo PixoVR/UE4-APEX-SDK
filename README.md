@@ -6,7 +6,7 @@ Communication to the %Apex Server uses REST https JSON requests which follow the
 
  - Github Repo: $(PROJECT_REPO)
  - %Apex Server: $(APEX_SERVER_URL)
- - [xAPI Spec](https://github.com/adlnet/xAPI-Spec)
+ - xAPI Spec: https://github.com/adlnet/xAPI-Spec
 
 A demo project is provided in another repository.
 
