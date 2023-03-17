@@ -25,7 +25,10 @@ if [ -f "mdfiles.txt" ]; then
 		#echo $line
 		TAG=`grep "\\\\\page" $line | cut -f 2 -d " "`
 		#echo TAG: $TAG
-		[[ ! -z "$TAG" ]] && echo CLEANING: $TAG && sed -i.bak "/$TAG/d" ../html/*.js
+		[[ ! -z "$TAG" ]] && \
+			echo CLEANING: $TAG && \
+			sed -i.bak "/$TAG/d" ../html/*.js && \
+			sed -i.bak "/$TAG/d" ../html/search/*.js
 	done
 	rm mdfiles.txt
 fi
