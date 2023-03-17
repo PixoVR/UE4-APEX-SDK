@@ -16,7 +16,6 @@ RUN	wget -nv https://www.doxygen.nl/files/doxygen-1.9.6.linux.bin.tar.gz && \
 COPY	Source		./Source
 COPY	Resources	./Resources
 COPY	documentation	./documentation
-COPY	*.md		./documentation/pages
 
 RUN	chmod 755 ./documentation/doxygen/scripts/* && \
 	./documentation/build.sh
