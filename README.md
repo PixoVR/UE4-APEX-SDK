@@ -14,4 +14,6 @@ A demo project is provided in another repository.
  - \subpage login_auth "Login and Authentication"
  - \subpage json_blueprint "JSON in Blueprints"
 
+Project Info
 
+ - \subpage changelog "Changelog"

@@ -15,7 +15,7 @@ doxygen doxyfile
 
 cp -rv images ../html/images
 
-#cd ../html
+exit
 
 if [ -f "mdfiles.txt" ]; then
 
