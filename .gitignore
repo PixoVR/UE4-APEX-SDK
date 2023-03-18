@@ -21,7 +21,7 @@ tags
 # Persistent undo
 [._]*.un~
 
-#GITHUB
+#GITHUB UNREAL
 
 # Visual Studio 2015 user specific files
 .vs/

@@ -7,4 +7,4 @@ Component Name: VaRest
 
 License Type: "MIT"
 
-[VaRest License](https://github.com/ufna/VaRest/LICENSE)
+[VaRest License](https://github.com/ufna/VaRest/blob/develop/LICENSE)
