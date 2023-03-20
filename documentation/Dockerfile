@@ -15,15 +15,15 @@ RUN	wget -nv https://www.doxygen.nl/files/doxygen-1.9.6.linux.bin.tar.gz && \
 	rm doxygen-1.9.6.linux.bin.tar.gz && \
 	doxygen -v
 
-RUN	cp documentation/doxygen/doxygen-build-1.9.7/linux/doxygen /usr/local/bin/doxygen && \
-	doxygen -v
-
 #COPY	Source		./Source
 #COPY	Resources	./Resources
 #COPY	documentation	./documentation
 
 #...we also want the .md files, so basically we need the whole folder
 COPY	. .
+
+RUN	cp documentation/doxygen/doxygen-build-1.9.7/linux/doxygen /usr/local/bin/doxygen && \
+	doxygen -v
 
 RUN	chmod 755 ./documentation/doxygen/scripts/* && \
 	./documentation/build.sh
