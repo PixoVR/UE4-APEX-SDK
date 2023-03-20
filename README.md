@@ -9,15 +9,10 @@ Communication to the %Apex Server uses REST https JSON requests which follow the
  - xAPI Spec: https://github.com/adlnet/xAPI-Spec
 
 A demo project is provided in another repository.
+\todo Add a link to the demo project
 
  - \subpage getting_started
  - \subpage login_auth "Login and Authentication"
  - \subpage json_blueprint "JSON in Blueprints"
-
-Project Info
-
- - \subpage CHANGELOG
- - \subpage LICENSE
- - \subpage ThirdpartyNotice
 
 
