@@ -21,6 +21,10 @@ tags
 # Persistent undo
 [._]*.un~
 
+# APPLE
+
+.DS_store
+
 #GITHUB UNREAL
 
 # Visual Studio 2015 user specific files

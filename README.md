@@ -1,4 +1,4 @@
-# The ApexSDK
+\mainpage The ApexSDK
 
 Unreal Engine Plugin which implements the %Apex API, compatible with Unreal Engine **4.26.0** to **4.27.2**.
 
@@ -16,7 +16,8 @@ A demo project is provided in another repository.
 
 Project Info
 
- - [Changelog](../pages/CHANGELOG.md)
- - [License](../pages/LICENSE.md)
- - [Third Party Licenses](../pages/ThirdPartyNotice.md)
+ - \subpage CHANGELOG
+ - \subpage LICENSE
+ - \subpage ThirdpartyNotice
+
 
