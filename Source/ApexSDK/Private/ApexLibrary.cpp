@@ -8,7 +8,7 @@ FXAPIExtension UApexLibrary::CreateExtensionData(const TMap<FString, UVaRestJson
 {
     FXAPIExtension Extension;
 
-    for (const TTuple<FString, UVaRestJsonValue*> ValuePair : Data)
+    for (const TTuple<FString, UVaRestJsonValue*>& ValuePair : Data)
     {
         Extension.Add(ValuePair.Key, ValuePair.Value->GetRootValue());
     }
