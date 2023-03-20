@@ -8,12 +8,12 @@ RUN	apt-get update && \
 
 WORKDIR	/build
 
-RUN	wget -nv https://www.doxygen.nl/files/doxygen-1.9.6.linux.bin.tar.gz && \
-	tar -zxf doxygen-1.9.6.linux.bin.tar.gz && \
-	#ln -s /build/doxygen-1.9.6/bin/doxygen /usr/local/bin/doxygen && \
-	mv /build/doxygen-1.9.6/bin/doxygen /usr/local/bin/doxygen && \
-	rm doxygen-1.9.6.linux.bin.tar.gz && \
-	doxygen -v
+#RUN	wget -nv https://www.doxygen.nl/files/doxygen-1.9.6.linux.bin.tar.gz && \
+#	tar -zxf doxygen-1.9.6.linux.bin.tar.gz && \
+#	#ln -s /build/doxygen-1.9.6/bin/doxygen /usr/local/bin/doxygen && \
+#	mv /build/doxygen-1.9.6/bin/doxygen /usr/local/bin/doxygen && \
+#	rm doxygen-1.9.6.linux.bin.tar.gz && \
+#	doxygen -v
 
 #COPY	Source		./Source
 #COPY	Resources	./Resources
