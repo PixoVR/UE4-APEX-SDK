@@ -41,3 +41,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.1.6] - 2023-03-02
 ### Added editor only build code to wrap settings and prevent Windows build error when Android isn't configured.
 ### Removed the "EngineVersion" from the uplugin to prevent the warning.
+
+## [1.1.7] - 2023-03-20
+### Fixed foreach with const value to reference
