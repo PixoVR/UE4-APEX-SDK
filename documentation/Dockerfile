@@ -15,6 +15,9 @@ RUN	wget -nv https://www.doxygen.nl/files/doxygen-1.9.6.linux.bin.tar.gz && \
 	rm doxygen-1.9.6.linux.bin.tar.gz && \
 	doxygen -v
 
+RUN	cp documentation/doxygen/doxygen-build-1.9.7/linux/doxygen /usr/local/bin/doxygen && \
+	doxygen -v
+
 #COPY	Source		./Source
 #COPY	Resources	./Resources
 #COPY	documentation	./documentation
