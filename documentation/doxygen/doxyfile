@@ -2398,8 +2398,8 @@ UML_LOOK               = NO
 
 UML_LIMIT_NUM_FIELDS   = 10
 
-DOT_UML_DETAILS		= YES
-DOT_WRAP_THRESHOLD	= 17
+#DOT_UML_DETAILS		= YES
+#DOT_WRAP_THRESHOLD	= 17
 
 # If the TEMPLATE_RELATIONS tag is set to YES then the inheritance and
 # collaboration graphs will show the relations between templates and their
@@ -2598,6 +2598,6 @@ GENERATE_LEGEND        = YES
 
 DOT_CLEANUP            = YES
 
-MSCGEN_TOOL		=
-MSCFILE_DIRS		=
+#MSCGEN_TOOL		=
+#MSCFILE_DIRS		=
 
