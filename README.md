@@ -1,6 +1,6 @@
-\mainpage The ApexSDK
+\mainpage
 
-Unreal Engine Plugin which implements the %Apex API, compatible with Unreal Engine **4.26.0** to **4.27.2**.
+This is an Unreal Engine plugin which implements the %Apex API, supporting Unreal Engine **4.26.0** to **4.27.2**.
 
 Communication to the %Apex Server uses REST https JSON requests which follow the xAPI Standard.
 
@@ -8,11 +8,10 @@ Communication to the %Apex Server uses REST https JSON requests which follow the
  - %Apex Server: $(APEX_SERVER_URL)
  - xAPI Spec: https://github.com/adlnet/xAPI-Spec
 
-A demo project is provided in another repository.
-\todo Add a link to the demo project
+\todo Add a link to the demo project, provided in another repository.
 
  - \subpage getting_started
- - \subpage login_auth "Login and Authentication"
- - \subpage json_blueprint "JSON in Blueprints"
+ - \subpage login_auth
+ - \subpage json_blueprint
 
 

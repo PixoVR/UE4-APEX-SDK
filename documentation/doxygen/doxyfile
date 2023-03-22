@@ -44,7 +44,7 @@ PROJECT_NUMBER         =
 # for a project that appears at the top of each page and should give viewer a
 # quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          =
+PROJECT_BRIEF          = $(PROJECT_BRIEF)
 
 # With the PROJECT_LOGO tag one can specify a logo or an icon that is included
 # in the documentation. The maximum height of the logo should not exceed 55
@@ -1257,6 +1257,7 @@ HTML_EXTRA_STYLESHEET  = html/style.css
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 #HTML_EXTRA_FILES       = html/custom.js
+HTML_EXTRA_FILES	= html/headermenu.js
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to
