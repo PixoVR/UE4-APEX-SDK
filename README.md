@@ -1,4 +1,4 @@
-\mainpage
+\mainpage The SDK
 
 This is an Unreal Engine plugin which implements the %Apex API, supporting Unreal Engine **4.26.0** to **4.27.2**.
 
