@@ -20,11 +20,18 @@
 }
 */
 
+html
+{
+	--primary-color: hsl(33deg 100% 42.94%);
+	--primary-dark-color: hsl(42deg 43.02% 35.1%);
+	--primary-light-color: hsl(42deg 73.33% 67.65%);
+}
+
 html.dark-mode
 {
 	--primary-color: hsl(42deg 79% 56%);
-	--primary-dark-color: hsl(42 34% 65% / 1);
-	--primary-light-color: hsl(42 42% 48% / 1);
+	--primary-dark-color: hsl(42deg 34% 65% / 1);
+	--primary-light-color: hsl(42deg 42% 48% / 1);
 }
 
 html.dark-mode div.contents div.dyncontent img,
@@ -38,9 +45,10 @@ html.dark-mode div.contents .dotgraph iframe
 	filter: brightness(85%) hue-rotate(0deg) invert();
 }
 
-html.dark-mode .mlabels .mlabel
+html .mlabels .mlabel,
+html.dark-mode .mlabels .mlabel,
+html.dark-mode .icona .icon
 {
-	Xbackground: unset;
 	color: var(--page-background-color);
 }
 
@@ -90,5 +98,7 @@ html.dark-mode .mlabels .mlabel
 iframe
 {
 	padding: 20px;
+	filter: hue-rotate(180deg);
 }
+
 
