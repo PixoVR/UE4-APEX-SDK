@@ -7,11 +7,7 @@ source ../env.sh
 
 rm -rf ../html
 
-doxygen doxyfile
-
-cp -rv images ../html/images
-mv ../html/images/favicon/* ../html/
-rmdir ../html/images/favicon
+doxygen Doxyfile
 
 cd ../
 

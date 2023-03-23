@@ -1,0 +1,94 @@
+/*
+	PixoVR custom
+*/
+
+#doc-content
+{
+	padding-top: unset !important;
+}
+
+#nav-sync
+{
+	display: none;
+}
+
+/*
+#projectlogo img
+{
+	width: 44px;
+	height: 44px;
+}
+*/
+
+html.dark-mode
+{
+	--primary-color: hsl(42deg 79% 56%);
+	--primary-dark-color: hsl(42 34% 65% / 1);
+	--primary-light-color: hsl(42 42% 48% / 1);
+}
+
+html.dark-mode div.contents div.dyncontent img,
+html.dark-mode div.contents center img,
+html.dark-mode div.contents > table img,
+html.dark-mode div.contents div.dyncontent iframe,
+html.dark-mode div.contents center iframe,
+html.dark-mode div.contents table iframe,
+html.dark-mode div.contents .dotgraph iframe
+{
+	filter: brightness(85%) hue-rotate(0deg) invert();
+}
+
+html.dark-mode .mlabels .mlabel
+{
+	Xbackground: unset;
+	color: var(--page-background-color);
+}
+
+#projectswitcher
+{
+	font-family: var(--font-family);
+	font-size: var(--title-font-size);
+	font-weight: 600;
+
+	border: 1px solid transparent;
+	border-radius: 20px;
+
+	background: none;
+	color: var(--page-foreground-color);
+
+	cursor: pointer;
+
+	position: relative;
+	left: -9px;
+	top: 6px;
+
+	padding: 0px 0px 0px 5px;
+	margin: 0px;
+}
+
+#projectswitcher:hover
+{
+	background: var(--page-background-color);
+	
+	border: 1px solid var(--separator-color);
+	border-image: initial;
+
+	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+#projectswitcher:active
+{
+	font-size: var(--page-font-size);
+}
+
+#projectnumber
+{
+	position: relative;
+	top: 6px;
+}
+
+iframe
+{
+	padding: 20px;
+}
+
