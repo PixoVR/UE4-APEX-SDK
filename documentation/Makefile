@@ -2,7 +2,7 @@
 all: build run
 
 build:
-	docker build .. -f ./Dockerfile -t ue4-docs
+	docker build .. -f ./Dockerfile -t apexsdk-unreal-docs
 
 run:
-	docker run --rm -it -p 3000:3000 ue4-docs
+	docker run --rm -it -p 3000:3000 apexsdk-unreal-docs

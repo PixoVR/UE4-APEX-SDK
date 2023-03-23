@@ -4,22 +4,10 @@ FROM	nginx AS builder
 MAINTAINER Chris Healer "chris.healer@pixovr.com"
 
 RUN	apt-get update && \
-	apt-get install -y wget tar graphviz python3
+	apt-get install -y graphviz python3 git
 
 WORKDIR	/build
 
-#RUN	wget -nv https://www.doxygen.nl/files/doxygen-1.9.6.linux.bin.tar.gz && \
-#	tar -zxf doxygen-1.9.6.linux.bin.tar.gz && \
-#	#ln -s /build/doxygen-1.9.6/bin/doxygen /usr/local/bin/doxygen && \
-#	mv /build/doxygen-1.9.6/bin/doxygen /usr/local/bin/doxygen && \
-#	rm doxygen-1.9.6.linux.bin.tar.gz && \
-#	doxygen -v
-
-#COPY	Source		./Source
-#COPY	Resources	./Resources
-#COPY	documentation	./documentation
-
-#...we also want the .md files, so basically we need the whole folder
 COPY	. .
 
 RUN	cp documentation/doxygen/doxygen-build-1.9.7/linux/doxygen /usr/local/bin/doxygen && \
