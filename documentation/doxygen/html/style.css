@@ -2048,6 +2048,7 @@ body {
 .sm-dox
 {
 	padding: 0px !important;
+	background: black;
 	background-image: url('images/dots.jpg');
 }
 
@@ -2088,6 +2089,7 @@ body {
 
 .navpath ul
 {
+	background: black;
 	background-image: url('images/dots.jpg');
 	height: 32px;
 	border: none;
@@ -2116,6 +2118,7 @@ div.qindex, div.navpath
 
 #nav-tree .selected
 {
+	background: black;
 	background-image: url('images/dots.jpg');
 }
 
