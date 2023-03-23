@@ -23,6 +23,7 @@ WORKDIR	/build
 COPY	. .
 
 RUN	cp documentation/doxygen/doxygen-build-1.9.7/linux/doxygen /usr/local/bin/doxygen && \
+	chmod 777 /urs/local/bin/doxygen && \
 	doxygen -v
 
 RUN	chmod 755 ./documentation/doxygen/scripts/* && \
