@@ -38,9 +38,11 @@ def makeQualifier(match):
 	qualifier = ""
 	if parts is None:
 		#qualifier = "bad regex for %s" % (macro)
-		pass
+		return match.group(0)
 	else:
 		q = parts.group(2)
+		#if (len(q.strip())==0):	# case of empty USTRUCT()
+		#	return q
 		q = re.sub('\(','{',q)
 		q = re.sub('\)','}',q)
 		#print(q, file=sys.stderr)
@@ -59,7 +61,6 @@ def makeQualifier(match):
 		for i in k:
 			qualifier += "\t\\qualifier "+i+"\n"
 
-	#return "%s/**\n\t\\details **%s**\n%s*/" % (match.group(1), match.group(2), qualifier)
 	return "%s/**\n\t\\brief **%s**\n%s*/" % (match.group(1), match.group(2), qualifier)
 
 # Do a regular expression to replace all UE4 macros, include balanced params
