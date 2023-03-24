@@ -59,7 +59,8 @@ def makeQualifier(match):
 		for i in k:
 			qualifier += "\t\\qualifier "+i+"\n"
 
-	return "%s/**\n\t\\details **%s**\n%s*/" % (match.group(1), match.group(2), qualifier)
+	#return "%s/**\n\t\\details **%s**\n%s*/" % (match.group(1), match.group(2), qualifier)
+	return "%s/**\n\t\\brief **%s**\n%s*/" % (match.group(1), match.group(2), qualifier)
 
 # Do a regular expression to replace all UE4 macros, include balanced params
 regex = '^(\s*)((?:'+macros+')\s*\('+paren_matcher(25)+'\))'

@@ -14,5 +14,19 @@ if file.closed:
     sys.exit(1)
 content = file.read()
 
+def makeQualifier(match):
+	#print(match)
+	decorator = match.group(2)
+	#decorator = decorator.replace(".","\\\\\.")
+
+	return "%s/** \\brief **%s**\n%s    \\qualifier \"%s\"\n%s*/\n%s" % (match.group(1), match.group(0).strip(), match.group(1), decorator, match.group(1), match.group(0))
+
+
+# Do a regular expression to replace all UE4 macros, include balanced params
+decorators = "System\.Serializable|SerializeField|Serializable"
+regex = '^(\s*)\[\s*('+decorators+')\s*\]'
+
+content = re.sub(regex, makeQualifier, content, flags=re.MULTILINE)
+
 # Output the content
 print(content, end='')
