@@ -87,6 +87,12 @@ html.dark-mode .icona .icon
 #projectswitcher:active
 {
 	font-size: var(--page-font-size);
+	outline: 1px solid red;
+}
+
+#projectswitcher:focus
+{
+	outline: none;
 }
 
 #projectnumber

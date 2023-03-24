@@ -14,12 +14,12 @@ RUN	cp documentation/doxygen/doxygen-build-1.9.7/linux/doxygen /usr/local/bin/do
 	chmod 777 /usr/local/bin/doxygen && \
 	doxygen -v
 
-RUN	chmod 755 ./documentation/doxygen/scripts/* && \
+RUN	chmod 755 ./documentation/scripts/* && \
 	./documentation/build.sh
 
 FROM	nginx:1.23.3-alpine
 
-COPY	documentation/nginx.conf /etc/nginx/
+COPY	documentation/docker/nginx.conf /etc/nginx/
 RUN	rm /etc/nginx/conf.d/default.conf
 
 COPY	--from=builder /build/documentation/html/ /var/www/html
