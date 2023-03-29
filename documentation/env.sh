@@ -3,6 +3,7 @@
 export PROJECT_NAME='ApexSDK - Unreal'
 export PROJECT_VERSION=`cd ..; git tag | tail -n 1`
 export PROJECT_BRIEF='Documentation for the Unreal C++ Library'
+export PROJECT_STATUS='active'						# project status, for publishing.  Recognized choices are 'active' (default if not present), 'inactive' (invisable and won't appear in the documentation menu), 'deprecated' (visible in menu, but marked deprecated)
 export PROJECT_LOGO='../Resources/Icon128.png'
 export PROJECT_REPO='https://github.com/PixoVR/UE4-APEX-SDK/'
 export PROJECT_URL='/ApexSDK-Unreal'
