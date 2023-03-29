@@ -34,7 +34,16 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexTopTenDataFail, class UVaRestR
 
 
 /**
- *
+ 	\class UApexAPI
+	\brief some stuff here about how the API root works.
+
+	We want to talk a lot about Apex here in length that will wrap on new lines and take up a lot of space.
+
+	\todo feed the dog.
+
+	\warning blah blah
+
+	\note blah blah
  */
 UCLASS(BlueprintType, Blueprintable)
 class APEXSDK_API UApexAPI : public UGameInstanceSubsystem
@@ -43,6 +52,11 @@ class APEXSDK_API UApexAPI : public UGameInstanceSubsystem
 
 public:
 
+	/**
+	* \brief The API URL
+	* 
+	* \sa ScenarioId
+	*/
 	UPROPERTY(BlueprintReadOnly)
 	FString URL;
 
@@ -154,7 +168,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
 	FOnApexTopTenDataComplete OnFetchTopTenComplete;
-	
+
 	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
 	FOnApexTopTenDataFail OnFetchTopTenFail;
 
