@@ -1,4 +1,4 @@
 [submodule "documentation/docs-doxygen"]
 	path = documentation/docs-doxygen
-	url = git@github.com:PixoVR/docs-doxygen.git
+	url = https://github.com/PixoVR/docs-doxygen.git
 	branch = main
