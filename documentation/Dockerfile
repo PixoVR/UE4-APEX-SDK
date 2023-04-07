@@ -8,6 +8,8 @@ COPY	. .
 
 RUN	doxygen -v	# confirm doxygen version from docs-docker-base
 
+RUN	git submodule update --init documentation/docs-doxygen/
+
 RUN	./documentation/build.sh && \
 	cp -r ./documentation/html /var/www/
 
