@@ -8,7 +8,7 @@ COPY	. .
 
 RUN	doxygen -v	# confirm doxygen version from docs-docker-base
 
-RUN	git submodule set-branch --branch main documentation/docs-doxygen && \
+RUN	##git submodule set-branch --branch main documentation/docs-doxygen && \
 	git submodule update --init documentation/docs-doxygen
 
 RUN	./documentation/build.sh && \
