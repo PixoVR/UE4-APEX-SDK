@@ -25,12 +25,12 @@ void FApexSDKModule::StartupModule()
 	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
 	{
 		SettingsModule->RegisterSettings("Project", "Plugins", "ApexSDK",
-			LOCTEXT("RuntimeSettingsName", "ApexSDK"),
+			LOCTEXT("RuntimeSettingsName", "Apex SDK"),
 			LOCTEXT("RuntimeSettingsDescription", "Configure Apex SDK plugin settings"),
 			ModuleSettings);
 	}
 
-	LogAPEX("%s: ApexSDK (%s) module started", *APEX_FUNC_LINE, TEXT("0.1")/**UVaRestLibrary::GetVaRestVersion()*/);
+	LogAPEX("%s: ApexSDK (%s) module started", *APEX_FUNC_LINE, *UApexLibrary::GetApexSDKVersion());
 }
 
 void FApexSDKModule::ShutdownModule()

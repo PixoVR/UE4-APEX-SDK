@@ -1,4 +1,4 @@
-// Copyright 2022 PixoVR Corp.
+// Copyright 2022 PixoVR Corp. All Rights Reserved.
 
 using System.IO;
 
@@ -32,7 +32,8 @@ namespace UnrealBuildTool.Rules
 			PrivateDependencyModuleNames.AddRange(
 				new string[]
 				{
-					"WebSockets"
+					"WebSockets",
+					"Projects"
 				});
 
 			if (Target.bBuildEditor == true)

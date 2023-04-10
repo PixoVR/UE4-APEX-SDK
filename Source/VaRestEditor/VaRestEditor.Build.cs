@@ -20,7 +20,7 @@ public class VaRestEditor : ModuleRules
 			new string[]
 			{
 				"Core",
-                "VaRest"
+				"VaRest"
 
 				// ... add other public dependencies that you statically link with here ...
 			});

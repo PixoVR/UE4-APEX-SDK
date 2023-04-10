@@ -41,3 +41,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.1.6] - 2023-03-02
 ### Added editor only build code to wrap settings and prevent Windows build error when Android isn't configured.
 ### Removed the "EngineVersion" from the uplugin to prevent the warning.
+
+## [1.2.0] - 2023-03-06
+### Adds a hook-up to the websocket system allowing access to Single Sign On (SSO) responses.
+### Adds a function to retrieve SSO Pin.
+### Adds callback when the SSO Pin has been successfully entered and the user is logged in.
+### Adds the ability to Logout. Adds a flag to Login to logout the previous user someone else logs in.
+### Changes the Version to a single string, with the PixoVR Versioning enforced.

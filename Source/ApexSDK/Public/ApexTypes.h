@@ -326,8 +326,6 @@ struct APEXSDK_API FAPEXOrganization : public FJsonable
     FString Name;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Apex Org")
     FString Status;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Apex Org")
-    FString DownloadRegion;
 
 public:
     virtual ~FAPEXOrganization() { }
@@ -337,7 +335,6 @@ public:
         ID = JObject->GetIntegerField("ID");
         Name = JObject->GetStringField("Name");
         Status = JObject->GetStringField("Status");
-        DownloadRegion = JObject->GetStringField("DownloadRegion");
     }
 
     virtual TSharedPtr<FJsonObject> ToJsonObject() const override
@@ -347,7 +344,6 @@ public:
         Result->SetNumberField("ID", ID);
         Result->SetStringField("Name", Name);
         Result->SetStringField("Status", Status);
-        Result->SetStringField("DownloadRegion", DownloadRegion);
 
         return Result;
     }

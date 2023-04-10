@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2022 PixoVR Corp. All Rights Reserved.
 
 #pragma once
 
@@ -16,22 +16,35 @@ enum EApexRequestType
 {
 	Ping,
 	Login,
+	Logout,
 	JoinSession,
 	SessionEvent,
 	CompleteSession
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexRequestComplete, EApexRequestType, RequestType, class UVaRestRequestJSON*, Request);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnApexRequestFail, EApexRequestType, RequestType, class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse);
+#pragma region EventDelegates
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnApexWebSocketConnected);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnApexWebSocketConnectFailed, const FString&, Error);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnApexWebSocketDisconnected, int32, StatusCode, const FString&, Reason, bool, bWasClean);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnApexAuthCodeRetrieved, const FString&, AuthorizationCode);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexTopTenDataComplete, class UVaRestRequestJSON*, Request, FTopTenData, TopTenData);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexTopTenDataFail, class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedFetchResponse);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexRequestComplete, EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnApexRequestFail, EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse);
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestComplete, EApexRequestType, class UVaRestRequestJSON*);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestFail, EApexRequestType, class UVaRestRequestJSON*);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexTopTenDataComplete, const class UVaRestRequestJSON*, Request, FTopTenData, TopTenData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexTopTenDataFail, const class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedFetchResponse);
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexTopTenDataComplete, class UVaRestRequestJSON*, FTopTenData);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexTopTenDataFail, class UVaRestRequestJSON*, FAPEXRequestFailed);
+DECLARE_MULTICAST_DELEGATE(FOnStaticApexWebSocketConnected);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaticApexWebSocketConnectFailed, const FString&);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnStaticApexWebSocketDisconnected, int32, const FString&, bool);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaticApexAuthCodeRetrieved, const FString&);
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestComplete, EApexRequestType, const class UVaRestRequestJSON*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexRequestFail, EApexRequestType, const class UVaRestRequestJSON*);
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexTopTenDataComplete, const class UVaRestRequestJSON*, FTopTenData);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexTopTenDataFail, const class UVaRestRequestJSON*, FAPEXRequestFailed);
+#pragma endregion EventDelegates
 
 /**
  *
@@ -43,8 +56,12 @@ class APEXSDK_API UApexAPI : public UGameInstanceSubsystem
 
 public:
 
+#pragma region PublicProperties
 	UPROPERTY(BlueprintReadOnly)
 	FString URL;
+
+	UPROPERTY(BlueprintReadOnly)
+	FString WebSocketURL;
 
 	UPROPERTY(BlueprintReadOnly)
 	FString ScenarioId;
@@ -72,11 +89,15 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	FUserSessionData CurrentActiveLogin;
+#pragma endregion PublicProperties
 
 protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool SessionInProgress;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool WebSocketEnabled;
 
 public:
 	UApexAPI();
@@ -89,8 +110,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void Login(const FApexLoginInfo& InLoginInfo);
 
-	// Login with Auth Code
-	// Uses OnLoginCompleteDelegate and OnLoginFailDelegate
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	void Logout();
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	bool IsWebSocketConnected();
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API", meta = (Tooltip = "This function only needs to be called when a user has logged out."))
+	void ConnectWebSocketService();
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	void RequestAuthorizationCode();
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	bool JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension);
@@ -115,48 +145,55 @@ public:
 
 protected:
 
+#pragma region PrivateFunctions
 	bool FetchTopTen(int UserId, float TimePriorToToday, FString Scenario, int OrgUnit);
+	void HandleLogin(class UVaRestJsonObject* LoginJsonObject);
 	void VerifyModuleAcess();
+	void SetupModuleSettings();
 
-protected:
+	void OnLoginComplete(const class UVaRestRequestJSON* Request);
+	void OnLoginFail(const class UVaRestRequestJSON* Request);
+	void OnLogoutComplete(const class UVaRestRequestJSON* Request);
+	void OnLogoutFail(const class UVaRestRequestJSON* Request);
+	void OnUserVerificationComplete(const class UVaRestRequestJSON* Request);
+	void OnUserVerificationFail(const class UVaRestRequestJSON* Request);
+	void OnPingComplete(const class UVaRestRequestJSON* Request);
+	void OnPingFail(const class UVaRestRequestJSON* Request);
+	void OnJoinSessionComplete(const class UVaRestRequestJSON* Request);
+	void OnJoinSessionFail(const class UVaRestRequestJSON* Request);
+	void OnCompleteSessionComplete(const class UVaRestRequestJSON* Request);
+	void OnCompleteSessionFail(const class UVaRestRequestJSON* Request);
+	void OnSendSessionEventComplete(const class UVaRestRequestJSON* Request);
+	void OnSendSessionEventFail(const class UVaRestRequestJSON* Request);
+	void OnTopTenComplete(const class UVaRestRequestJSON* Request);
+	void OnTopTenFail(const class UVaRestRequestJSON* Request);
+#pragma endregion PrivateFunctions
+
+private:
+
+#pragma region PrivateVariables
 	class UVaRestSubsystem* VaRestSubsystem;
 	class UApexSDKSettings* ApexSettings;
 
 	FString AuthorizationToken;
 
-	FScriptDelegate OnPingCompleteDelegate;
-	FScriptDelegate OnPingFailDelegate;
-	FScriptDelegate OnLoginCompleteDelegate;
-	FScriptDelegate OnLoginFailDelegate;
-	FScriptDelegate OnUserVerificationCompleteDelegate;
-	FScriptDelegate OnUserVerificationFailDelegate;
-	FScriptDelegate OnJoinSessionCompleteDelegate;
-	FScriptDelegate OnJoinSessionFailDelegate;
-	FScriptDelegate OnCompleteSessionCompleteDelegate;
-	FScriptDelegate OnCompleteSessionFailDelegate;
-	FScriptDelegate OnSendSessionEventCompleteDelegate;
-	FScriptDelegate OnSendSessionEventFailDelegate;
-	FScriptDelegate OnTopTenCompleteDelegate;
-	FScriptDelegate OnTopTenFailDelegate;
-
 	TUniquePtr<ApexWebSocket> ApexSocket;
+#pragma endregion PrivateVariables
 
 public:
 
-	/** Event occured when the request has been completed */
+#pragma region Events
+	// General Apex Requests
 	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
 	FOnApexRequestComplete OnRequestComplete;
 
-	/** Event occured when the request wasn't successfull */
 	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
 	FOnApexRequestFail OnRequestFail;
 
-	/** Event occured when the request has been completed */
 	FOnStaticApexRequestComplete OnStaticRequestComplete;
-
-	/** Event occured when the request wasn't successfull */
 	FOnStaticApexRequestFail OnStaticRequestFail;
 
+	// Fetch Score Requests
 	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
 	FOnApexTopTenDataComplete OnFetchTopTenComplete;
 	
@@ -167,47 +204,25 @@ public:
 
 	FOnStaticApexTopTenDataFail OnStaticFetchTopTenFail;
 
-public:
+	// Web Socket Events
+	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	FOnApexWebSocketConnected OnWebSocketConnected;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	FOnApexWebSocketConnectFailed OnWebSocketConnectFailed;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	FOnApexWebSocketDisconnected OnWebSocketDisconnected;
 
-	UFUNCTION(Category = "Apex|API")
-	void OnLoginComplete(class UVaRestRequestJSON* Request);
+	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	FOnApexAuthCodeRetrieved OnAuthorizationCodeRetrieved;
 
-	UFUNCTION(Category = "Apex|API")
-	void OnLoginFail(class UVaRestRequestJSON* Request);
+	FOnStaticApexWebSocketConnected OnStaticWebSocketConnected;
 
-	UFUNCTION(Category = "Apex|API")
-	void OnUserVerificationComplete(class UVaRestRequestJSON* Request);
+	FOnStaticApexWebSocketConnectFailed OnStaticWebSocketConnectFailed;
 
-	UFUNCTION(Category = "Apex|API")
-	void OnUserVerificationFail(class UVaRestRequestJSON* Request);
+	FOnStaticApexWebSocketDisconnected OnStaticWebSocketDisconnected;
 
-	UFUNCTION(Category = "Apex|API")
-	void OnPingComplete(class UVaRestRequestJSON* Request);
-
-	UFUNCTION(Category = "Apex|API")
-	void OnPingFail(class UVaRestRequestJSON* Request);
-
-	UFUNCTION(Category = "Apex|API")
-	void OnJoinSessionComplete(class UVaRestRequestJSON* Request);
-
-	UFUNCTION(Category = "Apex|API")
-	void OnJoinSessionFail(class UVaRestRequestJSON* Request);
-
-	UFUNCTION(Category = "Apex|API")
-	void OnCompleteSessionComplete(class UVaRestRequestJSON* Request);
-
-	UFUNCTION(Category = "Apex|API")
-	void OnCompleteSessionFail(class UVaRestRequestJSON* Request);
-
-	UFUNCTION(Category = "Apex|API")
-	void OnSendSessionEventComplete(class UVaRestRequestJSON* Request);
-
-	UFUNCTION(Category = "Apex|API")
-	void OnSendSessionEventFail(class UVaRestRequestJSON* Request);
-
-	UFUNCTION(Category = "Apex|API")
-	void OnTopTenComplete(class UVaRestRequestJSON* Request);
-
-	UFUNCTION(Category = "Apex|API")
-	void OnTopTenFail(class UVaRestRequestJSON* Request);
+	FOnStaticApexAuthCodeRetrieved OnStaticAuthorizationCodeRetrieved;
+#pragma endregion Events
 };

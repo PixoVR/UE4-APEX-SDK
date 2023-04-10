@@ -1,17 +1,25 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright 2022 PixoVR Corp. All Rights Reserved.
 
 #include "ApexLibrary.h"
+
+#include "Interfaces/IPluginManager.h"
 #include "XAPITypes.h"
 
 FXAPIExtension UApexLibrary::CreateExtensionData(const TMap<FString, UVaRestJsonValue*>& Data)
 {
     FXAPIExtension Extension;
 
-    for (const TTuple<FString, UVaRestJsonValue*> ValuePair : Data)
+    for (const TTuple<FString, UVaRestJsonValue*>& ValuePair : Data)
     {
         Extension.Add(ValuePair.Key, ValuePair.Value->GetRootValue());
     }
 
     return Extension;
+}
+
+FString UApexLibrary::GetApexSDKVersion()
+{
+    const auto PluginRef = IPluginManager::Get().FindPlugin("ApexSDK");
+
+    return !PluginRef.IsValid() ? FString("invalid") : PluginRef->GetDescriptor().VersionName;
 }
