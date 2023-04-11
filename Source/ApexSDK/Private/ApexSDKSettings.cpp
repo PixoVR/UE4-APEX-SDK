@@ -23,33 +23,6 @@ UApexSDKSettings::UApexSDKSettings(const FObjectInitializer& ObjectInitializer)
 	bSyncVersion = true;
 }
 
-#if WITH_EDITORONLY_DATA
-void UApexSDKSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	if (PropertyChangedEvent.Property != nullptr)
-	{
-		const FName PropertyName(PropertyChangedEvent.Property->GetFName());
-		if (PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, ModuleVersion) ||
-			PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, bSyncVersion) ||
-			PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, AdditionalVersionFields))
-		{
-			TArray<FString> ModuleVersionParts;
-			if (GetModuleVersionArray(ModuleVersion, ModuleVersionParts))
-			{
-				if (bSyncVersion)
-				{
-					UpdateVersion(ModuleVersionParts, AdditionalVersionFields);
-				}
-			}
-			else
-			{
-				ErrorAPEX("Module Version %s is invalid.", *ModuleVersion);
-			}
-		}
-	}
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-}
-
 bool UApexSDKSettings::CheckModuleVersion()
 {
 	TArray<FString> ModuleVersionArray;
@@ -81,6 +54,33 @@ bool UApexSDKSettings::GetModuleVersionArray(FString Version, TArray<FString>& M
 	}
 
 	return true;
+}
+
+#if WITH_EDITORONLY_DATA
+void UApexSDKSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	if (PropertyChangedEvent.Property != nullptr)
+	{
+		const FName PropertyName(PropertyChangedEvent.Property->GetFName());
+		if (PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, ModuleVersion) ||
+			PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, bSyncVersion) ||
+			PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, AdditionalVersionFields))
+		{
+			TArray<FString> ModuleVersionParts;
+			if (GetModuleVersionArray(ModuleVersion, ModuleVersionParts))
+			{
+				if (bSyncVersion)
+				{
+					UpdateVersion(ModuleVersionParts, AdditionalVersionFields);
+				}
+			}
+			else
+			{
+				ErrorAPEX("Module Version %s is invalid.", *ModuleVersion);
+			}
+		}
+	}
+	Super::PostEditChangeProperty(PropertyChangedEvent);
 }
 
 void UApexSDKSettings::UpdateVersion(const TArray<FString>& VersionParts, const TArray<EPVRVersionFields>& Fields)
