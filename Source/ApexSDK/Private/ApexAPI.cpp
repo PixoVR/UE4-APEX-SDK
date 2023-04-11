@@ -179,8 +179,13 @@ void UApexAPI::OnPingFail(const UVaRestRequestJSON* Request)
     OnStaticRequestFail.Broadcast(EApexRequestType::Ping, Request);
 }
 
-void UApexAPI::Login(const FApexLoginInfo& InLoginInfo)
+void UApexAPI::Login(const FApexLoginInfo& InLoginInfo, bool bShouldLogout)
 {
+    if (bShouldLogout && CurrentActiveLogin.IsSet())
+    {
+        Logout();
+    }
+
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
     FString RequestURL = URL + "/login";
     Request->SetURL(RequestURL);
@@ -205,6 +210,7 @@ void UApexAPI::OnLoginComplete(const UVaRestRequestJSON* Request)
     {
         if (!Request->GetResponseObject()->GetRootObject()->HasField("Error"))
         {
+            FailedResponse = false;
             HandleLogin(Request->GetResponseObject());
         }
     }
@@ -245,9 +251,11 @@ void UApexAPI::HandleLogin(UVaRestJsonObject* LoginJsonObject)
 
 void UApexAPI::Logout()
 {
+    const UVaRestRequestJSON* DummyRequestJSON = VaRestSubsystem->ConstructVaRestRequest();
     if (CurrentActiveLogin.IsSet())
     {
-        UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
+        // TODO MGruber - Uncomment once the logout endpoint is added to the v2 of the platform API.
+        /*UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
         FString RequestURL = URL + "/logout";
         Request->SetURL(RequestURL);
 
@@ -259,9 +267,25 @@ void UApexAPI::Logout()
         Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLogoutComplete(Request); });
         Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLogoutFail(Request); });
 
-        Request->ExecuteProcessRequest();
+        Request->ExecuteProcessRequest();*/
 
         CurrentActiveLogin.Invalidate();
+
+        OnRequestComplete.Broadcast(EApexRequestType::Logout, DummyRequestJSON);
+        OnStaticRequestComplete.Broadcast(EApexRequestType::Logout, DummyRequestJSON);
+    }
+    else
+    {
+        FAPEXRequestFailed APEXFailedRequest;
+        APEXFailedRequest.Error = true;
+        APEXFailedRequest.Message = "No user currently logged in.";
+
+        UVaRestJsonObject* ResponseObject = DummyRequestJSON->GetResponseObject();
+        ResponseObject->SetBoolField("Error", APEXFailedRequest.Error);
+        ResponseObject->SetStringField("Message", APEXFailedRequest.Message);
+
+        OnRequestFail.Broadcast(EApexRequestType::Logout, DummyRequestJSON, APEXFailedRequest);
+        OnStaticRequestFail.Broadcast(EApexRequestType::Logout, DummyRequestJSON);
     }
 }
 

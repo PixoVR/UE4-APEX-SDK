@@ -46,5 +46,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Adds a hook-up to the websocket system allowing access to Single Sign On (SSO) responses.
 ### Adds a function to retrieve SSO Pin.
 ### Adds callback when the SSO Pin has been successfully entered and the user is logged in.
-### Adds the ability to Logout. Adds a flag to Login to logout the previous user someone else logs in.
+### Adds the function for Logout. Currently only clears internal information for the current logged in user.
+### Adds a flag to Login to logout the previous user someone else logs in.
 ### Changes the Version to a single string, with the PixoVR Versioning enforced.
+### Updates Failure Responses to add the HttpCode string field.

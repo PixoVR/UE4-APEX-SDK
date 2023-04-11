@@ -97,12 +97,16 @@ struct APEXSDK_API FAPEXRequestFailed : public FJsonable
     bool Error;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
+    FString HttpCode;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
     FString Message;
 
     FAPEXRequestFailed()
     {
         // Create a default
         Error = true;
+        HttpCode = TEXT("400");
         Message = TEXT("There is a server connection error. Please check that there is a valid URL being used or check if APEX is down.");
     }
 
@@ -110,6 +114,9 @@ struct APEXSDK_API FAPEXRequestFailed : public FJsonable
     {
         if(JObject->HasField("Error"))
             Error = JObject->GetBoolField("Error");
+
+        if (JObject->HasField("HttpCode"))
+            HttpCode = JObject->GetStringField("HttpCode");
     
         if (JObject->HasField("Message"))
             Message = JObject->GetStringField("Message");

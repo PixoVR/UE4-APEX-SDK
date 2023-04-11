@@ -108,7 +108,7 @@ public:
 	void Ping();
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	void Login(const FApexLoginInfo& InLoginInfo);
+	void Login(const FApexLoginInfo& InLoginInfo, bool bShouldLogout = true);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void Logout();
