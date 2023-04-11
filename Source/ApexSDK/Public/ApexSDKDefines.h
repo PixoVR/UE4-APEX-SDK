@@ -5,31 +5,10 @@
 #define APEX_LINE (FString::FromInt(__LINE__))         // Current Line Number in the code where this is called
 #define APEX_FUNC_LINE (APEX_FUNC + "(" + APEX_LINE + ")") // Current Class and Line Number where this is called!
 
-// Create a set of delegates and functions for a request
-#define CREATE_REQUEST_DELEGATE(NAME) \
-	FScriptDelegate On##NAME##CompleteDelegate; \
-	FScriptDelegate On##NAME##FailDelegate; \
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")\
-	void On##NAME##Complete(class UVaRestRequestJSON* Request); \
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")\
-	void On##NAME##Fail(class UVaRestRequestJSON* Request);
-
-// Easy to use to bind previous added functions to the appropriate script delegates
-#define BIND_REQUEST_DELEGATE(NAME) \
-	On##NAME##CompleteDelegate.BindUFunction(this, STRING(On##NAME##Complete)); \
-	On##NAME##FailDelegate.BindUFunction(this, STRING(On##NAME##Fail)); \
-
 #define STRING(NAME) #NAME
 
-/**
-	\namespace Apex
-	\brief The Apex root namespace
-*/
 namespace Apex
 {
-	/**
-		\namespace Apex::Verbs
-	*/
 	namespace Verbs
 	{
 		static const FString JOINED_SESSION = TEXT("https://pixovr.com/xapi/verbs/joined_session");

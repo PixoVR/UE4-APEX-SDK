@@ -7,14 +7,19 @@
 #include "AndroidRuntimeSettings.h"
 #endif
 
+DEFINE_LOG_CATEGORY_STATIC(LogApexSDKSettings, Log, All);
+
+#define LogAPEX(pmt, ...) UE_LOG(LogApexSDKSettings, Log, TEXT(pmt), ##__VA_ARGS__)
+#define WarnAPEX(pmt, ...) UE_LOG(LogApexSDKSettings, Warning, TEXT(pmt), ##__VA_ARGS__)
+#define ErrorAPEX(pmt, ...) UE_LOG(LogApexSDKSettings, Error, TEXT(pmt), ##__VA_ARGS__)
+#define FatalAPEX(pmt, ...) UE_LOG(LogApexSDKSettings, Fatal, TEXT(pmt), ##__VA_ARGS__)
+
 UApexSDKSettings::UApexSDKSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	ServerURI = "";
 	ModuleId = -1;
-	MajorVerison = 1;
-	MinorVersion = 0;
-	PatchVersion = 0;
+	ModuleVersion = "1.00.00";
 	bSyncVersion = true;
 }
 
@@ -24,23 +29,66 @@ void UApexSDKSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 	if (PropertyChangedEvent.Property != nullptr)
 	{
 		const FName PropertyName(PropertyChangedEvent.Property->GetFName());
-		if (PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, MajorVerison) ||
-			PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, MinorVersion) ||
-			PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, PatchVersion) ||
+		if (PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, ModuleVersion) ||
 			PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, bSyncVersion) ||
 			PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, AdditionalVersionFields))
 		{
-			if (bSyncVersion)
+			TArray<FString> ModuleVersionParts;
+			if (GetModuleVersionArray(ModuleVersion, ModuleVersionParts))
 			{
-				UpdateVersion(AdditionalVersionFields);
+				if (bSyncVersion)
+				{
+					UpdateVersion(ModuleVersionParts, AdditionalVersionFields);
+				}
+			}
+			else
+			{
+				ErrorAPEX("Module Version %s is invalid.", *ModuleVersion);
 			}
 		}
 	}
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 }
 
-void UApexSDKSettings::UpdateVersion(const TArray<TEnumAsByte<EPVRVersionFields>>& Fields)
+bool UApexSDKSettings::CheckModuleVersion()
 {
+	TArray<FString> ModuleVersionArray;
+	return GetModuleVersionArray(ModuleVersion, ModuleVersionArray);
+}
+
+bool UApexSDKSettings::GetModuleVersionArray(FString Version, TArray<FString>& ModuleVersionArray)
+{
+	int VersionPartCount = Version.ParseIntoArray(ModuleVersionArray, TEXT("."));
+
+	if (VersionPartCount != 3)
+	{
+		return false;
+	}
+
+	if (ModuleVersionArray[0].Len() <= 0 || ModuleVersionArray[0].StartsWith("0") || !ModuleVersionArray[0].IsNumeric())
+	{
+		return false;
+	}
+
+	if (ModuleVersionArray[1].Len() != 2 || !ModuleVersionArray[1].IsNumeric())
+	{
+		return false;
+	}
+
+	if (ModuleVersionArray[2].Len() != 2 || !ModuleVersionArray[2].IsNumeric())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void UApexSDKSettings::UpdateVersion(const TArray<FString>& VersionParts, const TArray<EPVRVersionFields>& Fields)
+{
+	int MajorVerison = FCString::Atoi(*VersionParts[0]);
+	int MinorVersion = FCString::Atoi(*VersionParts[1]);
+	int PatchVersion = FCString::Atoi(*VersionParts[2]);
+
 	FString FullVersion = FString::Printf(TEXT("%i.%.2i.%.2i"), MajorVerison, MinorVersion, PatchVersion);
 
 	if (UGeneralProjectSettings* Settings = GetMutableDefault<UGeneralProjectSettings>())
@@ -82,3 +130,8 @@ void UApexSDKSettings::UpdateVersion(const TArray<TEnumAsByte<EPVRVersionFields>
 	}
 }
 #endif
+
+#undef FatalAPEX
+#undef ErrorAPEX
+#undef WarnAPEX
+#undef LogAPEX
