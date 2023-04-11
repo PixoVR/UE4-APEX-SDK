@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2022 PixoVR Corp. All Rights Reserved.
 
 #pragma once
 
@@ -8,6 +8,7 @@
 #include "Dom/JsonValue.h"
 #include "ApexJSON.h"
 #include "XAPIExtension.h"
+#include "VaRestSubsystem.h"
 #include "ApexLibrary.generated.h"
 
 /**
@@ -178,4 +179,12 @@ public:
 
 		return false;
 	}
+
+	static UVaRestSubsystem* GetRestSubsystem()
+	{
+		static UVaRestSubsystem* VaRestSubsystem = GEngine->GetEngineSubsystem<UVaRestSubsystem>();
+		return VaRestSubsystem;
+	}
+
+	static FString GetApexSDKVersion();
 };

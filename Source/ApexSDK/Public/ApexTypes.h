@@ -97,12 +97,16 @@ struct APEXSDK_API FAPEXRequestFailed : public FJsonable
     bool Error;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
+    FString HttpCode;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
     FString Message;
 
     FAPEXRequestFailed()
     {
         // Create a default
         Error = true;
+        HttpCode = TEXT("400");
         Message = TEXT("There is a server connection error. Please check that there is a valid URL being used or check if APEX is down.");
     }
 
@@ -110,6 +114,9 @@ struct APEXSDK_API FAPEXRequestFailed : public FJsonable
     {
         if(JObject->HasField("Error"))
             Error = JObject->GetBoolField("Error");
+
+        if (JObject->HasField("HttpCode"))
+            HttpCode = JObject->GetStringField("HttpCode");
     
         if (JObject->HasField("Message"))
             Message = JObject->GetStringField("Message");
@@ -326,8 +333,6 @@ struct APEXSDK_API FAPEXOrganization : public FJsonable
     FString Name;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Apex Org")
     FString Status;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Apex Org")
-    FString DownloadRegion;
 
 public:
     virtual ~FAPEXOrganization() { }
@@ -337,7 +342,6 @@ public:
         ID = JObject->GetIntegerField("ID");
         Name = JObject->GetStringField("Name");
         Status = JObject->GetStringField("Status");
-        DownloadRegion = JObject->GetStringField("DownloadRegion");
     }
 
     virtual TSharedPtr<FJsonObject> ToJsonObject() const override
@@ -347,7 +351,6 @@ public:
         Result->SetNumberField("ID", ID);
         Result->SetStringField("Name", Name);
         Result->SetStringField("Status", Status);
-        Result->SetStringField("DownloadRegion", DownloadRegion);
 
         return Result;
     }
