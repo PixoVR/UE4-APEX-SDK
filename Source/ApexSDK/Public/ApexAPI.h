@@ -47,7 +47,14 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticApexTopTenDataFail, const class UV
 #pragma endregion EventDelegates
 
 /**
- *
+	\class UApexAPI
+	\brief The main class to access the Apex platform API.
+
+	UApexAPI contains functionality to reach the Apex API. Information about the module, 
+	platform and HMD device is readable from here as well. It also contains information
+	about the current user.
+
+	\todo Uncomment out the Logout API call once it's implemented.
  */
 UCLASS(BlueprintType, Blueprintable)
 class APEXSDK_API UApexAPI : public UGameInstanceSubsystem
@@ -57,9 +64,20 @@ class APEXSDK_API UApexAPI : public UGameInstanceSubsystem
 public:
 
 #pragma region PublicProperties
+
+	/**
+	* \brief The API URL
+	*
+	* \sa URL
+	*/
 	UPROPERTY(BlueprintReadOnly)
 	FString URL;
 
+	/**
+	* \brief The API Websocket URL
+	*
+	* \sa WebSocketURL
+	*/
 	UPROPERTY(BlueprintReadOnly)
 	FString WebSocketURL;
 

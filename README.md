@@ -1,11 +1,17 @@
-# Apex SDK
-Unreal Engine Plugin for the implementation of the Apex API.
-This plugin is compatible with Unreal Engine 4.26.0 to 4.27.2.
+\mainpage The Unreal SDK
 
-Demo project will be provided in another repository.
+This is an Unreal Engine plugin which implements the %Apex API, supporting Unreal Engine **4.26.0** to **4.27.2**.
 
-# Understanding xAPI
+Communication to the %Apex Server uses REST https JSON requests which follow the xAPI Standard.
 
-Data sent to Apex is formatted using the xAPI Standard.
+ - Github Repo: $(PROJECT_REPO)
+ - %Apex Server: $(APEX_SERVER_URL)
+ - xAPI Spec: https://github.com/adlnet/xAPI-Spec
 
-To get a better understanding of the xAPI Standard, visit the xAPI Spec [here](https://github.com/adlnet/xAPI-Spec).
+\todo Add a link to the demo project, provided in another repository.
+
+ - \subpage getting_started
+ - \subpage login_auth
+ - \subpage json_blueprint
+
+
