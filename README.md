@@ -14,4 +14,4 @@ Communication to the %Apex Server uses REST https JSON requests which follow the
  - \subpage login_auth
  - \subpage json_blueprint
 
-
+More text here...
