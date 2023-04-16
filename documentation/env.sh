@@ -7,7 +7,7 @@ export PROJECT_STATUS='active'						# project status, for publishing.  Recognize
 export PROJECT_LOGO='../Resources/Icon128.png'
 export PROJECT_REPO='https://github.com/PixoVR/UE4-APEX-SDK/'
 export PROJECT_URL='/ApexSDK-Unreal'
-export DEV_PROJECT_URL='../../../../Unreal/UE4-APEX-SDK/documentation/html/index.html'
+export DEV_PROJECT_URL='../../../../Unreal/UE4-APEX-SDK/documentation/html'
 export PROJECT_MAIN_PAGE='../pages/README.md'
 
 export DOXYGEN_FILTER='scripts/unreal_filter.py'
