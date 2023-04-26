@@ -933,6 +933,10 @@ public:
 		{
 			JsonResult->SetStringField("timestamp", TimeStamp.GetValue().ToString());
 		}
+		else
+		{
+			JsonResult->SetStringField("timestamp", FDateTime::UtcNow().ToString());
+		}
 
 		return JsonResult;
 	}
