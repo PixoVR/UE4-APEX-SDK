@@ -1,7 +1,8 @@
-// Copyright 2022 PixoVR Corp. All Rights Reserved.
+// Copyright 2023 PixoVR Corp. All Rights Reserved.
 
 #include "ApexWebsocket.h"
 #include "WebSocketsModule.h"
+#include "IWebSocket.h"
 #include "ApexLibrary.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogApexWebSocket, Log, All);
