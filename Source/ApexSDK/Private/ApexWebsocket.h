@@ -5,8 +5,9 @@
 #include "CoreMinimal.h"
 #include "ApexSDKDefines.h"
 #include "ApexJSON.h"
-#include "IWebSocket.h"
 #include "ApexWebsocket.generated.h"
+
+class IWebSocket;
 
 enum ApexWebSocketRequestType : int
 {
