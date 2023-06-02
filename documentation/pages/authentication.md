@@ -4,14 +4,12 @@ Authentication with Apex is as simple as calling the Login function. If you read
 documentation you can get a better understanding of what is happening under the hood, but the SDK automates
 nearly everything and makes authentication a breeze. 
 
-To authenticate, you must bundle a username and password into a FApexLoginInfo object and pass it:
-
- - void UApexAPI::Login(FApexLoginInfo InLoginInfo, bool bShouldLogout=true)
+To authenticate, you must bundle a username and password into a FApexLoginInfo object and pass it to UApexAPI::Login().
 
 Features of this function are that it:
 
  - Sends the users information to the Apex Server to login.
- - Returns `false` if the password or login are of zero length.
+ - ~~Returns `false` if the password or login are of zero length.~~
 
 UApexAPI::OnLoginComplete() is called when the users information is valid.
 
