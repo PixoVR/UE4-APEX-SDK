@@ -8,7 +8,7 @@
 #include "ApexSDKDefines.h"
 #include "XAPITypes.h"
 #include "ApexTypes.h"
-#include "ApexWebsocket.h"
+#include "ApexWebSocket.h"
 #include "ApexAPI.generated.h"
 
 UENUM(BlueprintType, Category = "APEX Responses", meta = (ScriptName = "MultiUserConnectionErrorType"))

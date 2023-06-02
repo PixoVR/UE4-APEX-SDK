@@ -1,6 +1,6 @@
 // Copyright 2023 PixoVR Corp. All Rights Reserved.
 
-#include "ApexWebsocket.h"
+#include "ApexWebSocket.h"
 #include "WebSocketsModule.h"
 #include "IWebSocket.h"
 #include "ApexLibrary.h"

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "ApexSDKDefines.h"
 #include "ApexJSON.h"
-#include "ApexWebsocket.generated.h"
+#include "ApexWebSocket.generated.h"
 
 class IWebSocket;
 
