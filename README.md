@@ -5,4 +5,4 @@ Communication to the Apex Server uses REST https JSON requests which follow the 
 
 xAPI Spec: https://github.com/adlnet/xAPI-Spec
 
-Documentation here: https://docs.pixovr.com/ApexSDK-Unreal
+Documentation here: https://docs.pixovr.com/ApexSDK-Unreal/
