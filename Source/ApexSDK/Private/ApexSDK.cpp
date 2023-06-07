@@ -1,7 +1,7 @@
 // Copyright 2022 PixoVR Corp. All Rights Reserved.
 
 #include "ApexSDK.h"
-
+#include "ApexLibrary.h"
 #include "ApexSDKSettings.h"
 #include "ApexSDKDefines.h"
 
@@ -31,6 +31,12 @@ void FApexSDKModule::StartupModule()
 	}
 
 	LogAPEX("%s: ApexSDK (%s) module started", *APEX_FUNC_LINE, *UApexLibrary::GetApexSDKVersion());
+
+	if (!FModuleManager::Get().IsModuleLoaded("WebSockets"))
+	{
+		LogAPEX("WebSockets module was not loading. Loading now.");
+		FModuleManager::Get().LoadModule("WebSockets");
+	}
 }
 
 void FApexSDKModule::ShutdownModule()
