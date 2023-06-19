@@ -1,83 +1,51 @@
 \page getting_started Installation and Overview
 
-## Installing the Unity Package
+## Adding the Unreal Apex SDK to your Unreal project.
 
-To install the Apex Unity SDK, open Window > Package Manager.
+Your Unreal project must be a C++ project in order for this plugin to compile and work.
+If your project is Blueprint Only, please convert it to a C++ Project.
 
-Click the '+' in the top left corner and select 'Add package from disk...'
+To add the Unreal Apex SDK follow these steps.
 
-Navigate to where you've extracted the downloaded zip file and select package.json.
+1. Download the Unreal Apex SDK zip file.
+2. In your Unreal project folder, add a Plugins folder if one does not already exist.
+3. In the Plugins folder, copy the Unreal Apex SDK zip file.
+4. Unzip the Unreal Apex SDK into a folder called UnrealApexSDK.
+5. Back in the project folder, right-click on your .uproject file and **"Generate Visual Studio project Files."**
+6. Launch into the editor and follow the steps below to configure your project settings.
 
-Now you should be able to see the package in the Package Manager, where you can install
-it into your project.
+## Configuring the Apex SDK
 
-\todo malcolm: this is for Unity
+After installing the Unreal Apex SDK, open the Unreal Engine editor.
+Open your project's **Project Settings**, scroll down to Plugins and select the Apex SDK settings category.
 
-## Using the Apex SDK
+![Unreal Apex SDK](unreal-apex-sdk-settings.png)
 
-After installing the Apex Unity SDK, navigate to Runtime > Unity. Add the ApexSystem 
-script to any object in the scene. Any object that the ApexSystem script is added to
-will NOT be deleted between level changes.  The ApexSystem is a singleton, all functions
-are wrapped in static functions to make the use simpler. If you want access to the
-response events in code, you will need to access the ApexSystem Instance. (e.g.) 
-ApexSystem.Instance.OnPingSuccess.AddListener(YourFunctionHere);
+The following properties will need to be set in these settings.
+- Server IP
+  + This is the Apex server IP address that you want to send the information to. By default it will point to our production environment.
+  + Use https://modules.apex.pixovr.com/.
+- Module ID
+  + This is the ID of the module that will be distributed to customers. This will be generated when you create a project on the Apex platform. This must be set for the data to be reported to the proper module.
+- Module Version
+  + The version number for your module currently being distributed.
+  + The Module Version is based on Semantic numbering with a Major, Minor and Patch number. Both Minor and Patch numbers are always 2 digits, using a 0 as the first value when the number is below 10. (e.g.) 1.03.08. This is enforced on the platform itself as well.
 
-\todo malcolm: this is for Unity
+The following properties are optional settings that can help with synchronizing information across the project.
 
-## Understanding xAPI and TinCan.NET
+- Sync Module Version
+  + This checkbox, when ticked, will change the Unreal Project's version number to match the Module Version.
+- Additional Synchronized Version Fields
+  + These settings only take affects if **Sync Module Version** is ticked.
+  + Android Store Version
+    - This will change the **Store Version** and **Version Display Name** found under the **Platform - Android** settings.
+  + PixoVR Plugin Version
+    - This will change **The Version of the Module** setting found under the **Plugins - PixoVR** settings.
+    - This plugin is for internal use only.
 
-Data sent to Apex is formatted using the xAPI Standard. The Unity Apex SDK utilizes
-TinCan.NET to ensure all data is xAPI Compliant.
+## Understanding xAPI
 
-To understand how TinCan.NET is used, visit the \ref xapi "documentation" here.
+Data sent to Apex is formatted using the xAPI Standard. The Unreal Apex SDK utilizes a custom implementation of the xAPI standard.
+
 To get a better understanding of the xAPI Standard, visit the <a href='https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#parttwo'>xAPI Spec</a>.
-
-## Requirements for building with the Apex SDK
-
-The projects Api Compatibility Level needs to be .NET 4.x or newer.
-
-## Important ApexSystem variables
-
-There are several variables in ApexSystem that you need to set for data reporting
-to work properly:
- - `ServerIP` (optional): The Apex server IP address that you want to send the information
-   to. By default it will point to our production environment, and  in most cases you
-   shouldn't need to change it.
- - `ModuleID`: The ID of the module that will be distributed to customers. Pixo will
-   provide this ID for you when your module is initially set up on Apex. This variable must
-   be set for the data to be reported to the proper module.
- - `ModuleName`: The name of your module.
- - `ModuleVersion`: The version number of your module currently on Apex. Please update
-   the version number every time you prepare a new build for Apex.
- - `ScenarioID`: The name of the current scenario within your module that the user is
-   taking part in. You can have multiple scenarios within a module. This variable needs to
-   be updated every time a user enters a new scenario.
-
-## Function Explanation
-
-All server functions have corresponding Success and Failed events.
-
-### Ping
-
-UApexAPI::Ping() contacts the Apex Server for status.
-
- - UApexAPI::OnPingComplete() is called when there is a successful response from the server.
- - UApexAPI::OnPingFail() is called when the server is not able to be reached.
-
-### Authentication Functions
-
-There are 2 different functions that can be used for authentication. They are explained in
-more detail in the \ref authentication Authentication section of this documentation.
-
- - UApexAPI::Login()
- - UApexAPI::Logout()
-
-### Data reporting Functions: 
-
-There are 3 data reporting functions available. They are explained in more detail in the
-\ref datareporting "data reporting" section  of this documentation.
-
- - UApexAPI::JoinSession()
- - UApexAPI::CompleteSession()
- - UApexAPI::SendSessionEvent()
 
