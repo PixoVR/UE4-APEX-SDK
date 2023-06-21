@@ -22,9 +22,8 @@ UApexAPI::OnRequestFail is called when the users information is not valid, does 
 
 To authenticate, you need to reach the UApexAPI Game Instance Subsystem. We've provided examples of how to reach it.
 
-Using Blueprint:
-
-![UApexAPI](unreal-apex-sdk_apex-api.png)
+Using Blueprint:</br>
+\image{inline} html unreal-apex-sdk_apex-api.png "UApexAPI"
 
 Using C++:
 
@@ -119,18 +118,18 @@ void OnRequestFail(EApexRequestType RequestType, const UVaRestRequestJSON* Reque
 
 Using Blueprint:
 
-Successful Request Response
+Successful Request Response</br>
 \image{inline} html ue-apex-sdk_on-request-complete.png "Successful Login Call"
 
-Failed Request Response
+Failed Request Response</br>
 \image{inline} html ue-apex-sdk_on-request-fail.png "Failed Login Call"
 
 # Q&A On Authentication
 
 We've decided to provide some notes on questions we've been asked about authentication.
 
-Q. Is the users information encrypted?
+Q. Is the users information encrypted?</br>
 A. Yes, but not by anything internal to the Apex SDK or API calls. Instead, we use TLS over HTTPS.
 
-Q. Does the Login call do anything besides log-in the user?
+Q. Does the Login call do anything besides log-in the user? </br>
 A. Yes, Login goes beyond and checks the user against the module to see if they have access to module. During this, we also pass back some module and user specific information which will be seen a successful login response.
