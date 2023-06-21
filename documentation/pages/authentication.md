@@ -120,16 +120,22 @@ void OnRequestFail(EApexRequestType RequestType, const UVaRestRequestJSON* Reque
 }
 \endcode
 
+<div>
 Using Blueprint:
 
-<div>
-Successful Request Response</br>
-\image{inline} html ue-apex-sdk_on-request-complete.png "Successful Login Call"</br>
-</div>
+\parblock
+### Successful Request Response
+</br>
+\image{inline} html ue-apex-sdk_on-request-complete.png "Successful Login Call"
+</br>
+\endparblock
 
-<div>
-Failed Request Response</br>
-\image{inline} html ue-apex-sdk_on-request-fail.png "Failed Login Call"</br>
+\parblock
+### Failed Request Response
+</br>
+\image{inline} html ue-apex-sdk_on-request-fail.png "Failed Login Call"
+</br>
+\endparblock
 </div>
 
 # Q&A On Authentication
