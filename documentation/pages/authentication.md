@@ -70,9 +70,9 @@ The RequestType for Authentication will be EApexRequestType::Login.
 The Request will contain the Json values for the failed response.
 FailedRequestResponse will contain the error message and HTTP response code.
 
-In the [Example Code](#example-code) section, you'll see both Blueprint and C++ examples on how to bind to the event delegates.
+In the \ref examplecode "Example Code" section, you'll see both Blueprint and C++ examples on how to bind to the event delegates.
 
-## Example Code
+\section examplecode Example Code
 
 ### Calling Login
 
@@ -120,10 +120,10 @@ void OnRequestFail(EApexRequestType RequestType, const UVaRestRequestJSON* Reque
 Using Blueprint:
 
 Successful Request Response
-![Successful Login Call](ue-apex-sdk_on-request-complete.png)
+\image{inline} html ue-apex-sdk_on-request-complete.png "Successful Login Call"
 
 Failed Request Response
-![Failed Login Call](ue-apex-sdk_on-request-fail.png)
+\image{inline} html ue-apex-sdk_on-request-fail.png "Failed Login Call"
 
 # Q&A On Authentication
 
