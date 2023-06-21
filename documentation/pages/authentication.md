@@ -125,9 +125,11 @@ Using Blueprint:
 
 \parblock
 ### Successful Request Response
-</br>
 <div style="display:grid">
+<div>
+\n 
 \image{inline} html ue-apex-sdk_on-request-complete.png "Successful Login Call"
+</div>
 </div>
 </br>
 \endparblock
