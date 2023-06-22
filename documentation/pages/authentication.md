@@ -138,7 +138,6 @@ Using Blueprint:
 \image{inline} html ue-apex-sdk_on-request-fail.png "Failed Login Call"
 </div>
 </br>
-\endparblock
 
 # Q&A On Authentication
 
