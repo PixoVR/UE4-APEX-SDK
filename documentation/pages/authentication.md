@@ -126,13 +126,13 @@ Using Blueprint:
 <div style="display:grid">
 <div>
 \n 
-\image{inline} html ./ue-apex-sdk_on-request-complete.png "Successful Login Call"
+\image{inline} html ue-apex-sdk_on-request-complete.png "Successful Login Call"
 </div>
 </div>
 
 ### Failed Request Response
 <div style="display:grid">
-\image{inline} html ./ue-apex-sdk_on-request-fail.png "Failed Login Call"
+\image{inline} html ue-apex-sdk_on-request-fail.png "Failed Login Call"
 </div>
 
 # Q&A On Authentication
