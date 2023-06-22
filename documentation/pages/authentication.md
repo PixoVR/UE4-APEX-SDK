@@ -123,7 +123,6 @@ void OnRequestFail(EApexRequestType RequestType, const UVaRestRequestJSON* Reque
 </br>
 Using Blueprint:
 
-\parblock
 ### Successful Request Response
 <div style="display:grid">
 <div>
@@ -132,9 +131,7 @@ Using Blueprint:
 </div>
 </div>
 </br>
-\endparblock
 
-\parblock
 ### Failed Request Response
 </br>
 <div style="display:grid">
@@ -142,7 +139,6 @@ Using Blueprint:
 </div>
 </br>
 \endparblock
-</div>
 
 # Q&A On Authentication
 
