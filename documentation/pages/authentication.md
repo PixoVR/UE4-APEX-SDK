@@ -86,8 +86,9 @@ ApexAPI->Login(PixoLoginData);
 \endcode
 
 Using Blueprint:
-
-![Blueprint Login Call](ue-apex-sdk_login-bp-example.png)
+<div style="text-align: left; float: none !important;">
+\image{inline} html ue-apex-sdk_login-bp-example.png "Blueprint Login Call"
+</div>
 
 ### Binding to API Response Delegates
 
