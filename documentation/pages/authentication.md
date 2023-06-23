@@ -1,5 +1,11 @@
 \page authentication Authentication
 
+<div>
+    <style>
+        .small-image img.inline {text-align: left; float: none}
+    </style>
+</div>
+
 Authentication with Apex is as simple as calling the Login function. If you read the Apex API
 documentation you can get a better understanding of what is happening under the hood, but the SDK automates
 nearly everything and makes authentication a breeze.
@@ -23,7 +29,7 @@ UApexAPI::OnRequestFail is called when the users information is not valid, does 
 To authenticate, you need to reach the UApexAPI Game Instance Subsystem. We've provided examples of how to reach it.
 
 Using Blueprint:
-<div style="text-align: left; float: none !important;">
+<div class="small-image">
 \image{inline} html unreal-apex-sdk_apex-api.png "UApexAPI"
 </div>
 
@@ -86,7 +92,7 @@ ApexAPI->Login(PixoLoginData);
 \endcode
 
 Using Blueprint:
-<div style="text-align: left; float: none !important;">
+<div class="small-image">
 \image{inline} html ue-apex-sdk_login-bp-example.png "Blueprint Login Call"
 </div>
 
@@ -122,12 +128,12 @@ void OnRequestFail(EApexRequestType RequestType, const UVaRestRequestJSON* Reque
 #### Using Blueprint:
 
 Successful Request Response
-<div style="text-align: left; float: none !important;">
+<div class="small-image">
 \image{inline} html ue-apex-sdk_on-request-complete.png "Successful Login Call"
 </div>
 
 Failed Request Response
-<div style="text-align: left; float: none !important;">
+<div class="small-image">
 \image{inline} html ue-apex-sdk_on-request-fail.png "Failed Login Call"
 </div>
 
