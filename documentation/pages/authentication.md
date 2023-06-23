@@ -1,9 +1,9 @@
 \page authentication Authentication
 
 <div>
-    <style>
-        .small-image img.inline {text-align: left; float: none}
-    </style>
+<style>
+.small-image img.inline {text-align: left; float: none}
+</style>
 </div>
 
 Authentication with Apex is as simple as calling the Login function. If you read the Apex API
