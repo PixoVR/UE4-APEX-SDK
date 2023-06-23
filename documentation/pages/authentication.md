@@ -23,7 +23,7 @@ UApexAPI::OnRequestFail is called when the users information is not valid, does 
 To authenticate, you need to reach the UApexAPI Game Instance Subsystem. We've provided examples of how to reach it.
 
 Using Blueprint:
-<div style="text-align: left; float: none;">
+<div style="text-align: left; float: none !important;">
 \image{inline} html unreal-apex-sdk_apex-api.png "UApexAPI"
 </div>
 
@@ -121,12 +121,12 @@ void OnRequestFail(EApexRequestType RequestType, const UVaRestRequestJSON* Reque
 #### Using Blueprint:
 
 Successful Request Response
-<div style="text-align: left; float: none;">
+<div style="text-align: left; float: none !important;">
 \image{inline} html ue-apex-sdk_on-request-complete.png "Successful Login Call"
 </div>
 
 Failed Request Response
-<div style="text-align: left; float: none;">
+<div style="text-align: left; float: none !important;">
 \image{inline} html ue-apex-sdk_on-request-fail.png "Failed Login Call"
 </div>
 
