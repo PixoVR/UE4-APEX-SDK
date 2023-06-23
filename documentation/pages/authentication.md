@@ -1,10 +1,10 @@
 \page authentication Authentication
 
-/htmlonly[block]
+\htmlonly[block]
 <style>
 .small-image img.inline {text-align: left; float: none}
 </style>
-/endhtmlonly
+\endhtmlonly
 
 Authentication with Apex is as simple as calling the Login function. If you read the Apex API
 documentation you can get a better understanding of what is happening under the hood, but the SDK automates
