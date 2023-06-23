@@ -93,7 +93,7 @@ Using Blueprint:
 
 ### Binding to API Response Delegates
 
-Using C++:
+#### Using C++:
 
 \code{.cpp}
 void SetupApexResponse()
@@ -120,17 +120,13 @@ void OnRequestFail(EApexRequestType RequestType, const UVaRestRequestJSON* Reque
 }
 \endcode
 
-Using Blueprint:
+#### Using Blueprint:
 
-### Successful Request Response
-<div style="display:grid">
-\image{inline} html ue-apex-sdk_on-request-complete.png "Successful Login Call"
-</div>
+##### Successful Request Response
+\image{left} html ue-apex-sdk_on-request-complete.png "Successful Login Call"
 
-### Failed Request Response
-<div style="display:grid">
-\image{inline} html ue-apex-sdk_on-request-fail.png "Failed Login Call"
-</div>
+##### Failed Request Response
+\image{left} html ue-apex-sdk_on-request-fail.png "Failed Login Call"
 
 # Q&A On Authentication
 
