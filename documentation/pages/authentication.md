@@ -1,6 +1,6 @@
 \page authentication Authentication
 
-/htmlonly
+/htmlonly[block]
 <style>
 .small-image img.inline {text-align: left; float: none}
 </style>
