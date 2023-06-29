@@ -22,8 +22,6 @@ UApexAPI::OnRequestComplete is called when the users information is valid and ha
 
 UApexAPI::OnRequestFail is called when the users information is not valid, does not have access to the module or when the server is not able to be reached.
 
-\section logindata FApexLoginInfo
-
 ## Accessing the Authentication call in Unreal
 
 To authenticate, you need to reach the UApexAPI Game Instance Subsystem. We've provided examples of how to reach it.
@@ -50,6 +48,8 @@ If you're handling a response in C++, you will also want to add "VaRest" to the 
 \code{.cs}
 PublicDependencyModuleNames.AddRange(new string[] { "VaRest" });
 \endcode
+
+\section logindata FApexLoginInfo
 
 ## Constructor
 

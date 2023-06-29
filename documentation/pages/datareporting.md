@@ -14,7 +14,7 @@ There are 3 functions used for manipulating session and data reporting:
  - UApexAPI::CompleteSession() is used to indicate the end of a session. It also includes information about the user's session, such as length, completion status and score.
  - UApexAPI::SendSessionEvent() is used during a session to signal events or report module specific data. This requires nearly a fully described xAPI Statement to be passed in.
 
-All events used for when these functions are called are the same for when calling Authentication functionality. To see how to use the events, see "Binding to API Response Delegates" in the \ref authentication "Authentication" page.
+All events used for when these functions are called are the same for when calling Authentication functionality. To see how to use the events, see \ref authentication.html#apiResponseDelegates "Binding to API Response Delegates" in the \ref authentication "Authentication" page.
 
 # Important Note on Blueprint Data Types
 
@@ -61,7 +61,7 @@ FXAPIExtension SampleExtension;
 Then you can either use the [Add()](@ref FXAPIExtension::Add()) or [AddCustom()](@ref FXAPIExtension::AddCustom()) functions to add as many key/value pairs to the Extension object 
 as you want. These non-type specific functions require a `TSharedPtr<FJsonValue>`.
  - [AddCustom()](@ref FXAPIExtension::AddCustom()): The AddCustom() function requires the key to be an IRI, which conforms to the xAPI spec.
- - [Add()](@ref FXAPIExtension::Add()): The Add() enforces the requirement that an extension key be an IRI, and the Add() function allows you
+ - [Add()](@ref FXAPIExtension::Add()): The Add() enforces the requirement that an extension key be an IRI, and the [Add()](@ref FXAPIExtension::Add()) function allows you
    to use a FString as your key
 
 There are also type specific functions for adding, both with a `Add` and `AddCustom` version. Any function with `AddCustom` in the name requires the key to be an IRI.
@@ -78,11 +78,11 @@ The UApexAPI::JoinSession() function should be called every time the user starts
  - Joins a user to a session for a given scenario within the module.
  - Auto-generates an xAPI statement and sends it to Apex as a \ref Apex::EventTypes::PIXOVR_SESSION_JOINED "PIXOVR_SESSION_JOINED" event.
  - Adds the given context extensions to the xAPI Statement context if it's not null.
- - Returns `false` if there is no logged in user. Otherwise returns `true`.
+ - Returns `FALSE` if there is no logged in user. Otherwise returns `TRUE`.
  - Will throw an error if there is already a session in progress that hasn't been ended with a
    \ref Apex::EventTypes::PIXOVR_SESSION_START "PIXOVR_SESSION_COMPLETE" event, typically sent via the UApexAPI::CompleteSession() function.
- - UApexAPI::OnRequestComplete and UApexAPI::OnStaticRequestComplete with the type EApexRequestType::JoinSession is called when the user was able to join the session successfully. 
- - UApexAPI::OnRequestFail and UApexAPI::OnStaticRequestFail with the type EApexRequestType::JoinSession is called when the user was not able to join the session or when the server is not
+ - UApexAPI::OnRequestComplete and UApexAPI::OnStaticRequestComplete with the type `EApexRequestType::JoinSession` is called when the user was able to join the session successfully. 
+ - UApexAPI::OnRequestFail and UApexAPI::OnStaticRequestFail with the type `EApexRequestType::JoinSession` is called when the user was not able to join the session or when the server is not
    able to be reached. 
  - Ensures the user has access to the given module.
 
@@ -122,9 +122,9 @@ It:
  - Completes the current session.
  - Auto-generates an xAPI statement and sends it to Apex as a \ref Apex::EventTypes::PIXOVR_SESSION_COMPLETE "PIXOVR_SESSION_COMPLETE" event.
  - Adds the given context extensions to the xAPI Statement context if it's not null. 
- - Returns false if there is no logged in user or current session.
- - UApexAPI::OnRequestComplete and UApexAPI::OnStaticRequestComplete with the type EApexRequestType::CompleteSession is called when the session was completed successfully. 
- - UApexAPI::OnRequestFail and UApexAPI::OnStaticRequestFail with the type EApexRequestType::CompleteSession is called when the session was not started, unable to be completed otherwise
+ - Returns `FALSE` if there is no logged in user or current session.
+ - UApexAPI::OnRequestComplete and UApexAPI::OnStaticRequestComplete with the type `EApexRequestType::CompleteSession` is called when the session was completed successfully. 
+ - UApexAPI::OnRequestFail and UApexAPI::OnStaticRequestFail with the type `EApexRequestType::CompleteSession` is called when the session was not started, unable to be completed otherwise
    or when the server is not able to be reached.
 
 ### Blueprint Example
@@ -227,13 +227,13 @@ The UApexAPI::SendSessionEvent() function is how you send any data to Apex durin
 It:
  - Constructs an xAPI statement from provided session data.
  - Sends an event with xAPI statement data.
- - Returns `false` if there is no logged in user, if UApexAPI::JoinSession() has not been called to start a session, if the `InStatement.Actor` has had any data filled
+ - Returns `FALSE` if there is no logged in user, if UApexAPI::JoinSession() has not been called to start a session, if the `InStatement.Actor` has had any data filled
    or if any of the following members in `InStatement` have not been set.
    + `InStatement.Verb`
    + `InStatement.Verb.ID`
    + `InStatement.Target`
- - UApexAPI::OnRequestComplete and UApexAPI::OnStaticRequestComplete with the type EApexRequestType::SessionEvent is called when the user was able to join the session successfully. 
- - UApexAPI::OnRequestFail and UApexAPI::OnStaticRequestFail with the type EApexRequestType::SessionEvent is called when the user was not able to join the session or when the server is not
+ - UApexAPI::OnRequestComplete and UApexAPI::OnStaticRequestComplete with the type `EApexRequestType::SessionEvent` is called when the user was able to join the session successfully. 
+ - UApexAPI::OnRequestFail and UApexAPI::OnStaticRequestFail with the type `EApexRequestType::SessionEvent` is called when the user was not able to join the session or when the server is not
    able to be reached.
 
 ### Blueprint Example
@@ -340,9 +340,8 @@ FXAPIStatement EventStatement;
 
 // Verb
 EventStatement.Verb.ID = TEXT("https://pixovr.com/xapi/verbs/reported");
-EventStatement.Verb.Display = new TinCan.LanguageMap();
-EventStatement.Verb.display.Add("en","Reported");
-EventStatement.Verb.display.Add("es","Reportado");
+EventStatement.Verb.Display.Add("en","Reported");
+EventStatement.Verb.Display.Add("es","Reportado");
 
 // Object
 // Note: Activity is one of four ObjectTypes, but the one that 99% of statements on
@@ -361,13 +360,13 @@ EventStatement.Result.Score.Scaled = 0.8;
 
 //Context
 EventStatement.Context.Extension.AddCustomString("https://www.pixovr.com/xapi/extensions/iri_extension","value");
-EventStatement.Context.Extension.Add("simple_key", "value");
+EventStatement.Context.Extension.AddString("simple_key", "value");
 
 UApexAPI* ApexAPI = GetGameInstance()->GetSubsystem<UApexAPI>();
 ApexAPI->SendSessionEvent(eventStatement);
 \endcode
 
-## Example Code 
+## Data Reporting Example Code
 
 \code{.cpp}
 FXAPIExtension SampleExtension;
