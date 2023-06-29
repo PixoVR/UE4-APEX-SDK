@@ -29,7 +29,7 @@ harness to put on, and we want to track that she has chosen the correct harness,
 points for doing so.
 
 We will generate very simple objects for each of the top level xAPI properties that include just
-enough sub-properties to detail the information described above. 
+enough sub-properties to detail the information described above.
 
 ## Actor
 
