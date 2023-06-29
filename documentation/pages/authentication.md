@@ -27,6 +27,7 @@ The approach in the Unreal Apex SDK is done through both a generalized Success a
 
 In Blueprint you will bind a function or event to the following Delegates.
 
+[UApexAPI::OnRequestComplete(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request)](@ref UApexAPI::OnRequestComplete) \n
 UApexAPI::OnRequestComplete(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request): Called when the users information is valid and has access to the module.
  - `RequestType` for Authentication will be EApexRequestType::Login.
  - `Request` will contain the Json values for the successful response, but all of the information that will be needed is also apart of UApexAPI::CurrentActiveLogin.
@@ -40,6 +41,7 @@ invalid, does not have access to the module or the server is not able to be reac
 In C++ you will bind a function to delegates with the same data as the Blueprint.
 
 UApexAPI::OnStaticRequestComplete(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request): Called when the users information is valid and has access to the module.
+
 UApexAPI::OnStaticRequestFail(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse): Called when the users information
 is invalid, does not have access to the module or the server is not able to be reached.
 
@@ -136,8 +138,8 @@ Failed Request Response
 
 We've decided to provide some notes on questions we've been asked about authentication.
 
-Q. Is the users information encrypted?</br>
+Q. Is the users information encrypted? \n
 A. Yes, but not by anything internal to the Apex SDK or API calls. Instead, we use TLS over HTTPS.
 
-Q. Does the Login call do anything besides log-in the user? </br>
+Q. Does the Login call do anything besides log-in the user? \n
 A. Yes, Login goes beyond and checks the user against the module to see if they have access to module. During this, we also pass back some module and user specific information which will be seen a successful login response.
