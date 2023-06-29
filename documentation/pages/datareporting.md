@@ -23,7 +23,7 @@ Blueprints in the xAPI structures. If you cannot find a value in Blueprint that 
 
 \section session Sessions
 
-## What is a session?
+\subsection whatissessions What is a session?
 
 A session is one complete play-through of single scenario. Different modules handle this in different ways, but the main
 idea is that a session should be the scenario itself, not the process of selecting an experience. 
@@ -39,7 +39,7 @@ Every time a user enters a scenario, (whether directly from the login screen, fr
 any other system you have set up), you need to call UApexAPI::JoinSession(). Similarly, once they have finished a scenario you
 need to call UApexAPI::CompleteSession().
 
-\section extensions Extensions
+\subsection extensions Extensions
 
 Extensions are a way to include additional information in a particular xAPI object that is not part of the standard properties
 of that object.
@@ -65,9 +65,9 @@ as you want. These non-type specific functions require a `TSharedPtr<FJsonValue>
    to use a FString as your key
 
 There are also type specific functions for adding, both with a `Add` and `AddCustom` version. Any function with `AddCustom` in the name requires the key to be an IRI.
- - [AddString()](@ref FXAPIExtension::AddString()) & [AddCustomString()](@ref FXAPIExtension::AddCustomString()): The value must be a `FString`.
- - [AddNumber()](@ref FXAPIExtension::AddNumber()) & [AddCustomNumber()](@ref FXAPIExtension::AddCustomNumber()): The value must be an `int`.
- - [AddBoolean()](@ref FXAPIExtension::AddBoolean()) & [AddCustomBoolean()](@ref FXAPIExtension::AddCustomBoolean()): The value must be an `bool`.
+ - [AddString()](@ref FXAPIExtension::AddString()) and [AddCustomString()](@ref FXAPIExtension::AddCustomString()): The value must be a `FString`.
+ - [AddNumber()](@ref FXAPIExtension::AddNumber()) and [AddCustomNumber()](@ref FXAPIExtension::AddCustomNumber()): The value must be an `int`.
+ - [AddBoolean()](@ref FXAPIExtension::AddBoolean()) and [AddCustomBoolean()](@ref FXAPIExtension::AddCustomBoolean()): The value must be an `bool`.
 
 \subsection JoinSession JoinSession()
 

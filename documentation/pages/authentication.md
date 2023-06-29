@@ -17,8 +17,8 @@ You can also bundle a One-Time Code, generated on the PixoVR Platform, as the us
 
 Features of this function are that it:
 
- - Sends the users information to the Apex Server to login. Return `true`.
- - Returns `false` if the password or login are of zero length.
+ - Sends the users information to the Apex Server to login. Return `TRUE`.
+ - Returns `FALSE` if the password or login are of zero length.
 
 \subsection requesthandling Handling Authentication API Responses
 
