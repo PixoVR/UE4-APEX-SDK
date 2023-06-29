@@ -39,37 +39,7 @@ Every time a user enters a scenario, (whether directly from the login screen, fr
 any other system you have set up), you need to call UApexAPI::JoinSession(). Similarly, once they have finished a scenario you
 need to call UApexAPI::CompleteSession().
 
-\subsection extensions Extensions
-
-Extensions are a way to include additional information in a particular xAPI object that is not part of the standard properties
-of that object.
-
-For example:
- - If your module had a difficulty setting you could track which setting a user had chosen in a context extension.
- - In a javelin throwing simulation,  you might would want to track both distance thrown as well as an assigned point score.
-   `Score` is already available in the result object, and you could track the distance thrown in a result extension.
- 
-`Actor`, `Context`, `Object`, and `Result` objects can all support extensions. Regardless of which object type you are adding them to,
-they are handled in the same way.
-
-First, you declare a new FXAPIExtension:
-
-\code{.cpp}
-FXAPIExtension SampleExtension; 
-\endcode
-
-Then you can either use the [Add()](@ref FXAPIExtension::Add()) or [AddCustom()](@ref FXAPIExtension::AddCustom()) functions to add as many key/value pairs to the Extension object 
-as you want. These non-type specific functions require a `TSharedPtr<FJsonValue>`.
- - [AddCustom()](@ref FXAPIExtension::AddCustom()): The AddCustom() function requires the key to be an IRI, which conforms to the xAPI spec.
- - [Add()](@ref FXAPIExtension::Add()): The Add() enforces the requirement that an extension key be an IRI, and the [Add()](@ref FXAPIExtension::Add()) function allows you
-   to use a FString as your key
-
-There are also type specific functions for adding, both with a `Add` and `AddCustom` version. Any function with `AddCustom` in the name requires the key to be an IRI.
- - [AddString()](@ref FXAPIExtension::AddString()) and [AddCustomString()](@ref FXAPIExtension::AddCustomString()): The value must be a `FString`.
- - [AddNumber()](@ref FXAPIExtension::AddNumber()) and [AddCustomNumber()](@ref FXAPIExtension::AddCustomNumber()): The value must be an `int`.
- - [AddBoolean()](@ref FXAPIExtension::AddBoolean()) and [AddCustomBoolean()](@ref FXAPIExtension::AddCustomBoolean()): The value must be an `bool`.
-
-\subsection JoinSession JoinSession()
+\subsection joinSession JoinSession()
 
 ### Overview
 
@@ -365,6 +335,36 @@ EventStatement.Context.Extension.AddString("simple_key", "value");
 UApexAPI* ApexAPI = GetGameInstance()->GetSubsystem<UApexAPI>();
 ApexAPI->SendSessionEvent(eventStatement);
 \endcode
+
+\subsection extensions Extensions
+
+Extensions are a way to include additional information in a particular xAPI object that is not part of the standard properties
+of that object.
+
+For example:
+ - If your module had a difficulty setting you could track which setting a user had chosen in a context extension.
+ - In a javelin throwing simulation,  you might would want to track both distance thrown as well as an assigned point score.
+   `Score` is already available in the result object, and you could track the distance thrown in a result extension.
+ 
+`Actor`, `Context`, `Object`, and `Result` objects can all support extensions. Regardless of which object type you are adding them to,
+they are handled in the same way.
+
+First, you declare a new FXAPIExtension:
+
+\code{.cpp}
+FXAPIExtension SampleExtension; 
+\endcode
+
+Then you can either use the [Add()](@ref FXAPIExtension::Add()) or [AddCustom()](@ref FXAPIExtension::AddCustom()) functions to add as many key/value pairs to the Extension object 
+as you want. These non-type specific functions require a `TSharedPtr<FJsonValue>`.
+ - [AddCustom()](@ref FXAPIExtension::AddCustom()): The AddCustom() function requires the key to be an IRI, which conforms to the xAPI spec.
+ - [Add()](@ref FXAPIExtension::Add()): The Add() enforces the requirement that an extension key be an IRI, and the [Add()](@ref FXAPIExtension::Add()) function allows you
+   to use a FString as your key
+
+There are also type specific functions for adding, both with a `Add` and `AddCustom` version. Any function with `AddCustom` in the name requires the key to be an IRI.
+ - [AddString()](@ref FXAPIExtension::AddString()) and [AddCustomString()](@ref FXAPIExtension::AddCustomString()): The value must be a `FString`.
+ - [AddNumber()](@ref FXAPIExtension::AddNumber()) and [AddCustomNumber()](@ref FXAPIExtension::AddCustomNumber()): The value must be an `int`.
+ - [AddBoolean()](@ref FXAPIExtension::AddBoolean()) and [AddCustomBoolean()](@ref FXAPIExtension::AddCustomBoolean()): The value must be an `bool`.
 
 ## Data Reporting Example Code
 
