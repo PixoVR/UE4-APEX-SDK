@@ -252,14 +252,14 @@ and will be set for you by the SDK:
  - `Timestamp`: records the time the event happened. Uses the headset system clock, and is set to UTC. 
  - `Version`: The version of of the xAPI spec being used. Currently 1.03.
 
-##### Example Code
+### Example Code
 
 There are a lot of possible ways to build an xAPI statement, with a LOT of potential information you could
 include. This flexibility is valuable if you have complex data you need to track. But sometimes, maybe even
 most of the time, all you need is something simple.
 
 All an xAPI statement truly requires is an Actor, a Verb and an Object (which the Apex SDK refers to as
-a "Target"). The SendSessionEvent function will add the Actor information (i.e. the logged in user) to the
+a "Target"). The [SendSessionEvent](@ref UApexAPI::SendSessionEvent()) function will add the Actor information (i.e. the logged in user) to the
 passed `InStatement`, so all you need to provide is a verb and an object, and their associated IDs.
 
 The following code demonstrates how to do this:
