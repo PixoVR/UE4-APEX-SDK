@@ -83,6 +83,8 @@ UApexAPI* ApexAPI = GetGameInstance()->GetSubsystem<UApexAPI>();
 ApexAPI->JoinSession(ContextExtension);
 \endcode
 
+\subsection joinSession CompleteSession()
+
 ### Overview
 
 The UApexAPI::CompleteSession() function should be called every time the user completes a session.
@@ -336,7 +338,7 @@ UApexAPI* ApexAPI = GetGameInstance()->GetSubsystem<UApexAPI>();
 ApexAPI->SendSessionEvent(eventStatement);
 \endcode
 
-\subsection extensions Extensions
+\section extensions Extensions
 
 Extensions are a way to include additional information in a particular xAPI object that is not part of the standard properties
 of that object.
@@ -366,7 +368,7 @@ There are also type specific functions for adding, both with a `Add` and `AddCus
  - [AddNumber()](@ref FXAPIExtension::AddNumber()) and [AddCustomNumber()](@ref FXAPIExtension::AddCustomNumber()): The value must be an `int`.
  - [AddBoolean()](@ref FXAPIExtension::AddBoolean()) and [AddCustomBoolean()](@ref FXAPIExtension::AddCustomBoolean()): The value must be an `bool`.
 
-## Data Reporting Example Code
+\section datareportingexamples Data Reporting Example Code
 
 \code{.cpp}
 FXAPIExtension SampleExtension;
