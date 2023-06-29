@@ -45,7 +45,7 @@ is invalid, does not have access to the module or the server is not able to be r
 
 In the \ref examplecode "Example Code" section, you'll see both Blueprint and C++ examples on how to bind to the event delegates.
 
-\subsection unrealauthentication Accessing the Authentication call in Unreal
+\subsection unrealapexapi Accessing the Apex API in Unreal
 
 To authenticate, you need to reach the UApexAPI Game Instance Subsystem. We've provided examples of how to reach it.
 
@@ -72,21 +72,9 @@ If you're handling a response in C++, you will also want to add "VaRest" to the 
 PublicDependencyModuleNames.AddRange(new string[] { "VaRest" });
 \endcode
 
-\section logindata FApexLoginInfo
+\subsection callinglogin Calling Login
 
-## Constructor
-
-\code{.cpp}
-public FApexLoginInfo(FString Username, FString Password)
-{
-    Login = Username; 
-    Password = Password; 
-}
-\endcode
-
-\section examplecode Example Code
-
-## Calling Login
+Below is an example of how to call the authentication function UApexAPI::Login().
 
 Using C++:
 
@@ -101,9 +89,11 @@ Using Blueprint:
 \image{inline} html ue-apex-sdk_login-bp-example.png "Blueprint Login Call"
 </div>
 
-/section bindingapiresponses Binding to API Response Delegates
+\section examples Examples
 
-## Using C++:
+\subsection bindingapiresponses Binding to API Response Delegates
+
+### Using C++:
 
 \code{.cpp}
 void SetupApexResponse()
@@ -130,7 +120,7 @@ void OnRequestFail(EApexRequestType RequestType, const UVaRestRequestJSON* Reque
 }
 \endcode
 
-## Using Blueprint:
+### Using Blueprint:
 
 Successful Request Response
 <div class="small-image">
