@@ -27,12 +27,12 @@ The approach in the Unreal Apex SDK is done through both a generalized Success a
 
 In Blueprint you will bind a function or event to the following Delegates.
 
-[UApexAPI::OnRequestComplete(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request)](@ref UApexAPI::OnRequestComplete) \n
-UApexAPI::OnRequestComplete(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request): Called when the users information is valid and has access to the module.
+
+[UApexAPI::OnRequestComplete(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request)](@ref UApexAPI::OnRequestComplete): Called when the users information is valid and has access to the module.
  - `RequestType` for Authentication will be EApexRequestType::Login.
  - `Request` will contain the Json values for the successful response, but all of the information that will be needed is also apart of UApexAPI::CurrentActiveLogin.
 
-UApexAPI::OnRequestFail(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse): Called when the users information is 
+[UApexAPI::OnRequestFail(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse)](@ref UApexAPI::OnRequestFail) : Called when the users information is 
 invalid, does not have access to the module or the server is not able to be reached.
  - `RequestType` for Authentication will be EApexRequestType::Login.
  - `Request` will contain the Json values for the failed response.
@@ -40,9 +40,8 @@ invalid, does not have access to the module or the server is not able to be reac
 
 In C++ you will bind a function to delegates with the same data as the Blueprint.
 
-UApexAPI::OnStaticRequestComplete(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request): Called when the users information is valid and has access to the module.
-
-UApexAPI::OnStaticRequestFail(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse): Called when the users information
+[UApexAPI::OnStaticRequestComplete(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request)](@ref UApexAPI::OnStaticRequestComplete): Called when the users information is valid and has access to the module. \n
+[UApexAPI::OnRequestFail(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse)](@ref UApexAPI::OnStaticRequestFail): Called when the users information
 is invalid, does not have access to the module or the server is not able to be reached.
 
 In the \ref examplecode "Example Code" section, you'll see both Blueprint and C++ examples on how to bind to the event delegates.
