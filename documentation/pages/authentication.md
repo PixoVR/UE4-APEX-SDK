@@ -6,6 +6,8 @@
 </style>
 \endhtmlonly
 
+/section basiclogin Login
+
 Authentication with Apex is as simple as calling the Login function. If you read the Apex API
 documentation you can get a better understanding of what is happening under the hood, but the SDK automates
 nearly everything and makes authentication a breeze.
@@ -18,11 +20,32 @@ Features of this function are that it:
  - Sends the users information to the Apex Server to login. Return `true`.
  - Returns `false` if the password or login are of zero length.
 
-UApexAPI::OnRequestComplete is called when the users information is valid and has access to the module.
+/subsection requesthandling Handling Authentication API Responses
 
-UApexAPI::OnRequestFail is called when the users information is not valid, does not have access to the module or when the server is not able to be reached.
+The Apex SDK provides a way to receive the data from the API calls.
+The approach in the Unreal Apex SDK is done through both a generalized Success and Fail Delegate.
 
-## Accessing the Authentication call in Unreal
+In Blueprint you will bind a function or event to the following Delegates.
+
+UApexAPI::OnRequestComplete(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request): Called when the users information is valid and has access to the module.
+ - `RequestType` for Authentication will be EApexRequestType::Login.
+ - `Request` will contain the Json values for the successful response, but all of the information that will be needed is also apart of UApexAPI::CurrentActiveLogin.
+
+UApexAPI::OnRequestFail(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse): Called when the users information is 
+invalid, does not have access to the module or the server is not able to be reached.
+ - `RequestType` for Authentication will be EApexRequestType::Login.
+ - `Request` will contain the Json values for the failed response.
+ - `FailedRequestResponse` will contain the error message and HTTP response code.
+
+In C++ you will bind a function to delegates with the same data as the Blueprint.
+
+UApexAPI::OnStaticRequestComplete(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request): Called when the users information is valid and has access to the module.
+UApexAPI::OnStaticRequestFail(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse): Called when the users information
+is invalid, does not have access to the module or the server is not able to be reached.
+
+In the \ref examplecode "Example Code" section, you'll see both Blueprint and C++ examples on how to bind to the event delegates.
+
+/subsection unrealauthentication Accessing the Authentication call in Unreal
 
 To authenticate, you need to reach the UApexAPI Game Instance Subsystem. We've provided examples of how to reach it.
 
@@ -61,27 +84,9 @@ public FApexLoginInfo(FString Username, FString Password)
 }
 \endcode
 
-## Handling Authentication API Responses
-
-The Apex SDK provides a way to receive the data from the API calls.
-The approach in the Unreal Apex SDK is done through both a generalized Success and Fail Delegate.
-
-In Blueprint you will bind a function or event to the following Delegates.
-
-UApexAPI::OnRequestComplete(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request) - This Delegate is called when the users information is valid and has access to the module.
-The RequestType for Authentication will be EApexRequestType::Login.
-The Request will contain the Json values for the successful response, but all of the information that will be needed is also apart of UApexAPI::CurrentActiveLogin.
-
-UApexAPI::OnRequestFail(EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request, FAPEXRequestFailed, FailedRequestResponse) - This Delegate is called when the users information is invalid, does not have access to the module or the server is not able to be reached.
-The RequestType for Authentication will be EApexRequestType::Login.
-The Request will contain the Json values for the failed response.
-FailedRequestResponse will contain the error message and HTTP response code.
-
-In the \ref examplecode "Example Code" section, you'll see both Blueprint and C++ examples on how to bind to the event delegates.
-
 \section examplecode Example Code
 
-### Calling Login
+## Calling Login
 
 Using C++:
 
@@ -96,11 +101,9 @@ Using Blueprint:
 \image{inline} html ue-apex-sdk_login-bp-example.png "Blueprint Login Call"
 </div>
 
-\anchor apiResponseDelegates
+/section bindingapiresponses Binding to API Response Delegates
 
-### Binding to API Response Delegates
-
-#### Using C++:
+## Using C++:
 
 \code{.cpp}
 void SetupApexResponse()
@@ -127,7 +130,7 @@ void OnRequestFail(EApexRequestType RequestType, const UVaRestRequestJSON* Reque
 }
 \endcode
 
-#### Using Blueprint:
+## Using Blueprint:
 
 Successful Request Response
 <div class="small-image">
