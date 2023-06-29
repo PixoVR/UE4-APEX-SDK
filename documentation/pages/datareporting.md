@@ -1,5 +1,11 @@
 \page datareporting Sessions And Data Reporting
 
+\htmlonly[block]
+<style>
+.small-image img.inline {text-align: left; float: none}
+</style>
+\endhtmlonly
+
 # Functions
 
 There are 3 functions used for manipulating session and data reporting:
@@ -8,7 +14,7 @@ There are 3 functions used for manipulating session and data reporting:
  - UApexAPI::CompleteSession() is used to indicate the end of a session. It also includes information about the user's session, such as length, completion status and score.
  - UApexAPI::SendSessionEvent() is used during a session to signal events or report module specific data. This requires nearly a fully described xAPI Statement to be passed in.
 
-All events used for when these functions are called are the same for when calling Authentication functionality. To see how to use the events, see /ref apiResponseDelegates "Binding to API Response Delegates" in the \ref authentication "Authentication" page.
+All events used for when these functions are called are the same for when calling Authentication functionality. To see how to use the events, see "Binding to API Response Delegates" in the \ref authentication "Authentication" page.
 
 # Important Note on Blueprint Data Types
 
@@ -39,7 +45,7 @@ Extensions are a way to include additional information in a particular xAPI obje
 of that object.
 
 For example:
- - if your module had a difficulty setting you could track which setting a user had chosen in a context extension.
+ - If your module had a difficulty setting you could track which setting a user had chosen in a context extension.
  - In a javelin throwing simulation,  you might would want to track both distance thrown as well as an assigned point score.
    `Score` is already available in the result object, and you could track the distance thrown in a result extension.
  
@@ -226,9 +232,9 @@ It:
    + `InStatement.Verb`
    + `InStatement.Verb.ID`
    + `InStatement.Target`
- - UApexAPI::OnSendSessionEventSuccess() is called when the event has been sent successfully. 
- - UApexAPI::OnSendSessionEventFail() is called when the session was not started, contains invalid information or when the
-   server is not able to be reached.
+ - UApexAPI::OnRequestComplete and UApexAPI::OnStaticRequestComplete with the type EApexRequestType::SessionEvent is called when the user was able to join the session successfully. 
+ - UApexAPI::OnRequestFail and UApexAPI::OnStaticRequestFail with the type EApexRequestType::SessionEvent is called when the user was not able to join the session or when the server is not
+   able to be reached.
 
 ### Blueprint Example
 
