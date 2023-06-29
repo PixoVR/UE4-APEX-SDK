@@ -6,7 +6,7 @@
 </style>
 \endhtmlonly
 
-/section basiclogin Login
+\section basiclogin Login
 
 Authentication with Apex is as simple as calling the Login function. If you read the Apex API
 documentation you can get a better understanding of what is happening under the hood, but the SDK automates
@@ -20,7 +20,7 @@ Features of this function are that it:
  - Sends the users information to the Apex Server to login. Return `true`.
  - Returns `false` if the password or login are of zero length.
 
-/subsection requesthandling Handling Authentication API Responses
+\subsection requesthandling Handling Authentication API Responses
 
 The Apex SDK provides a way to receive the data from the API calls.
 The approach in the Unreal Apex SDK is done through both a generalized Success and Fail Delegate.
@@ -45,7 +45,7 @@ is invalid, does not have access to the module or the server is not able to be r
 
 In the \ref examplecode "Example Code" section, you'll see both Blueprint and C++ examples on how to bind to the event delegates.
 
-/subsection unrealauthentication Accessing the Authentication call in Unreal
+\subsection unrealauthentication Accessing the Authentication call in Unreal
 
 To authenticate, you need to reach the UApexAPI Game Instance Subsystem. We've provided examples of how to reach it.
 
