@@ -14,7 +14,7 @@ There are 3 functions used for manipulating session and data reporting:
  - UApexAPI::CompleteSession() is used to indicate the end of a session. It also includes information about the user's session, such as length, completion status and score.
  - UApexAPI::SendSessionEvent() is used during a session to signal events or report module specific data. This requires nearly a fully described xAPI Statement to be passed in.
 
-All events used for when these functions are called are the same for when calling Authentication functionality. To see how to use the events, see [Handling Authentication API Responses](authentication.md#requesthandling) in the \ref authentication "Authentication" page.
+All events used for when these functions are called are the same for when calling Authentication functionality. To see how to use the events, see <a href="authentication.html#requesthandling">Handling Authentication API Responses</a> in the \ref authentication "Authentication" page.
 
 # Important Note on Blueprint Data Types
 
