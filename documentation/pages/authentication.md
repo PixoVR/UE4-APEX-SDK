@@ -96,6 +96,8 @@ Using Blueprint:
 \image{inline} html ue-apex-sdk_login-bp-example.png "Blueprint Login Call"
 </div>
 
+\anchor apiResponseDelegates
+
 ### Binding to API Response Delegates
 
 #### Using C++:

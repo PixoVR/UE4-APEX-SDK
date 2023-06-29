@@ -139,11 +139,12 @@ A very simple result that captures the information in our example might look lik
 
 \code{.js}
 "result":{
-	"success":true
+	"completion":true,
+	"success":true,
 	"score":{
-		"min":0
-		"max":100
-		"raw":85
+		"min":0,
+		"max":100,
+		"raw":85,
 		"scaled":0.85
 	}
 }
@@ -191,7 +192,7 @@ time internally, and you do not need to do anything to include it in any xAPI st
 ## Going Further
 
 There are even more possibilities to structuring xAPI data than the Apex SDK supports. We have tried
-to find a balance between flexibility and ease of use and adoption. However if you find that there is a
-particular feature of the xAPI specification that you need or want to include that is not available in the
-current release of the Apex SDK, please reach out to us and we will work with you to figure out how to
-proceed.
+to find a balance between flexibility and ease of use and adoption. You may also find some features only
+available to C++ and not Blueprint with in Unreal. However if you find that there is a particular feature
+of the xAPI specification that you need or want to include that is not available in the current release
+of the Apex SDK, please reach out to us and we will work with you to figure out how to proceed.
