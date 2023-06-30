@@ -13,7 +13,7 @@ documentation you can get a better understanding of what is happening under the 
 nearly everything and makes authentication a breeze.
 
 To authenticate, you must bundle a username and password into a FApexLoginInfo object and pass it to UApexAPI::Login().
-You can also bundle a One-Time Code, generated on the PixoVR Platform, as the username and any length string into the password into a FApexLoginInfo object and pass it to UApexAPI::Login().
+You can also bundle an Assisted Login code, generated on the PixoVR Platform, as the username and any length string into the password into a FApexLoginInfo object and pass it to UApexAPI::Login().
 
 Features of this function are that it:
 
