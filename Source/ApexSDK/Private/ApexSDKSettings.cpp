@@ -101,15 +101,12 @@ void UApexSDKSettings::UpdateVersion(const TArray<FString>& VersionParts, const 
 	{
 		Settings->VersionDisplayName = FullVersion;
 		Settings->UpdateSinglePropertyInConfigFile(Settings->GetClass()->FindPropertyByName(GET_MEMBER_NAME_CHECKED(UAndroidRuntimeSettings, VersionDisplayName)), Settings->GetDefaultConfigFilename());
-	}
 
-	if (Fields.Contains(EPVRVersionFields::AndroidStoreVersion))
-	{
-		FString AndroidVersionNumber = FString::Printf(TEXT("%i%.2i%.2i"), MajorVerison, MinorVersion, PatchVersion);
-		if (UAndroidRuntimeSettings* Settings = GetMutableDefault<UAndroidRuntimeSettings>())
+		if (Fields.Contains(EPVRVersionFields::AndroidStoreVersion))
 		{
+			FString AndroidVersionNumber = FString::Printf(TEXT("%i%.2i%.2i"), MajorVerison, MinorVersion, PatchVersion);
 			Settings->StoreVersion = FCString::Atoi(*AndroidVersionNumber);
-			Settings->UpdateSinglePropertyInConfigFile(Settings->GetClass()->FindPropertyByName(GET_MEMBER_NAME_CHECKED(UAndroidRuntimeSettings, VersionDisplayName)), Settings->GetDefaultConfigFilename());
+			Settings->UpdateSinglePropertyInConfigFile(Settings->GetClass()->FindPropertyByName(GET_MEMBER_NAME_CHECKED(UAndroidRuntimeSettings, StoreVersion)), Settings->GetDefaultConfigFilename());
 		}
 	}
 
