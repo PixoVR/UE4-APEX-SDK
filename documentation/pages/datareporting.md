@@ -50,7 +50,7 @@ The UApexAPI::JoinSession() function should be called every time the user starts
  - Adds the given context extensions to the xAPI Statement context if it's not null.
  - Returns `FALSE` if there is no logged in user. Otherwise returns `TRUE`.
  - Will throw an error if there is already a session in progress that hasn't been ended with a
-   \ref Apex::EventTypes::PIXOVR_SESSION_START "PIXOVR_SESSION_COMPLETE" event, typically sent via the UApexAPI::CompleteSession() function.
+   \ref Apex::EventTypes::PIXOVR_SESSION_COMPLETE "PIXOVR_SESSION_COMPLETE" event, sent via the UApexAPI::CompleteSession() function.
  - UApexAPI::OnRequestComplete and UApexAPI::OnStaticRequestComplete with the type `EApexRequestType::JoinSession` is called when the user was able to join the session successfully. 
  - UApexAPI::OnRequestFail and UApexAPI::OnStaticRequestFail with the type `EApexRequestType::JoinSession` is called when the user was not able to join the session or when the server is not
    able to be reached. 
@@ -107,9 +107,9 @@ It:
 
 ### Parameters
 
-The UApexAPI::CompleteSession() function has 3 optional parameters:
+The UApexAPI::CompleteSession() function has 1 required parameter:
 
- - `InSessionData:FSessionData` Use this parameter to pass the basic data that Apex uses to complete
+ - `InSessionData:FSessionData` - Use this parameter to pass the basic data that Apex uses to complete
    the reporting dashboard for finished sessions. Failure to include any of this data will result in the
    dashboard displaying the session report as being "incomplete". More information can be found in the
    SessionData section of this page.
@@ -215,6 +215,8 @@ It:
 </div>
 
 ### Parameters
+
+The UApexAPI::SendSessionEvent() function has 1 required parameter:
 
  - `InStatement:FXAPIStatement` The object that provides all the necessary data to generate the xAPI statement.
 
