@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export PROJECT_NAME='ApexSDK - Unreal'
+export MENU_WEIGHT=50
 export PROJECT_VERSION=`cd ..; git tag | tail -n 1`
 export PROJECT_BRIEF='Documentation for the Unreal C++ Plugin'
 export PROJECT_STATUS='active'						# project status, for publishing.  Recognized choices are 'active' (default if not present), 'inactive' (invisable and won't appear in the documentation menu), 'deprecated' (visible in menu, but marked deprecated)
