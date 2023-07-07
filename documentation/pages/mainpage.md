@@ -19,6 +19,5 @@ Useful pages:
  - \subpage xapi
  - \subpage authentication
  - \subpage datareporting
- - \subpage blueprints
 
 
