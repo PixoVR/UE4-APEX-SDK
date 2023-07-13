@@ -27,3 +27,4 @@ RUN	./documentation/build.sh && \
 
 #ENTRYPOINT ["/docker-entrypoint.sh"]
 #CMD	["nginx", "-g", "daemon off;"]
+
