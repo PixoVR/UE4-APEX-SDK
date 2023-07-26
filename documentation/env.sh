@@ -13,7 +13,8 @@ export DEV_PROJECT_URL='../../../../Unreal/UE4-APEX-SDK/documentation/html'
 export PROJECT_MAIN_PAGE='../pages/mainpage.md'
 
 export DOXYGEN_FILTER='scripts/unreal_filter.py'
-export DOXYGEN_INPUT='../../Source/ApexSDK'
+export DOXYGEN_INPUT='"../../Source/ApexSDK"
+			"../../ApexSDK.uplugin"'
 export DOXYGEN_STRIP_FROM_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../Source/ApexSDK" && pwd)"
 export DOXYGEN_IGNORE_PREFIX='FXAPI F U'
 
