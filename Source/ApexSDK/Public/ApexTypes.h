@@ -128,6 +128,7 @@ struct APEXSDK_API FSessionData : public FJsonable
 {
     GENERATED_BODY()
 
+public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
     bool Complete;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
@@ -149,6 +150,16 @@ struct APEXSDK_API FSessionData : public FJsonable
     FXAPIExtension AdditionalResultData;
 
     virtual ~FSessionData() { }
+
+    FSessionData() { }
+
+    FSessionData(bool InComplete, bool InSuccess, float InScore, float InScoreScaled, 
+        float InScoreMin, float InScoreMax, int InDuration, 
+        FXAPIExtension InContextExtension, FXAPIExtension InResultExtension)
+        : Complete(InComplete), Success(InSuccess), Score(InScore), ScoreScaled(InScoreScaled),
+        ScoreMin(InScoreMin), ScoreMax(InScoreMax), Duration(InDuration),
+        AdditionalContextData(InContextExtension), AdditionalResultData(InResultExtension)
+    { }
 
     // TODO: Implement a FromJsonObject function. IMPORTANT TO DO!
     virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
@@ -177,6 +188,7 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
 {
     GENERATED_BODY()
 
+public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
     FString Uuid;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
@@ -190,8 +202,6 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
 
     // TODO: This data will get packed into the FXAPIStatement instead of an extra layer
     FSessionData SessionData;
-
-    
 
     virtual ~FCompleteSessionData() { }
 

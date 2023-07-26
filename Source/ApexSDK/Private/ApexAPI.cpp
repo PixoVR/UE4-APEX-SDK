@@ -665,7 +665,7 @@ bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
     Event.ModuleId = LoadedModuleId;
     Event.Uuid = CurrentSessionGuid.ToString();
     Event.EventType = Apex::EventTypes::PIXOVR_SESSION_EVENT;
-    Event.JsonData = InStatement;
+    Event.JsonData = EventStatement;
 
     // Now we create our request and send it!
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
