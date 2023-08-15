@@ -25,7 +25,6 @@ namespace UnrealBuildTool.Rules
 					"Engine",
 					"VaRest",
 					"Json",
-					"HeadMountedDisplay",
 					"EngineSettings"
 				});
 
@@ -36,7 +35,26 @@ namespace UnrealBuildTool.Rules
 					"Projects"
 				});
 
-			if (Target.bBuildEditor == true)
+            if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion >= 2)
+            {
+                PublicDependencyModuleNames.AddRange(
+                    new string[]
+                    {
+						"XRBase",
+                    }
+                );
+            }
+			else
+			{
+                PublicDependencyModuleNames.AddRange(
+                    new string[]
+                    {
+                        "HeadMountedDisplay",
+                    }
+                );
+            }
+
+            if (Target.bBuildEditor == true)
 			{
 				PublicDependencyModuleNames.Add("AndroidRuntimeSettings");
 			}
