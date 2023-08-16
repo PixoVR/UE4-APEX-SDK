@@ -439,6 +439,7 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
         ContextExtension.Clone(InContextExtension);
     }
 
+    Context.Extension = ContextExtension;
     Context.Extensions.AddCustomString(Apex::Extensions::MODULE_IDS, FString::FromInt(LoadedModuleId));
     Context.Extensions.AddString("device_id", DeviceId);
     Context.Extensions.AddString("device_model", DeviceModel);
