@@ -36,16 +36,18 @@ void UApexAPI::SetupModuleSettings()
         {
             FatalAPEX("No URL available. Please set the Server URI in the settings.");
         }
-
-        URL.RemoveFromEnd("/");
-        if (!URL.Contains("https://"))
+        else
         {
-            if (URL.Contains("http://"))
+            URL.RemoveFromEnd("/");
+            if (!URL.Contains("https://"))
             {
-                URL = URL.Replace(TEXT("http://"), TEXT(""));
-            }
+                if (URL.Contains("http://"))
+                {
+                    URL = URL.Replace(TEXT("http://"), TEXT(""));
+                }
 
-            URL.InsertAt(0, "https://");
+                URL.InsertAt(0, "https://");
+            }
         }
 
         LoadedModuleId = ApexSettings->ModuleId;
