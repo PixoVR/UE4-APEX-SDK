@@ -28,7 +28,7 @@
 	],
 	"Plugins": [
 		{
-			"Name": "PPlatformCore",
+			"Name": "PixoPlatformCore",
 			"Enabled": true
 		}
 	]

@@ -34,7 +34,7 @@ namespace UnrealBuildTool.Rules
 				{
 					"WebSockets",
 					"Projects",
-					"PPlatformCore"
+					"PixoPlatformCore"
 				});
 
 			if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion >= 2)

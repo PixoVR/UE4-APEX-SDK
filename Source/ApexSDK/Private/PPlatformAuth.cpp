@@ -169,8 +169,8 @@ void UPPlatformAuth::Ping()
 void UPPlatformAuth::OnPingComplete(const UVaRestRequestJSON* Request)
 {
     Log("On Ping Completed!");
-    OnPingCompleted.Broadcast();
     OnStaticPingCompleted.Broadcast();
+    OnPingCompleted.Broadcast();
 }
 
 void UPPlatformAuth::OnPingFail(const UVaRestRequestJSON* Request)
@@ -182,8 +182,8 @@ void UPPlatformAuth::OnPingFail(const UVaRestRequestJSON* Request)
 
     APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
 
-    OnPingFailed.Broadcast(APEXFailedRequest);
     OnStaticPingFailed.Broadcast(APEXFailedRequest);
+    OnPingFailed.Broadcast(APEXFailedRequest);
 }
 
 void UPPlatformAuth::LoginUser(const FString& InUsername, const FString& InPassword, bool bShouldLogout)
@@ -242,8 +242,8 @@ void UPPlatformAuth::OnLoginFail(const UVaRestRequestJSON* Request)
     
     APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
 
-    OnAuthorizationFailed.Broadcast(APEXFailedRequest, Request);
     OnStaticAuthorizationFailed.Broadcast(APEXFailedRequest, Request);
+    OnAuthorizationFailed.Broadcast(APEXFailedRequest, Request);
 }
 
 
@@ -268,8 +268,8 @@ void UPPlatformAuth::Logout()
     {
         CurrentActiveLogin.Invalidate();
 
-        OnLogoutCompleted.Broadcast();
         OnStaticLogoutCompleted.Broadcast();
+        OnLogoutCompleted.Broadcast();
     }
     else
     {
@@ -281,8 +281,8 @@ void UPPlatformAuth::Logout()
         ResponseObject->SetBoolField("Error", APEXFailedRequest.Error);
         ResponseObject->SetStringField("Message", APEXFailedRequest.Message);
 
-        OnLogoutFailed.Broadcast(APEXFailedRequest);
         OnStaticLogoutFailed.Broadcast(APEXFailedRequest);
+        OnLogoutFailed.Broadcast(APEXFailedRequest);
     }
 }
 
@@ -293,8 +293,8 @@ void UPPlatformAuth::OnLogoutComplete(const UVaRestRequestJSON* Request)
     {
         if (!Request->GetResponseObject()->GetRootObject()->HasField("Error"))
         {
-            OnLogoutCompleted.Broadcast();
             OnStaticLogoutCompleted.Broadcast();
+            OnLogoutCompleted.Broadcast();
         }
     }
 
@@ -313,8 +313,8 @@ void UPPlatformAuth::OnLogoutFail(const UVaRestRequestJSON* Request)
 
     APEXFailedRequest.FromJsonObject(ResponseObject->GetRootObject());
 
-    OnLogoutFailed.Broadcast(APEXFailedRequest);
     OnStaticLogoutFailed.Broadcast(APEXFailedRequest);
+    OnLogoutFailed.Broadcast(APEXFailedRequest);
 }
 
 void UPPlatformAuth::VerifyModuleAccess()
@@ -352,8 +352,8 @@ void UPPlatformAuth::OnUserVerificationComplete(const UVaRestRequestJSON* Reques
 
             if (FailedResponse == false)
             {
-                OnAuthorizationCompleted.Broadcast(CurrentActiveLogin, Request);
                 OnStaticAuthorizationCompleted.Broadcast(CurrentActiveLogin, Request);
+                OnAuthorizationCompleted.Broadcast(CurrentActiveLogin, Request);
             }
         }
     }
@@ -383,8 +383,8 @@ void UPPlatformAuth::OnUserVerificationFail(const UVaRestRequestJSON* Request)
         }
     }
 
-    OnAuthorizationFailed.Broadcast(APEXFailedRequest, Request);
     OnStaticAuthorizationFailed.Broadcast(APEXFailedRequest, Request);
+    OnAuthorizationFailed.Broadcast(APEXFailedRequest, Request);
 }
 
 #undef Fatal

@@ -20,6 +20,9 @@ enum EApexRequestType
 };
 
 #pragma region EventDelegates
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPSessionManagerReady);
+DECLARE_MULTICAST_DELEGATE(FOnStaticPSessionManagerReady);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnApexRequestComplete, EApexRequestType, RequestType, const class UVaRestRequestJSON*, Request);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnApexRequestFail, EApexRequestType, RequestType, FAPEXRequestFailed, FailedRequestResponse, const class UVaRestRequestJSON*, Request);
 
@@ -81,9 +84,10 @@ public:
 	UPSessionsManager();
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	bool JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension);
+	bool JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension, bool bIsMultiplayer = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	bool CompleteSession(const FSessionData& InSessionData);
@@ -108,6 +112,7 @@ protected:
 #pragma region PrivateFunctions
 	void OnAuthComplete(const FUserSessionData& AuthorizedUser, const class UVaRestRequestJSON* Request);
 	void OnLogoutComplete();
+	void SetupSessionManagerSettings(class UPPlatformCoreSettings* PlatformSettings);
 
 	bool FetchTopTen(int UserId, float TimePriorToToday, FString Scenario, int OrgUnit);
 
@@ -126,6 +131,7 @@ private:
 #pragma region PrivateVariables
 	class UVaRestSubsystem* VaRestSubsystem;
 	class UPPlatformAuth* AuthorizationSubsystem;
+	class UPPlatformCoreSettings* PlatformSettings;
 
 	FString URL;
 	int ModuleId;
@@ -136,21 +142,27 @@ private:
 public:
 
 #pragma region Events
+	UPROPERTY(BlueprintAssignable, Category = "Pixo Session Manager|Event")
+	FOnPSessionManagerReady OnSessionManagerReady;
+
+	FOnStaticPSessionManagerReady OnStaticSessionManagerReady;
+
+
 	// General Apex Requests
-	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	UPROPERTY(BlueprintAssignable, Category = "Pixo Session Manager|Event")
 	FOnApexRequestComplete OnRequestComplete;
 
-	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	UPROPERTY(BlueprintAssignable, Category = "Pixo Session Manager|Event")
 	FOnApexRequestFail OnRequestFail;
 
 	FOnStaticApexRequestComplete OnStaticRequestComplete;
 	FOnStaticApexRequestFail OnStaticRequestFail;
 
 	// Fetch Score Requests
-	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	UPROPERTY(BlueprintAssignable, Category = "Pixo Session Manager|Event")
 	FOnApexTopTenDataComplete OnFetchTopTenComplete;
 	
-	UPROPERTY(BlueprintAssignable, Category = "Apex|Event")
+	UPROPERTY(BlueprintAssignable, Category = "Pixo Session Manager|Event")
 	FOnApexTopTenDataFail OnFetchTopTenFail;
 
 	FOnStaticApexTopTenDataComplete OnStaticFetchTopTenComplete;

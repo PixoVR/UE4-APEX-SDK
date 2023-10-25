@@ -8,22 +8,34 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "GenericPlatform/GenericPlatformMisc.h"
 #include "GenericPlatform/GenericPlatformHttp.h"
+#include "PPlatformCoreSettings.h"
+#include "PPlatformCore.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogApexAPI, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogPSessionsManager, Log, All);
 
-#define LogAPEX(pmt, ...) UE_LOG(LogApexAPI, Log, TEXT(pmt), ##__VA_ARGS__)
-#define WarnAPEX(pmt, ...) UE_LOG(LogApexAPI, Warning, TEXT(pmt), ##__VA_ARGS__)
-#define ErrorAPEX(pmt, ...) UE_LOG(LogApexAPI, Error, TEXT(pmt), ##__VA_ARGS__)
-#define FatalAPEX(pmt, ...) UE_LOG(LogApexAPI, Fatal, TEXT(pmt), ##__VA_ARGS__)
+#define Log(pmt, ...) UE_LOG(LogPSessionsManager, Log, TEXT(pmt), ##__VA_ARGS__)
+#define Warn(pmt, ...) UE_LOG(LogPSessionsManager, Warning, TEXT(pmt), ##__VA_ARGS__)
+#define Error(pmt, ...) UE_LOG(LogPSessionsManager, Error, TEXT(pmt), ##__VA_ARGS__)
+#define Fatal(pmt, ...) UE_LOG(LogPSessionsManager, Fatal, TEXT(pmt), ##__VA_ARGS__)
 
 UPSessionsManager::UPSessionsManager()
-    : UEngineSubsystem()
+    : UEngineSubsystem(),
+    PlatformSettings(nullptr)
 {
 }
 
 void UPSessionsManager::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
+
+    if (FPPlatformCoreModule::IsAvailable())
+    {
+        PlatformSettings = FPPlatformCoreModule::Get().GetSettings();
+        SetupSessionManagerSettings(PlatformSettings);
+        PlatformSettings->OnStaticSettingsChanged.AddLambda([&](UPPlatformCoreSettings* UpdatedSettings) -> void {
+            SetupSessionManagerSettings(UpdatedSettings);
+        });
+    }
 
     VaRestSubsystem = GEngine->GetEngineSubsystem<UVaRestSubsystem>();
     AuthorizationSubsystem = GEngine->GetEngineSubsystem<UPPlatformAuth>();
@@ -49,12 +61,24 @@ void UPSessionsManager::Initialize(FSubsystemCollectionBase& Collection)
     }
 }
 
+void UPSessionsManager::Deinitialize()
+{
+}
+
 void UPSessionsManager::OnAuthComplete(const FUserSessionData& AuthorizedUser, const class UVaRestRequestJSON* Request)
 {
     CurrentUser = AuthorizedUser;
-    URL = AuthorizationSubsystem->URL;
-    ModuleId = AuthorizationSubsystem->ModuleId;
-    ModuleVersion = AuthorizationSubsystem->ModuleVersion;
+
+    // We have to wait for the user to be set before the session manager can be used.
+    OnSessionManagerReady.Broadcast();
+    OnStaticSessionManagerReady.Broadcast();
+}
+
+void UPSessionsManager::SetupSessionManagerSettings(UPPlatformCoreSettings* InPlatformSettings)
+{
+    URL = PlatformSettings->PlatformURL;
+    ModuleId = PlatformSettings->ModuleId;
+    ModuleVersion = PlatformSettings->ModuleVersion;
 }
 
 void UPSessionsManager::OnLogoutComplete()
@@ -62,11 +86,11 @@ void UPSessionsManager::OnLogoutComplete()
     CurrentUser.Invalidate();
 }
 
-bool UPSessionsManager::JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension)
+bool UPSessionsManager::JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension, bool bIsMultiplayer)
 {
     if (!AuthorizationSubsystem->IsLoggedIn())
     {
-        ErrorAPEX("Cannot join session with no active login.");
+        Error("Cannot join session with no active login.");
         return false;
     }
 
@@ -81,7 +105,7 @@ bool UPSessionsManager::JoinSession(FString InScenarioId, const FXAPIExtension& 
 
     if (SessionInProgress == true)
     {
-        ErrorAPEX("Session is already in progress. The previous session didn't complete or a new session was started during an active session.");
+        Error("Session is already in progress. The previous session didn't complete or a new session was started during an active session.");
     }
 
     CurrentSessionGuid = FGuid::NewGuid();
@@ -116,6 +140,11 @@ bool UPSessionsManager::JoinSession(FString InScenarioId, const FXAPIExtension& 
     Context.Extensions.AddString("device_id", DeviceId);
     Context.Extensions.AddString("device_model", DeviceModel);
 
+    if (bIsMultiplayer)
+    {
+        Context.Extensions.AddString("multiplayer", "true");
+    }
+
     Statement.Actor = Actor;
     Statement.Verb = Verb;
     Statement.Target = Activity;
@@ -149,7 +178,7 @@ bool UPSessionsManager::JoinSession(FString InScenarioId, const FXAPIExtension& 
 
 void UPSessionsManager::OnJoinSessionComplete(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Session was successfully joined.");
+    Log("Session was successfully joined.");
     SessionInProgress = true;
     OnRequestComplete.Broadcast(EApexRequestType::JoinSession, Request);
     OnStaticRequestComplete.Broadcast(EApexRequestType::JoinSession, Request);
@@ -157,7 +186,7 @@ void UPSessionsManager::OnJoinSessionComplete(const UVaRestRequestJSON* Request)
 
 void UPSessionsManager::OnJoinSessionFail(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Failed to join session. %d", Request->GetResponseCode());
+    Log("Failed to join session. %d", Request->GetResponseCode());
     SessionInProgress = false;
     CurrentSessionGuid.Invalidate();
 
@@ -174,13 +203,13 @@ bool UPSessionsManager::CompleteSession(const FSessionData& InSessionData)
 {
     if (!CurrentUser.IsSet())
     {
-        ErrorAPEX("Cannot complete session with no active login.");
+        Error("Cannot complete session with no active login.");
         return false;
     }
 
     if (SessionInProgress == false)
     {
-        ErrorAPEX("No current session in progress.");
+        Error("No current session in progress.");
         return false;
     }
 
@@ -259,7 +288,7 @@ bool UPSessionsManager::CompleteSession(const FSessionData& InSessionData)
 
 void UPSessionsManager::OnCompleteSessionComplete(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Session complete!");
+    Log("Session complete!");
     SessionInProgress = false;
     CurrentSessionGuid.Invalidate();
     OnRequestComplete.Broadcast(EApexRequestType::CompleteSession, Request);
@@ -268,7 +297,7 @@ void UPSessionsManager::OnCompleteSessionComplete(const UVaRestRequestJSON* Requ
 
 void UPSessionsManager::OnCompleteSessionFail(const UVaRestRequestJSON* Request)
 {
-    WarnAPEX("Failed to complete session. %d", Request->GetResponseCode());
+    Warn("Failed to complete session. %d", Request->GetResponseCode());
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
     FAPEXRequestFailed APEXFailedRequest;
@@ -284,47 +313,46 @@ bool UPSessionsManager::SendSessionEvent(const FXAPIStatement& InStatement)
     FXAPIStatement EventStatement = InStatement;
     if (!CurrentUser.IsSet())
     {
-        ErrorAPEX("Cannot complete session with no active login.");
+        Error("Cannot complete session with no active login.");
         return false;
     }
 
     if (SessionInProgress == false)
     {
-        ErrorAPEX("No current session in progress.");
+        Error("No current session in progress.");
         return false;
     }
 
     if (EventStatement.IsEmpty())
     {
-        ErrorAPEX("No event data to send.");
+        Error("No event data to send.");
         return false;
-    }
-
-    if (!EventStatement.Actor.IsEmpty())
-    {
-        WarnAPEX("Actor data should not be filled out.");
     }
 
     if (EventStatement.Verb.IsEmpty())
     {
-        ErrorAPEX("Verb missing from eventStatement.");
+        Error("Verb missing from eventStatement.");
         return false;
     }
 
     if (EventStatement.Verb.ID.IsEmpty())
     {
-        ErrorAPEX("Verb ID missing from eventStatement.");
+        Error("Verb ID missing from eventStatement.");
         return false;
     }
 
     if (EventStatement.Target.IsEmpty())
     {
-        ErrorAPEX("Object (target) missing from eventStatement.");
+        Error("Object (target) missing from eventStatement.");
         return false;
     }
 
-    EventStatement.Actor.MBox = CurrentUser.Email;
-    EventStatement.Actor.Name = FString::Printf(TEXT("%s %s"), *CurrentUser.FirstName, *CurrentUser.LastName);
+    if (EventStatement.Actor.IsEmpty() || EventStatement.Actor.Name.IsEmpty())
+    {
+        Log("Actor is empty or missing a name, will default to the current user.");
+        EventStatement.Actor.MBox = CurrentUser.Email;
+        EventStatement.Actor.Name = FString::Printf(TEXT("%s %s"), *CurrentUser.FirstName, *CurrentUser.LastName);
+    }
 
     EventStatement.Context.Registration = CurrentSessionGuid;
     EventStatement.Context.Revision = ModuleVersion;
@@ -361,14 +389,14 @@ bool UPSessionsManager::SendSessionEvent(const FXAPIStatement& InStatement)
 
 void UPSessionsManager::OnSendSessionEventComplete(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Session event was sent successfully.");
+    Log("Session event was sent successfully.");
     OnRequestComplete.Broadcast(EApexRequestType::SessionEvent, Request);
     OnStaticRequestComplete.Broadcast(EApexRequestType::SessionEvent, Request);
 }
 
 void UPSessionsManager::OnSendSessionEventFail(const UVaRestRequestJSON* Request)
 {
-    WarnAPEX("Failed to send session event. %d", Request->GetResponseCode());
+    Warn("Failed to send session event. %d", Request->GetResponseCode());
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
     FAPEXRequestFailed APEXFailedRequest;
@@ -403,7 +431,7 @@ bool UPSessionsManager::FetchTopTen(int UserId, float TimePriorToToday, FString 
 {
     if (!CurrentUser.IsSet())
     {
-        ErrorAPEX("Cannot complete session with no active login.");
+        Error("Cannot complete session with no active login.");
         return false;
     }
 
@@ -468,7 +496,7 @@ void UPSessionsManager::OnTopTenComplete(const UVaRestRequestJSON* Request)
         {
             if (!ResponseObject->GetBoolField("Error"))
             {
-                LogAPEX("Successfully fetched top ten data!");
+                Log("Successfully fetched top ten data!");
 
                 // It's not a failed response!
                 FailedResponse = false;
@@ -490,7 +518,7 @@ void UPSessionsManager::OnTopTenComplete(const UVaRestRequestJSON* Request)
 
 void UPSessionsManager::OnTopTenFail(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Fetch Top Ten failed with response code %i", Request->GetResponseCode());
+    Log("Fetch Top Ten failed with response code %i", Request->GetResponseCode());
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
     FAPEXRequestFailed APEXFailedRequest;
@@ -501,7 +529,7 @@ void UPSessionsManager::OnTopTenFail(const UVaRestRequestJSON* Request)
     OnStaticFetchTopTenFail.Broadcast(APEXFailedRequest, Request);
 }
 
-#undef FatalAPEX
-#undef ErrorAPEX
-#undef WarnAPEX
-#undef LogAPEX
+#undef Fatal
+#undef Error
+#undef Warn
+#undef Log
