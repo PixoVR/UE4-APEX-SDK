@@ -4,4 +4,3 @@
 #include "ApexTypes.h"
 #include "VaRest/Public/VaRestSubsystem.h"
 #include "ApexSDK.h"
-#include "ApexSDKSettings.h"

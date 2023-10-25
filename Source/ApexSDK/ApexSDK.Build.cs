@@ -25,14 +25,16 @@ namespace UnrealBuildTool.Rules
 					"Engine",
 					"VaRest",
 					"Json",
-					"EngineSettings"
+					"EngineSettings",
+					"Http"
 				});
 
 			PrivateDependencyModuleNames.AddRange(
 				new string[]
 				{
 					"WebSockets",
-					"Projects"
+					"Projects",
+					"PPlatformCore"
 				});
 
 			if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion >= 2)

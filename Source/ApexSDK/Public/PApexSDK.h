@@ -4,8 +4,6 @@
 
 #include "Modules/ModuleManager.h"
 
-class UApexSDKSettings;
-
 class FApexSDKModule : public IModuleInterface
 {
 public:
@@ -33,11 +31,4 @@ public:
 	{
 		return FModuleManager::Get().IsModuleLoaded("ApexSDK");
 	}
-
-	/** Getter for internal settings object to support runtime configuration changes */
-	UApexSDKSettings* GetSettings() const;
-
-protected:
-	/** Module settings */
-	UApexSDKSettings* ModuleSettings;
 };
