@@ -1,0 +1,30 @@
+{
+	"FileVersion": 3,
+	"FriendlyName": "PixoVR Data Reporting",
+	"Version": 1,
+	"VersionName": "2.0.0",
+	"CreatedBy": "PixoVR Corp",
+	"CreatedByURL": "https://apex.com",
+	"Description": "Plugin allows communication with the PixoVR Platform API for Authorization and Sessions. Copyright 2022-2023 PixoVR Corp. All Rights Reserved.",
+	"Category": "PixoVR",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+
+	"Modules": [
+		{
+			"Name": "PixoDataReporting",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "PixoPlatformCore",
+			"Enabled": true
+		},
+		{
+			"Name": "PixoAuth",
+			"Enabled": true
+		}
+	]
+}
