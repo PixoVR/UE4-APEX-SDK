@@ -3,13 +3,12 @@
 	"FriendlyName": "PixoVR Data Reporting",
 	"Version": 1,
 	"VersionName": "2.0.0",
-	"CreatedBy": "PixoVR Corp",
-	"CreatedByURL": "https://apex.com",
-	"Description": "Plugin allows communication with the PixoVR Platform API for Authorization and Sessions. Copyright 2022-2023 PixoVR Corp. All Rights Reserved.",
+	"CreatedBy": "PixoVR",
+	"CreatedByURL": "https://www.pixovr.com",
+	"Description": "Allows communication with the PixoVR Platform API for Authorization and Sessions.",
 	"Category": "PixoVR",
-	"DocsURL": "",
-	"MarketplaceURL": "",
-
+	"DocsURL": "https://docs.pixovr.com",
+	"CanContainContent": false,
 	"Modules": [
 		{
 			"Name": "PixoDataReporting",

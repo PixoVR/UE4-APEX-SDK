@@ -26,7 +26,7 @@ namespace UnrealBuildTool.Rules
 					"EngineSettings",
 					"VaRest",
 					"Json",
-					"Http",
+					"HTTP",
 				});
 
 			PrivateDependencyModuleNames.AddRange(
