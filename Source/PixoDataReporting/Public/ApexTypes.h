@@ -29,8 +29,6 @@ struct PIXODATAREPORTING_API FJoinSessionData : public FJsonable
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Join Session")
 	FXAPIStatement JsonData;
 
-	FJoinSessionData() = default;
-
 	virtual ~FJoinSessionData() {}
 
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const
@@ -95,8 +93,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
 	FXAPIExtension AdditionalResultData;
 
-	FSessionData() = default;
-
 	virtual ~FSessionData() { }
 
 	FSessionData() : Complete(false), Success(false), Score(0.0f), ScoreScaled(0.0f),
@@ -152,8 +148,6 @@ public:
 
 	// TODO: This data will get packed into the FXAPIStatement instead of an extra layer
 	FSessionData SessionData;
-
-	FCompleteSessionData() = default;
 
 	virtual ~FCompleteSessionData() { }
 
@@ -249,8 +243,6 @@ struct PIXODATAREPORTING_API FSessionEventData : public FJsonable
 	FXAPIStatement JsonData;
 
 public:
-	FSessionEventData() = default;
-
 	virtual ~FSessionEventData() { }
 
 	virtual TSharedPtr<FJsonObject> ToJsonObject() const override
@@ -308,8 +300,6 @@ struct PIXODATAREPORTING_API FApexUserData : public FJsonable
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|User Data")
 	FString Username;
-
-	FApexUserData() = default;
 
 	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
 	{
@@ -371,8 +361,6 @@ struct PIXODATAREPORTING_API FSessionReportData : public FJsonable
 	FString UpdatedAt;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
 	FXAPIStatement JsonData;
-
-	FSessionReportData() = default;
 
 	virtual ~FSessionReportData() { }
 
@@ -445,8 +433,6 @@ struct PIXODATAREPORTING_API FTopTenData : public FJsonable
 	TArray<FSessionReportData> Sessions;
 
 public:
-	FTopTenData() = default;
-
 	virtual ~FTopTenData() { }
 
 	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
