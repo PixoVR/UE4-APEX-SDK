@@ -74,9 +74,9 @@ struct PIXODATAREPORTING_API FSessionData : public FJsonable
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
-	bool Complete;
+	bool Complete = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
-	bool Success;
+	bool Success = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
 	float Score = 0.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
@@ -354,7 +354,7 @@ struct PIXODATAREPORTING_API FSessionReportData : public FJsonable
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
 	float SessionDuration = 0.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
-	bool LessonStatus;
+	bool LessonStatus = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
 	FString CreatedAt;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
@@ -424,7 +424,7 @@ struct PIXODATAREPORTING_API FTopTenData : public FJsonable
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Top Ten Data")
-	bool Error;
+	bool Error = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Top Ten Data")
 	FString Message;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Top Ten Data")
