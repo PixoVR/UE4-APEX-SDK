@@ -4,11 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "VaRestJsonValue.h"
 #include "Dom/JsonValue.h"
-#include "PixoPlatformJSON.h"
-#include "XAPIExtension.h"
 #include "VaRestSubsystem.h"
+
+#include "XAPIExtension.h"
+#include "PixoConfigJSON.h"
+
 #include "PixoDataReportingFunctionLibrary.generated.h"
 
 /**

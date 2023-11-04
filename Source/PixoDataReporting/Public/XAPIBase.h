@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PixoPlatformJSON.h"
+
+#include "PixoConfigJSON.h"
 #include "XAPIBase.generated.h"
 
 USTRUCT()

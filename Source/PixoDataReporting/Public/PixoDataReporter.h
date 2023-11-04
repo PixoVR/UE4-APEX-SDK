@@ -5,11 +5,14 @@
 #include "CoreMinimal.h"
 #include "Subsystems/EngineSubsystem.h"
 #include "Misc/DateTime.h"
+
+#include "ApexTypes.h"
 #include "ApexSDKDefines.h"
 #include "XAPITypes.h"
-#include "ApexTypes.h"
-#include "PPlatformCoreJsonTypes.h"
+
+#include "PixoConfigJsonTypes.h"
 #include "PixoAuthWebSocket.h"
+
 #include "PixoDataReporter.generated.h"
 
 UENUM(BlueprintType, Category = "Data Reporting", meta = (ScriptName = "MultiUserConnectionErrorType"))
@@ -110,7 +113,7 @@ protected:
 #pragma region PrivateFunctions
 	void OnAuthComplete(const FUserSessionData& AuthorizedUser, const class UVaRestRequestJSON* Request);
 	void OnLogoutComplete();
-	void SetupSessionManagerSettings(class UPPlatformCoreSettings* PlatformSettings);
+	void SetupSessionManagerSettings(class UPixoConfigSettings* PlatformSettings);
 
 	bool FetchTopTen(int UserId, float TimePriorToToday, FString Scenario, int OrgUnit);
 
@@ -129,7 +132,7 @@ private:
 #pragma region PrivateVariables
 	class UVaRestSubsystem* VaRestSubsystem;
 	class UPAuthorizer* AuthorizationSubsystem;
-	class UPPlatformCoreSettings* PlatformSettings;
+	class UPixoConfigSettings* PlatformSettings;
 
 	FString URL;
 	int ModuleId;

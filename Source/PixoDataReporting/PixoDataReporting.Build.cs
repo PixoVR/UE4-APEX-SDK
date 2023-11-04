@@ -34,7 +34,7 @@ namespace UnrealBuildTool.Rules
 				{
 					"WebSockets",
 					"Projects",
-					"PixoPlatformCore",
+					"PixoConfig",
 					"PixoAuth"
 				});
 

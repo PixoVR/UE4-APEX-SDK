@@ -7,8 +7,9 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "GenericPlatform/GenericPlatformMisc.h"
 #include "GenericPlatform/GenericPlatformHttp.h"
-#include "PPlatformCoreSettings.h"
-#include "PPlatformCore.h"
+
+#include "PixoConfigSettings.h"
+#include "PixoConfig.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPDataReporter, Log, All);
 
@@ -27,11 +28,11 @@ void UPDataReporter::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
-    if (FPPlatformCoreModule::IsAvailable())
+    if (FPixoConfigModule::IsAvailable())
     {
-        PlatformSettings = FPPlatformCoreModule::Get().GetSettings();
+        PlatformSettings = FPixoConfigModule::Get().GetSettings();
         SetupSessionManagerSettings(PlatformSettings);
-        PlatformSettings->OnStaticSettingsChanged.AddLambda([&](UPPlatformCoreSettings* UpdatedSettings) -> void {
+        PlatformSettings->OnStaticSettingsChanged.AddLambda([&](UPixoConfigSettings* UpdatedSettings) -> void {
             SetupSessionManagerSettings(UpdatedSettings);
         });
     }
@@ -74,7 +75,7 @@ void UPDataReporter::OnAuthComplete(const FUserSessionData& AuthorizedUser, cons
     OnStaticDataReporterReady.Broadcast();
 }
 
-void UPDataReporter::SetupSessionManagerSettings(UPPlatformCoreSettings* InPlatformSettings)
+void UPDataReporter::SetupSessionManagerSettings(UPixoConfigSettings* InPlatformSettings)
 {
     URL = PlatformSettings->PlatformURL;
     ModuleId = PlatformSettings->ModuleId;

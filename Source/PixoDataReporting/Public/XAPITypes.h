@@ -7,8 +7,10 @@
 #include "Templates/SharedPointer.h"
 #include "Misc/DateTime.h"
 #include "Dom/JsonValue.h"
-#include "PixoPlatformJSON.h"
+
+#include "PixoConfigJSON.h"
 #include "PixoDataReportingFunctionLibrary.h"
+
 #include "XAPIBase.h"
 #include "XAPIExtension.h"
 #include "OptionalTypes.h"
@@ -32,7 +34,7 @@ struct PIXODATAREPORTING_API FXAPILanguageMap : public FXAPIBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Language Map")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Language Map")
 	TMap<FString, FString> Languages;
 
 public:
@@ -138,10 +140,10 @@ struct PIXODATAREPORTING_API FXAPIInteractionComponent : public FXAPIBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Interaction Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Interaction Component")
 	FString ID;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Interaction Component")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Interaction Component")
 	FXAPILanguageMap Description;
 
 
@@ -182,41 +184,41 @@ struct PIXODATAREPORTING_API FXAPIActivityDefinition : public FXAPIBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	FString Type;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	FString MoreInfo;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	FXAPILanguageMap Name;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	FXAPILanguageMap Description;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	FXAPIExtension Extensions;
 
 	// TODO (MGruber): Allow InteractionType to be set through a library function
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	TOptional<FXAPIInteractionType> InteractionType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	TArray<FString> CorrectResponsesPattern;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	TArray<FXAPIInteractionComponent> Choices;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	TArray<FXAPIInteractionComponent> Scale;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	TArray<FXAPIInteractionComponent> Source;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	TArray<FXAPIInteractionComponent> Target;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity Definition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity Definition")
 	TArray<FXAPIInteractionComponent> Steps;
 
 	virtual bool IsEmpty() const override
@@ -307,22 +309,22 @@ struct PIXODATAREPORTING_API FXAPIAgent : public FXAPIBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Agent")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Agent")
 	FString Name;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Agent")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Agent")
 	FString MBox;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Agent")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Agent")
 	FString MBoxSha1Sum;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Agent")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Agent")
 	FString OpenId;
 
 	// TODO (MGruber): Add Account in as properties
 	//AgentAccount Account;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Agent")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Agent")
 		FXAPIExtension Extensions;
 
 	virtual bool IsEmpty() const override
@@ -407,10 +409,10 @@ struct PIXODATAREPORTING_API FXAPIVerb : public FXAPIBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Verb")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Verb")
 	FString ID;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Verb")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Verb")
 	FXAPILanguageMap Display;
 
 	virtual bool IsEmpty() const override
@@ -458,13 +460,13 @@ struct PIXODATAREPORTING_API FXAPIActivity : public FXAPIBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity")
 	FString ID;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity")
 	FXAPIActivityDefinition Definition;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Activity")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Activity")
 	FXAPIExtension Extensions;
 
 	virtual FString GetObjectType() const
@@ -527,25 +529,25 @@ struct PIXODATAREPORTING_API FXAPIContext : public FXAPIBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Context")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Context")
 	FGuid Registration;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Context")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Context")
 	FXAPIAgent Instructor;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Context")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Context")
 	FXAPIAgent Team;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Context")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Context")
 	FString Language;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Context")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Context")
 	FString Revision;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Context")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Context")
 	FString Platform;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Context")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Context")
 	FXAPIExtension Extensions;
 
 	// TODO (MGruber): Add these in as properties
@@ -651,16 +653,16 @@ struct PIXODATAREPORTING_API FXAPIScore : public FXAPIBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Score")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Score")
 	FOptionalFloat Scaled;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Score")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Score")
 	FOptionalFloat Raw;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Score")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Score")
 	FOptionalFloat Min;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Score")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Score")
 	FOptionalFloat Max;
 
 	virtual bool IsEmpty() const override
@@ -732,15 +734,15 @@ struct FXAPIResult : public FXAPIBase
 
 	TOptional<bool> Success;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Result")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Result")
 	FString Response;
 
 	TOptional<FTimespan> Duration;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Result")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Result")
 	FXAPIScore Score;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Result")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Result")
 	FXAPIExtension Extensions;
 
 	virtual bool IsEmpty() const override
@@ -837,19 +839,19 @@ protected:
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Statement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Statement")
 	FXAPIAgent Actor;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Statement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Statement")
 	FXAPIVerb Verb;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Statement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Statement")
 	FXAPIActivity Target;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Statement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Statement")
 	FXAPIResult Result;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Statement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Statement")
 	FXAPIContext Context;
 
 	// TODO (MGruber): Add a function get the timestamp value.
@@ -947,12 +949,12 @@ struct PIXODATAREPORTING_API FXAPIStatement : public FXAPIStatementBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Statement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Statement")
 	mutable FGuid Id;
 
 	mutable TOptional<FDateTime> Stored;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Statement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo|XAPI|Statement")
 	FXAPIAgent Authority;
 
 	void Stamp() const
