@@ -41,7 +41,7 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticDataReporterTopTenDataFail, FPRequ
 #pragma endregion EventDelegates
 
 /**
-	\class UPDataReporter
+	\class UPixoDataReporter
 	\brief The main class to access the Apex platform API.
 
 	UApexAPI contains functionality to reach the Apex API. Information about the module, 
@@ -51,7 +51,7 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStaticDataReporterTopTenDataFail, FPRequ
 	\todo Uncomment out the Logout API call once it's implemented.
  */
 UCLASS(BlueprintType, Blueprintable, DisplayName = "PixoVR Data Reporter", meta=(DisplayName="PixoVR Data Reporter", Keywords="Data Reporter Pixo"))
-class PIXODATAREPORTING_API UPDataReporter : public UEngineSubsystem
+class PIXODATAREPORTING_API UPixoDataReporter : public UEngineSubsystem
 {
 	GENERATED_BODY()
 
@@ -85,7 +85,7 @@ protected:
 	bool SessionInProgress;
 
 public:
-	UPDataReporter();
+	UPixoDataReporter();
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
