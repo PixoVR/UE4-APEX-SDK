@@ -23,7 +23,7 @@ class PIXODATAREPORTING_API UPDataReportingFunctionLibrary : public UBlueprintFu
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporting|Data")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporting|Data")
 	static FXAPIExtension CreateExtensionData(const TMap<FString, UVaRestJsonValue*>& Data);
 	
 public:

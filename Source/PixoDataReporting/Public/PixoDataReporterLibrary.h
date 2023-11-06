@@ -17,22 +17,22 @@ class PIXODATAREPORTING_API UPDataReporterLibrary : public UBlueprintFunctionLib
 
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter Library")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter Library")
 	static bool JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension, bool bIsMultiplayer = false);
 	
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter Library")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter Library")
 	static bool CompleteSession(const FSessionData& InSessionData);
 	
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter Library")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter Library")
 	static bool SendSessionEvent(const FXAPIStatement& InStatement);
 	
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter Library")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter Library")
 	static bool FetchTopTen(FString Scenario, int OrgUnit);
 	
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter Library", meta = (DisplayName = "Fetch Top Ten By User"))
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter Library", meta = (DisplayName = "Fetch Top Ten By User"))
 	static bool FetchTopTenByUser(FString Scenario, int UserId = -1, int OrgUnit = -1);
 	
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter Library")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter Library")
 	static bool FetchTopTenByTimeRange(float TimePriorToToday, FString Scenario, int OrgUnit);
 
 public:

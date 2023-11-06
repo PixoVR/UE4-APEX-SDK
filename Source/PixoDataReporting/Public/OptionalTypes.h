@@ -8,152 +8,152 @@
 USTRUCT(BlueprintType)
 struct PIXODATAREPORTING_API FOptionalInt
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    TOptional<int> OptionalValue;
+	TOptional<int> OptionalValue;
 public:
 
-    virtual ~FOptionalInt() {}
+	virtual ~FOptionalInt() {}
 
-    int Get() const
-    {
-        if (OptionalValue.IsSet())
-        {
-            return *OptionalValue;
-        }
-        return 0;
-    }
+	int Get() const
+	{
+		if (OptionalValue.IsSet())
+		{
+			return *OptionalValue;
+		}
+		return 0;
+	}
 
-    int Get(bool& IsSet)
-    {
-        IsSet = OptionalValue.IsSet();
-        if (IsSet)
-        {
-            return *OptionalValue;
-        }
-        return 0;
-    }
+	int Get(bool& IsSet)
+	{
+		IsSet = OptionalValue.IsSet();
+		if (IsSet)
+		{
+			return *OptionalValue;
+		}
+		return 0;
+	}
 
-    void Set(int Value)
-    {
-        OptionalValue = Value;
-    }
+	void Set(int Value)
+	{
+		OptionalValue = Value;
+	}
 
-    bool IsSet() const
-    {
-        return OptionalValue.IsSet();
-    }
+	bool IsSet() const
+	{
+		return OptionalValue.IsSet();
+	}
 
-    virtual int operator*()
-    {
-        bool IsSet;
-        return Get(IsSet);
-    }
+	virtual int operator*()
+	{
+		bool IsSet;
+		return Get(IsSet);
+	}
 
-    virtual void operator=(const int& Value)
-    {
-        OptionalValue = Value;
-    }
+	virtual void operator=(const int& Value)
+	{
+		OptionalValue = Value;
+	}
 };
 
 USTRUCT(BlueprintType)
 struct PIXODATAREPORTING_API FOptionalFloat
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    TOptional<float> OptionalValue;
+	TOptional<float> OptionalValue;
 public:
 
-    virtual ~FOptionalFloat() {}
+	virtual ~FOptionalFloat() {}
 
-    float Get() const
-    {
-        if (OptionalValue.IsSet())
-        {
-            return *OptionalValue;
-        }
-        return 0;
-    }
+	float Get() const
+	{
+		if (OptionalValue.IsSet())
+		{
+			return *OptionalValue;
+		}
+		return 0;
+	}
 
-    float Get(bool& IsSet)
-    {
-        IsSet = OptionalValue.IsSet();
-        if (IsSet)
-        {
-            return *OptionalValue;
-        }
-        return 0;
-    }
+	float Get(bool& IsSet)
+	{
+		IsSet = OptionalValue.IsSet();
+		if (IsSet)
+		{
+			return *OptionalValue;
+		}
+		return 0;
+	}
 
-    void Set(float Value)
-    {
-        OptionalValue = Value;
-    }
+	void Set(float Value)
+	{
+		OptionalValue = Value;
+	}
 
-    bool IsSet() const
-    {
-        return OptionalValue.IsSet();
-    }
+	bool IsSet() const
+	{
+		return OptionalValue.IsSet();
+	}
 
-    virtual float operator*()
-    {
-        bool IsSet;
-        return Get(IsSet);
-    }
+	virtual float operator*()
+	{
+		bool IsSet;
+		return Get(IsSet);
+	}
 
-    virtual void operator=(const float& Value)
-    {
-        OptionalValue = Value;
-    }
+	virtual void operator=(const float& Value)
+	{
+		OptionalValue = Value;
+	}
 };
 
 USTRUCT(BlueprintType)
 struct PIXODATAREPORTING_API FOptionalBool
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    TOptional<bool> OptionalValue;
+	TOptional<bool> OptionalValue;
 public:
 
-    virtual ~FOptionalBool() {}
+	virtual ~FOptionalBool() {}
 
-    bool Get() const
-    {
-        if (OptionalValue.IsSet())
-        {
-            return *OptionalValue;
-        }
-        return 0;
-    }
+	bool Get() const
+	{
+		if (OptionalValue.IsSet())
+		{
+			return *OptionalValue;
+		}
+		return 0;
+	}
 
-    bool Get(bool& IsSet)
-    {
-        IsSet = OptionalValue.IsSet();
-        if (IsSet)
-        {
-            return *OptionalValue;
-        }
-        return 0;
-    }
+	bool Get(bool& IsSet)
+	{
+		IsSet = OptionalValue.IsSet();
+		if (IsSet)
+		{
+			return *OptionalValue;
+		}
+		return 0;
+	}
 
-    void Set(bool Value)
-    {
-        OptionalValue = Value;
-    }
+	void Set(bool Value)
+	{
+		OptionalValue = Value;
+	}
 
-    bool IsSet() const
-    {
-        return OptionalValue.IsSet();
-    }
+	bool IsSet() const
+	{
+		return OptionalValue.IsSet();
+	}
 
-    virtual bool operator*()
-    {
-        bool IsSet;
-        return Get(IsSet);
-    }
+	virtual bool operator*()
+	{
+		bool IsSet;
+		return Get(IsSet);
+	}
 
-    virtual void operator=(const bool& Value)
-    {
-        OptionalValue = Value;
-    }
+	virtual void operator=(const bool& Value)
+	{
+		OptionalValue = Value;
+	}
 };

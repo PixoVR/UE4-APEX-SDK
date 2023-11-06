@@ -7,19 +7,19 @@
 
 FXAPIExtension UPDataReportingFunctionLibrary::CreateExtensionData(const TMap<FString, UVaRestJsonValue*>& Data)
 {
-    FXAPIExtension Extension;
+	FXAPIExtension Extension;
 
-    for (const TTuple<FString, UVaRestJsonValue*>& ValuePair : Data)
-    {
-        Extension.Add(ValuePair.Key, ValuePair.Value->GetRootValue());
-    }
+	for (const TTuple<FString, UVaRestJsonValue*>& ValuePair : Data)
+	{
+		Extension.Add(ValuePair.Key, ValuePair.Value->GetRootValue());
+	}
 
-    return Extension;
+	return Extension;
 }
 
 FString UPDataReportingFunctionLibrary::GetDataReportingVersion()
 {
-    const auto PluginRef = IPluginManager::Get().FindPlugin("PixoDataReporting");
+	const auto PluginRef = IPluginManager::Get().FindPlugin("PixoDataReporting");
 
-    return !PluginRef.IsValid() ? FString("invalid") : PluginRef->GetDescriptor().VersionName;
+	return !PluginRef.IsValid() ? FString("invalid") : PluginRef->GetDescriptor().VersionName;
 }

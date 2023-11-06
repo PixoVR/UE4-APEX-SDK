@@ -16,17 +16,17 @@ struct PIXODATAREPORTING_API FJoinSessionData : public FJsonable
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Join Session")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Join Session")
 	FString Uuid;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Join Session")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Join Session")
 	FString EventType;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Join Session")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Join Session")
 	int ModuleId = -1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Join Session")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Join Session")
 	FString DeviceId;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Join Session")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Join Session")
 	FString IpAddress;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Join Session")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Join Session")
 	FXAPIStatement JsonData;
 
 	virtual ~FJoinSessionData() {}
@@ -73,24 +73,24 @@ struct PIXODATAREPORTING_API FSessionData : public FJsonable
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Data")
 	bool Complete = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Data")
 	bool Success = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Data")
 	float Score = 0.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Data")
 	float ScoreScaled = 0.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Data")
 	float ScoreMin = 0.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Data")
 	float ScoreMax = 0.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Data")
 	int Duration = -1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Data")
 	FXAPIExtension AdditionalContextData;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Data")
 	FXAPIExtension AdditionalResultData;
 
 	virtual ~FSessionData() { }
@@ -135,15 +135,15 @@ struct PIXODATAREPORTING_API FCompleteSessionData : public FJsonable
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Complete Session")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Complete Session")
 	FString Uuid;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Complete Session")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Complete Session")
 	FString EventType;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Complete Session")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Complete Session")
 	int ModuleId = -1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Complete Session")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Complete Session")
 	FString DeviceId;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Complete Session")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Complete Session")
 	FXAPIStatement JsonData;
 
 	// TODO: This data will get packed into the FXAPIStatement instead of an extra layer
@@ -231,15 +231,15 @@ struct PIXODATAREPORTING_API FSessionEventData : public FJsonable
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Event")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Event")
 	FString Uuid;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Event")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Event")
 	FString EventType;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Event")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Event")
 	int ModuleId = -1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Event")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Event")
 	FString DeviceId;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Event")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Event")
 	FXAPIStatement JsonData;
 
 public:
@@ -283,22 +283,22 @@ struct PIXODATAREPORTING_API FApexUserData : public FJsonable
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|User Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|User Data")
 	int Id = -1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|User Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|User Data")
 	int OrgUnit = -1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|User Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|User Data")
 	FString FirstName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|User Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|User Data")
 	FString LastName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|User Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|User Data")
 	FString Email;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|User Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|User Data")
 	FString Username;
 
 	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
@@ -341,25 +341,25 @@ struct PIXODATAREPORTING_API FSessionReportData : public FJsonable
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Report")
 	FString Id;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Report")
 	FString EventType;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Report")
 	int UserId = -1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Report")
 	int ModuleId = -1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Report")
 	int SessionId = -1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Report")
 	float SessionDuration = 0.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Report")
 	bool LessonStatus = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Report")
 	FString CreatedAt;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Report")
 	FString UpdatedAt;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Session Report")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Session Report")
 	FXAPIStatement JsonData;
 
 	virtual ~FSessionReportData() { }
@@ -423,13 +423,13 @@ struct PIXODATAREPORTING_API FTopTenData : public FJsonable
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Top Ten Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Top Ten Data")
 	bool Error = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Top Ten Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Top Ten Data")
 	FString Message;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Top Ten Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Top Ten Data")
 	FApexUserData User;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pixo Platform|Top Ten Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Top Ten Data")
 	TArray<FSessionReportData> Sessions;
 
 public:

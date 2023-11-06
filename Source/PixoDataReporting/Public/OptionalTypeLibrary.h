@@ -15,31 +15,31 @@ class PIXODATAREPORTING_API UOptionalLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, Category = "Pixo|Optional Types|Int")
+	UFUNCTION(BlueprintPure, Category = "PixoVR|Optional Types|Int")
 	static int GetInt(const FOptionalInt& Optional);
 
-	UFUNCTION(BlueprintPure, Category = "Pixo|Optional Types|Float")
+	UFUNCTION(BlueprintPure, Category = "PixoVR|Optional Types|Float")
 	static float GetFloat(const FOptionalFloat& Optional);
 
-	UFUNCTION(BlueprintPure, Category = "Pixo|Optional Types|Bool")
+	UFUNCTION(BlueprintPure, Category = "PixoVR|Optional Types|Bool")
 	static bool GetBool(const FOptionalBool& Optional);
 
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Optional Types|Int")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Optional Types|Int")
 	static void SetInt(FOptionalInt& Optional, int Value);
 
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Optional Types|Float")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Optional Types|Float")
 	static void SetFloat(FOptionalFloat& Optional, float Value);
 
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Optional Types|Bool")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Optional Types|Bool")
 	static void SetBool(FOptionalBool& Optional, bool Value);
 
-	UFUNCTION(BlueprintPure, Category = "Pixo|Optional Types|Int")
+	UFUNCTION(BlueprintPure, Category = "PixoVR|Optional Types|Int")
 	static bool IsIntSet(const FOptionalInt& Optional);
 
-	UFUNCTION(BlueprintPure, Category = "Pixo|Optional Types|Float")
+	UFUNCTION(BlueprintPure, Category = "PixoVR|Optional Types|Float")
 	static bool IsFloatSet(const FOptionalFloat& Optional);
 
-	UFUNCTION(BlueprintPure, Category = "Pixo|Optional Types|Bool")
+	UFUNCTION(BlueprintPure, Category = "PixoVR|Optional Types|Bool")
 	static bool IsBoolSet(const FOptionalBool& Optional);
 public:
 };
