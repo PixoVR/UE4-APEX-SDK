@@ -131,7 +131,7 @@ private:
 
 #pragma region PrivateVariables
 	class UVaRestSubsystem* VaRestSubsystem;
-	class UPAuthorizer* AuthorizationSubsystem;
+	class UPixoAuthorizer* AuthorizationSubsystem;
 	class UPixoConfigSettings* PlatformSettings;
 
 	FString URL;
