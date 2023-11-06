@@ -90,22 +90,22 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter")
 	bool JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension, bool bIsMultiplayer = false);
 
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter")
 	bool CompleteSession(const FSessionData& InSessionData);
 
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter")
 	bool SendSessionEvent(const FXAPIStatement& InStatement);
 
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter")
 	bool FetchTopTen(FString Scenario, int OrgUnit);
 
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter", meta=(DisplayName = "Fetch Top Ten By User", Tooltip="Fetches the top ten by user. A user id or org unit less than 1 will default to the current user."))
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter", meta=(DisplayName = "Fetch Top Ten By User", Tooltip="Fetches the top ten by user. A user id or org unit less than 1 will default to the current user."))
 	bool FetchTopTenByUser(FString Scenario, int UserId = -1, int OrgUnit = -1);
 
-	UFUNCTION(BlueprintCallable, Category = "Pixo|Data Reporter")
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Data Reporter")
 	bool FetchTopTenByTimeRange(float TimePriorToToday, FString Scenario, int OrgUnit);
 
 protected:
@@ -143,27 +143,27 @@ private:
 public:
 
 #pragma region Events
-	UPROPERTY(BlueprintAssignable, Category = "Pixo|Data Reporter|Events")
+	UPROPERTY(BlueprintAssignable, Category = "PixoVR|Data Reporter|Events")
 	FOnPDataReporterReady OnDataReporterReady;
 
 	FOnStaticPDataReporterReady OnStaticDataReporterReady;
 
 
 	// General Apex Requests
-	UPROPERTY(BlueprintAssignable, Category = "Pixo|Data Reporter|Events")
+	UPROPERTY(BlueprintAssignable, Category = "PixoVR|Data Reporter|Events")
 	FOnDataReporterRequestComplete OnRequestComplete;
 
-	UPROPERTY(BlueprintAssignable, Category = "Pixo|Data Reporter|Events")
+	UPROPERTY(BlueprintAssignable, Category = "PixoVR|Data Reporter|Events")
 	FOnDataReporterRequestFail OnRequestFail;
 
 	FOnStaticDataReporterRequestComplete OnStaticRequestComplete;
 	FOnStaticDataReporterRequestFail OnStaticRequestFail;
 
 	// Fetch Score Requests
-	UPROPERTY(BlueprintAssignable, Category = "Pixo|Data Reporter|Events")
+	UPROPERTY(BlueprintAssignable, Category = "PixoVR|Data Reporter|Events")
 	FOnDataReporterTopTenDataComplete OnFetchTopTenComplete;
 	
-	UPROPERTY(BlueprintAssignable, Category = "Pixo|Data Reporter|Events")
+	UPROPERTY(BlueprintAssignable, Category = "PixoVR|Data Reporter|Events")
 	FOnDataReporterTopTenDataFail OnFetchTopTenFail;
 
 	FOnStaticDataReporterTopTenDataComplete OnStaticFetchTopTenComplete;
