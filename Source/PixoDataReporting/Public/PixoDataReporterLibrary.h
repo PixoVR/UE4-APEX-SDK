@@ -37,9 +37,9 @@ public:
 
 public:
 
-	static inline UPDataReporter* GetDataReporter()
+	static inline UPixoDataReporter* GetDataReporter()
 	{
-		static UPDataReporter* Subsystem = GEngine->GetEngineSubsystem<UPDataReporter>();
+		static UPixoDataReporter* Subsystem = GEngine->GetEngineSubsystem<UPixoDataReporter>();
 		return Subsystem;
 	}
 };
