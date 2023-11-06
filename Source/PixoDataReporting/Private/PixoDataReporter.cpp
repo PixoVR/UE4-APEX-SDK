@@ -38,7 +38,7 @@ void UPixoDataReporter::Initialize(FSubsystemCollectionBase& Collection)
 	}
 
 	VaRestSubsystem = GEngine->GetEngineSubsystem<UVaRestSubsystem>();
-	AuthorizationSubsystem = GEngine->GetEngineSubsystem<UPAuthorizer>();
+	AuthorizationSubsystem = GEngine->GetEngineSubsystem<UPixoAuthorizer>();
 
 	check(AuthorizationSubsystem);
 	AuthorizationSubsystem->OnStaticAuthorizationCompleted.AddLambda(
