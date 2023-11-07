@@ -1,0 +1,29 @@
+{
+	"FileVersion": 3,
+	"FriendlyName": "Apex SDK",
+	"Version": 1,
+	"VersionName": "1.2.1",
+	"CreatedBy": "PixoVR Corp",
+	"CreatedByURL": "https://apex.com",
+	"Description": "Plugin allows communication with the Apex API. Copyright 2022-2023 PixoVR Corp. All Rights Reserved.",
+	"Category": "PixoVR",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+
+	"Modules": [
+		{
+			"Name": "ApexSDK",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault"
+		},
+		{
+			"Name": "VaRest",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault"
+		},
+		{
+			"Name": "VaRestEditor",
+			"Type": "UncookedOnly"
+		}
+	]
+}

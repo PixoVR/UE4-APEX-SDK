@@ -52,8 +52,3 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changes the Version to a single string, with the PixoVR Versioning enforced.
 ### Updates Failure Responses to add the HttpCode string field.
 ### Adds the documentation system.
-
-## [1.3.0] - 2023-10-26
-### Splits the ApexSDK into the Session Manager and Platform Authenticator.
-### Removes the settings from the ApexSDK.
-### Adds the dependency on the new Pixo Platform Core plugin to fetch settings.
