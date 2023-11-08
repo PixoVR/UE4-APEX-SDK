@@ -1,1 +1,0 @@
-../../ThirdpartyNotice.md
