@@ -1,0 +1,142 @@
+
+# A random source for cache breaking
+ARG	CACHEBREAKER=https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h
+
+# Vars needed for the commandlet and build calls below.
+# https://stackoverflow.com/questions/44438637/arg-substitution-in-run-command-not-working-for-dockerfile
+ARG	UE_PROJECT=/project/project/Documentation_4_27.uproject
+ARG	OUTPUT_DIR=/tmp/generated
+
+# Built from https://github.com/PixoVR/docs-docker-ue4-base
+FROM	gcr.io/pixo-bootstrap/docs-docker-ue4-base:latest as ue4
+
+# because of FROM, we have to re-mention our vars
+ARG	CACHEBREAKER
+ARG	OUTPUT_DIR
+ARG	UE_PROJECT
+
+WORKDIR /project
+
+# sup cachebreaker
+#ADD	$CACHEBREAKER skipcache24
+
+# startup stats
+RUN	free -h
+RUN	df -h
+
+# Make sure our submodules are up to date (and that our git auth is working)
+# This is for updating pixo-unreal-documentation to latest on main
+RUN	cd /project && \
+	git submodule update --init --recursive && \
+	cd /project/project/Plugins/pixo-unreal-documentation && \
+	git pull origin main && \
+	git lfs pull
+
+# Copy this plugin into the `Plugins` folder.
+# We don't really know the name of the plugin, nor do we care.
+# We just put it in a `plugin` folder so it's on a known path.
+# We want this Dockerfile to be copyable from docs-doxygen without needing changes.
+COPY	--chown=ue4:ue4 . /project/project/Plugins/plugin
+
+# Make sure the submodules for this plugin are pulled.
+# We pull the submodule version(s) committed in the repo,
+# not necessarily the latest version committed.
+# We also do the LFS pull here, which will not have happened otherwise.
+RUN	cd /project/project/Plugins/plugin && \
+	git submodule update --init --recursive && \
+	git lfs pull
+
+# stats
+#RUN	free -h
+#RUN	df -h
+
+# Ensure that our output directory exists.
+RUN	mkdir -p $OUTPUT_DIR
+
+# Build any un-compiled plugins, which will probably be all of them.
+# This builds the plugin contained in this repo as well as the pixo-unreal-documentation plugin.
+RUN	RunUAT.sh BuildEditor \
+	-project=${UE_PROJECT} \
+	-notools
+
+# stats
+#RUN	df -h
+#RUN	free -h
+
+# Generate the plugin cpp files from the commandlet.
+# https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/CommandLineArguments/
+RUN	eval "$(cat /project/project/Plugins/plugin/documentation/env.sh | grep "UNREAL_UFS_PATHS")" && \
+	export LD_LIBRARY_PATH=$UE_DIR/Engine/Binaries/Linux/Android && \
+	( \
+	  UE4Editor-Cmd $UE_PROJECT \
+	  -nullrhi \
+	  -nosplash \
+	  -unattended \
+	  -nosound \
+	  -auto \
+	  -useallavailablecores \
+	  -LogCmds="global Warning, LOG_DOT all" \
+	  -NoLogTimes \
+	  -run=PixoDocumentation \
+	  -OutputMode=doxygen \
+	  -OutputDir=$OUTPUT_DIR \
+	  -Include=$UNREAL_UFS_PATHS \
+	|| \
+	  echo "Exiting with warnings, but will parse what we have." \
+	)
+
+
+# check to see it all got there
+#RUN	ls -al $OUTPUT_DIR
+
+# stats
+#RUN	df -h
+#RUN	free -h
+
+# built from https://github.com/PixoVR/docs-docker-base
+FROM	gcr.io/pixo-bootstrap/docs-docker-base:latest as builder
+
+# because of FROM, we have to re-mention our vars
+ARG	CACHEBREAKER
+ARG	OUTPUT_DIR
+
+WORKDIR	/build
+
+# get this plugin into the /build folder for doxygen
+# the copy above will have Intermediate and Build folders from the compile,
+# and we don't want to deal with ignoring them for documentation.
+COPY	. .
+
+# grab the documentation (fake C++ files) we generated above
+COPY	--from=ue4 $OUTPUT_DIR documentation/generated
+
+# check to see it all got there
+#RUN	ls -al /build/documentation
+
+# stats
+#RUN	df -h
+#RUN	free -h
+#RUN	doxygen -v	# confirm doxygen version from docs-docker-base
+
+# ensure the doxygen stuff is most up to date
+RUN	cd /build && \
+	git submodule update --init --recursive && \
+	cd documentation/docs-doxygen && git pull origin main
+
+RUN	git fetch --tags
+
+# sup cachebreaker
+#ADD	$CACHEBREAKER skipcache22
+
+# actually do the doxygen build, and move the output to our nginx (sub)folder
+RUN	./documentation/build.sh && \
+	eval "$(cat ./documentation/env.sh | grep "PROJECT_URL")" && \
+	mkdir -p /var/www/html && \
+	mv ./documentation/html /var/www/html/$PROJECT_URL
+	#mkdir -p /var/www/html/$PROJECT_URL && \
+	#cp -r ./documentation/html/* /var/www/html/$PROJECT_URL
+
+# keep this reminder here, in case for some reason the base image chooses a different entrypoint
+#ENTRYPOINT ["/docker-entrypoint.sh"]
+#CMD	["nginx", "-g", "daemon off;"]
+

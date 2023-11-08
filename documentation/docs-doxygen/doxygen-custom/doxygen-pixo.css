@@ -1,0 +1,497 @@
+/*
+	PixoVR custom
+*/
+
+#doc-content
+{
+	padding-top: unset !important;
+}
+
+@media screen and (min-width: 768px) {
+	#doc-content {
+		padding-bottom: calc(2 * var(--spacing-large)) !important;
+		#padding-bottom: unset !important;
+	}
+}
+
+#nav-sync
+{
+	display: none;
+}
+
+/*
+#projectlogo img
+{
+	width: 44px;
+	height: 44px;
+}
+*/
+
+html
+{
+	--primary-color: hsl(33deg 100% 42.94%);
+	--primary-dark-color: hsl(42deg 43.02% 35.1%);
+	--primary-light-color: hsl(42deg 73.33% 67.65%);
+}
+
+html.dark-mode
+{
+	--primary-color: hsl(42deg 79% 56%);
+	--primary-dark-color: hsl(42deg 34% 65% / 1);
+	--primary-light-color: hsl(42deg 42% 48% / 1);
+}
+
+html.dark-mode div.contents div.dyncontent img,
+html.dark-mode div.contents center img,
+html.dark-mode div.contents > table img,
+html.dark-mode div.contents div.dyncontent iframe,
+html.dark-mode div.contents center iframe,
+html.dark-mode div.contents table iframe,
+html.dark-mode div.contents .dotgraph iframe
+{
+	Xfilter: brightness(85%) hue-rotate(0deg) invert();
+	filter: brightness(85%) hue-rotate(0deg) invert() drop-shadow(3px 3px 3px rgb(0.2 0.2 0.2 / 0.3));
+}
+
+html .mlabels .mlabel,
+html.dark-mode .mlabels .mlabel,
+html.dark-mode .icona .icon
+{
+	color: var(--page-background-color);
+}
+
+#titlearea
+{
+	padding: 0px var(--spacing-large) 2px var(--spacing-large);
+	min-height: 69px;
+}
+
+#titlearea table
+{
+	min-height: 69px;
+}
+
+.select2,
+#projectswitcher
+{
+	font-family: var(--font-family);
+	#font-size: var(--title-font-size);
+	font-size: 26px;
+	font-weight: 600;
+
+	border: 1px solid transparent;
+	border-radius: 20px;
+
+	background: none;
+	color: var(--page-foreground-color);
+
+	cursor: pointer;
+
+	position: relative;
+	left: -9px;
+	top: 6px;
+
+	padding: 0px 0px 0px 5px;
+	margin: 0px;
+}
+
+.select2:hover,
+#projectswitcher:hover
+{
+	background: var(--page-background-color);
+	
+	border: 1px solid var(--separator-color);
+	border-image: initial;
+
+	#box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+	box-shadow: 5px 5px 5px rgba(0,0,0,.3);
+}
+
+.select2:active,
+#projectswitcher:active
+{
+	#font-size: var(--page-font-size);
+	outline: 1px solid var(--page-background-color);
+}
+
+.select2:focus,
+#projectswitcher:focus
+{
+	outline: none;
+}
+
+#projectlogo
+{
+	width: 1px;
+}
+
+#projectlogo img
+{
+	max-height: calc(var(--title-font-size) * 2);
+	padding-top: 5px;
+	margin-right: 0px;
+}
+
+#projectnumber
+{
+	line-height: 10px;
+	max-width: 44px;
+	overflow: hidden;
+	display: inline-block;
+	white-space: nowrap;
+	margin-right: 0px;
+}
+
+#projectbrief
+{
+	line-height: 20px;
+}
+
+iframe
+{
+	padding: 20px;
+	filter: hue-rotate(180deg);
+	Xfilter: hue-rotate(180deg) drop-shadow(3px 3px 3px rgb(0.2 0.2 0.2 / 0.3));
+}
+
+
+
+div.contents, div.header .title, div.header .summary
+{
+	Xmax-width: var(--content-maxwidth);
+	max-width: unset;
+}
+
+/*
+div.contents p
+{
+	text-align: justify;
+}
+*/
+
+#projectalign
+{
+	max-width: 250px;
+}
+
+.select2-container
+{
+	box-sizing: unset;
+	z-index: 10000;
+	max-width:250px;
+	Xpadding-top: 5px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+	color: inherit;
+	line-height: inherit;
+	padding-left: 2px;
+	padding-top: 2px;
+	overflow: unset;
+
+	padding-top: 3px;
+	height: 32px;
+}
+
+.select2-container--default .select2-selection--single {
+	background-color: inherit;
+	border: inherit;
+	border-radius: inherit;
+
+	position: relative;
+	display: inline-block;
+}
+
+.select2-container--open {
+	background-color: var(--page-background-color);
+	border-radius: 15px 15px 0px 0px;
+	border-color: var(--separator-color);
+	box-shadow: 5px 5px 5px rgba(0,0,0,.3);
+}
+
+.select2-dropdown {
+	background-color: var(--page-background-color);
+	border: 1px solid var(--separator-color);
+	border-radius: 4px;
+	box-sizing: border-box;
+	display: block;
+	position: absolute;
+	left: -100000px;
+	width: 100%;
+	z-index: 1051;
+	box-shadow: 5px 5px 5px rgba(0,0,0,.3);
+}
+
+.select2-container--default .select2-results__option--selected {
+	background-color: var(--page-foreground-color);
+	color: var(--page-background-color);
+}
+
+.select2-container--default .select2-results>.select2-results__options {
+	max-height: 300px;
+}
+
+.footer .emphasize
+{
+	color: var(--page-foreground-color);
+	#font-weight: bold;
+}
+
+table.markdownTable h1
+{
+	margin-right: 0px;
+	font-size: 3em;
+	line-height: 0em;
+	margin-top: 0.5em;
+}
+
+table.markdownTable td
+{
+	background: var(--code-background);
+}
+
+svg text
+{
+	user-select: none;
+}
+
+/*
+svg .layer
+*/
+svg .node,
+svg .edge
+{
+	filter: drop-shadow(3px 3px 3px rgb(0.2 0.2 0.2 / 0.3));
+}
+
+/*
+svg .layer .node.variable
+{
+	filter: drop-shadow(inset 3px 3px 3px #FFFFFF);
+}
+*/
+
+@media (prefers-color-scheme: dark) {
+	svg .layer,
+	html.dark-mode svg .layer
+	{
+		filter: drop-shadow(3px 3px 3px rgb(0.8 0.8 0.8 / 0.3));
+	}
+}
+
+
+/* some ninja-level css! */
+
+svg .node > g > a > *
+{
+	pointer-events: none;
+}
+
+svg .node > g > a > :first-child
+{
+	pointer-events: initial;
+	cursor: pointer;
+}
+
+svg .node > g > a > :first-child:hover,
+svg .node > g > a > :first-child:has(~ *:hover)
+{
+	stroke: white;
+	stroke-width:3 !important;
+}
+
+svg .node > g > a[*|href] > :first-child
+{
+	stroke: #FF9600;
+	stroke-width:1;
+}
+
+svg .node > g > a > g
+{
+	pointer-events: bounding-box;
+	cursor: pointer;
+}
+
+svg .node > g > a > g:hover
+{
+	Xstroke: rgba(0,0,0,.2);
+	fill: orange;
+}
+
+svg .node > g > a > g:hover *
+{
+	fill: orange;
+}
+
+svg .node > g > a > g:hover [fill="transparent"]
+{
+	fill: transparent;
+	stroke: none;
+}
+
+.dyncontent > .center
+{
+	box-shadow: inset 0px 0px 14px rgba(0 0 0 / .2);
+	background-color: var(--code-background);
+	max-height: 75vh;
+	overflow: overlay;
+}
+
+.dyncontent > .center > iframe
+{
+	filter: hue-rotate(180deg) drop-shadow(3px 3px 3px rgb(0.2 0.2 0.2 / 0.3));
+}
+
+.dotgraph
+{
+	box-shadow: inset 0px 0px 14px rgba(0 0 0 / .2);
+	background-color: var(--code-background);
+	max-height: 75vh;
+
+	position: relative;
+	padding: 0px;
+	overflow: overlay;
+
+	background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" stroke-width="hairline"><path stroke="%23eeeeee" d="M10,0 10,160M20,0 20,160M30,0 30,160M40,0 40,160M50,0 50,160M60,0 60,160M70,0 70,160M80,0 80,160M90,0 90,160M100,0 100,160M110,0 110,160M120,0 120,160M130,0 130,160M140,0 140,160M150,0 150,160"/><path stroke="%23eeeeee" d="M0,10 160,10M0,20 160,20M0,30 160,30M0,40 160,40M0,50 160,50M0,60 160,60M0,70 160,70M0,80 160,80M0,90 160,90M0,100 160,100M0,110 160,110M0,120 160,120M0,130 160,130M0,140 160,140M0,150 160,150"/><path stroke="%23cccccc" d="M160,0 0,0 0,160" /></svg>');
+	background-size: 254px 254px;
+	background-origin: content-box;
+	background-position: 16px -9px;
+	background-attachment: local;
+
+	will-change: scroll-position;
+}
+
+html.dark-mode .dotgraph
+{
+	background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" stroke-width="hairline"><path stroke="%23222222" d="M10,0 10,160M20,0 20,160M30,0 30,160M40,0 40,160M50,0 50,160M60,0 60,160M70,0 70,160M80,0 80,160M90,0 90,160M100,0 100,160M110,0 110,160M120,0 120,160M130,0 130,160M140,0 140,160M150,0 150,160"/><path stroke="%23222222" d="M0,10 160,10M0,20 160,20M0,30 160,30M0,40 160,40M0,50 160,50M0,60 160,60M0,70 160,70M0,80 160,80M0,90 160,90M0,100 160,100M0,110 160,110M0,120 160,120M0,130 160,130M0,140 160,140M0,150 160,150"/><path stroke="%23555555" d="M160,0 0,0 0,160" /></svg>');
+}
+
+.dotgraph:first-child
+{
+	margin: var(--spacing-medium) 0px 0px 0px;
+}
+
+.dotgraph:only-child
+{
+	margin: var(--spacing-medium) 0px;
+}
+
+@media screen and (max-width: 768px) {
+	.dotgraph {
+		max-height: 65vh;
+	}
+}
+
+/* .dyncontent::-webkit-scrollbar-corner, */
+.dyncontent div.center::-webkit-scrollbar-corner,
+.dotgraph::-webkit-scrollbar-corner
+{
+	background-color: transparent;
+}
+
+.dotgraph .caption
+{
+	position: sticky;
+	left: 0;
+	bottom: 10px;
+	pointer-events: none;
+	user-select: none;
+}
+
+.dotgraph > iframe
+{
+	Xbackground-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" stroke-width="hairline"><path stroke="%23eeeeee" d="M10,0 10,160M20,0 20,160M30,0 30,160M40,0 40,160M50,0 50,160M60,0 60,160M70,0 70,160M80,0 80,160M90,0 90,160M100,0 100,160M110,0 110,160M120,0 120,160M130,0 130,160M140,0 140,160M150,0 150,160"/><path stroke="%23eeeeee" d="M0,10 160,10M0,20 160,20M0,30 160,30M0,40 160,40M0,50 160,50M0,60 160,60M0,70 160,70M0,80 160,80M0,90 160,90M0,100 160,100M0,110 160,110M0,120 160,120M0,130 160,130M0,140 160,140M0,150 160,150"/><path stroke="%23cccccc" d="M160,0 0,0 0,160" /></svg>');
+	Xbackground-size: 254px 254px;
+	Xbackground-origin: content-box;
+	Xbackground-position: 16px -9px;
+}
+
+.textblock,
+.contents > p > code,
+ul li
+{
+	overflow-wrap: anywhere;
+}
+
+.textblock img.inline
+{
+	float:right;
+	margin: 0px 10px;
+	border: 1px solid var(--separator-color);
+}
+
+@media screen and (max-width: 648px) {
+	.textblock img.inline {
+		width: 100%;
+		margin: 0px;
+	}
+}
+
+/* 
+	Hide the list of names before the gallery.
+
+	This has the unintended side effect of hiding the link
+	for anything that doesn't have an image.
+*/
+table.memberdecls:has(~ .gallery),
+div.contents > p:first-child:has(~ .gallery) {
+    display: none;
+}
+
+div.gallery
+{
+	Xdisplay: flex;
+	Xflex-wrap: wrap;
+	Xalign-content: flex-start;
+	Xjustify-content: space-around;
+
+	display: grid;
+	gap: 10px;
+	Xgrid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(150px, max-content));
+}
+
+div.gallery a.el
+{
+	Xflex-grow: 1;
+	Xflex-basis: 30%;
+	text-align: center;
+	padding: 10px;
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+div.gallery div.image
+{
+	width: 100%;
+	display: inline-block;
+}
+
+div.gallery img
+{
+	width: 100%;
+	Xmax-width: 256px;
+	box-sizing: border-box;
+	border: 1px solid var(--separator-color);
+	position: relative;
+	left: -3px;
+}
+
+div.gallery .caption
+{
+	line-break: anywhere;
+	white-space: normal;
+}
+
+div.gallery div.image:hover img,
+div.gallery div.image:hover .caption
+{
+	border-color: var(--primary-color);
+	text-decoration: underline;
+}
+
+h2.groupheader
+{
+	clear: both;
+}
+

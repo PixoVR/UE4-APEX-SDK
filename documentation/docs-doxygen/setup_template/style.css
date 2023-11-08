@@ -1,0 +1,42 @@
+
+/*
+	Add custom css here.
+
+	Please note that this can be tricky, and the preferred method for special html formatting
+	is to add a special section or page in a `<div>` wrapper with a special class.
+
+	myspecialpage.md:
+	```{.md}
+		\page mypage My Special Page
+
+		Documentation here about some thing that I want to talk about.
+
+		<div class='mypagetable'>
+		| A | B | C |
+		| - | - | - |
+		| 1 | 2 | 3 |
+		</div>
+
+		...and more documentation here...
+	```
+
+	style.css:
+	```{.css}
+		div.mypagetable
+		{
+			text-align: center;
+		}
+
+		div.mypagetable td
+		{
+			background: white;
+			color: blue;
+		}
+
+		div.mypagetable td:first-child
+		{
+			background: #444444;
+			color: #4444FF;
+		}
+	```
+*/

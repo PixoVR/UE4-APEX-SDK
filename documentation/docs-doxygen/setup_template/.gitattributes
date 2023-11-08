@@ -1,0 +1,6 @@
+
+# images need to be text to get to the doc system
+*.png filter=text
+* filter=text
+*.bash text eol=lf
+*.sh text eol=lf
