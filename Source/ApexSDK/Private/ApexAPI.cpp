@@ -397,7 +397,7 @@ void UApexAPI::OnUserVerificationFail(const UVaRestRequestJSON* Request)
     OnStaticRequestFail.Broadcast(EApexRequestType::Login, Request);
 }
 
-bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension)
+bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension, bool bIsMultiplayer)
 {
     if (!CurrentActiveLogin.IsSet())
     {
@@ -450,6 +450,11 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
     Context.Extensions.AddCustomString(Apex::Extensions::MODULE_IDS, FString::FromInt(LoadedModuleId));
     Context.Extensions.AddString("device_id", DeviceId);
     Context.Extensions.AddString("device_model", DeviceModel);
+
+    if (bIsMultiplayer)
+    {
+        Context.Extensions.AddString("multiplayer", "true");
+    }
 
     Statement.Actor = Actor;
     Statement.Verb = Verb;

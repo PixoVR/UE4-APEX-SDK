@@ -133,11 +133,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void Ping();
 
-	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	void Login(const FString& InUserName, const FString& InPassword, bool bShouldLogout = true);
-
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
 	bool IsLoggedIn();
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	void Login(const FString& InUserName, const FString& InPassword, bool bShouldLogout = true);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void Logout();
@@ -152,7 +152,7 @@ public:
 	void RequestAuthorizationCode();
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	bool JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension);
+	bool JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension, bool bIsMultiplayer = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	bool CompleteSession(const FSessionData& InSessionData);

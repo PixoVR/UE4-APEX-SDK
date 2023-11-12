@@ -9,30 +9,6 @@
 #include "ApexTypes.generated.h"
 
 USTRUCT(BlueprintType)
-struct APEXSDK_API FApexLoginInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Login")
-		FString Username;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Login")
-		FString Password;
-
-public:
-
-	FApexLoginInfo()
-		: Username("")
-		, Password("")
-	{ }
-
-	FApexLoginInfo(FString InUsername, FString InPassword)
-		: Username(InUsername)
-		, Password(InPassword)
-	{ }
-};
-
-USTRUCT(BlueprintType)
 struct APEXSDK_API FJoinSessionData : public FJsonable
 {
     GENERATED_BODY()

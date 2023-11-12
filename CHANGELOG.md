@@ -52,3 +52,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changes the Version to a single string, with the PixoVR Versioning enforced.
 ### Updates Failure Responses to add the HttpCode string field.
 ### Adds the documentation system.
+
+## [1.3.0] - 2023-11-10
+### Changes the Login function to take a username and password, instead of FApexLoginInfo.
+### Removed the FApexLoginInfo structure.
+### Adds the ApexSDKLibrary that exposes variables from the ApexSDK without the need to access the subsystem directly.
+### Cleans up internal dependencies.
