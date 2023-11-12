@@ -8,6 +8,7 @@ namespace UnrealBuildTool.Rules
 	{
 		public ApexSDK(ReadOnlyTargetRules Target) : base(Target)
 		{
+			PrivateDefinitions.Add("APEXSDK_PACKAGE=1");
 			PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 			PrecompileForTargets = PrecompileTargetsType.Any;
 
@@ -25,7 +26,7 @@ namespace UnrealBuildTool.Rules
 					"Engine",
 					"VaRest",
 					"Json",
-					"EngineSettings"
+					"EngineSettings",
 				});
 
 			PrivateDependencyModuleNames.AddRange(
@@ -34,6 +35,11 @@ namespace UnrealBuildTool.Rules
 					"WebSockets",
 					"Projects"
 				});
+
+			if (Target.bBuildEditor == true)
+			{
+				PrivateDependencyModuleNames.Add("UnrealEd");
+			}
 
 			if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion >= 2)
 			{

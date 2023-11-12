@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "ApexSDKDefines.h"
-#include "XAPITypes.h"
 #include "ApexJSON.h"
+#include "XAPITypes.h"
 #include "ApexTypes.generated.h"
 
 USTRUCT(BlueprintType)

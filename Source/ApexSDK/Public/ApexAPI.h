@@ -1,5 +1,13 @@
 // Copyright 2022 PixoVR Corp. All Rights Reserved.
 
+// This cannot be #pragma once'd.
+#undef PACKAGE_SCOPE
+#ifdef APEXSDK_PACKAGE
+#define PACKAGE_SCOPE public
+#else
+#define PACKAGE_SCOPE protected
+#endif
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -109,13 +117,13 @@ public:
 	FUserSessionData CurrentActiveLogin;
 #pragma endregion PublicProperties
 
-protected:
+PACKAGE_SCOPE:
 
 	UPROPERTY(BlueprintReadOnly)
-	bool SessionInProgress;
+	bool bSessionInProgress;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool WebSocketEnabled;
+	bool bWebSocketEnabled;
 
 public:
 	UApexAPI();
@@ -126,7 +134,10 @@ public:
 	void Ping();
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	void Login(const FApexLoginInfo& InLoginInfo, bool bShouldLogout = true);
+	void Login(const FString& InUserName, const FString& InPassword, bool bShouldLogout = true);
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
+	bool IsLoggedIn();
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void Logout();

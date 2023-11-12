@@ -72,11 +72,11 @@ void UApexAPI::SetupModuleSettings()
                 WebSocketURL = WebSocketURL + "/ws";
             }
 
-            WebSocketEnabled = true;
+            bWebSocketEnabled = true;
         }
         else
         {
-            WebSocketEnabled = false;
+            bWebSocketEnabled = false;
         }
 
         check(ApexSettings->CheckModuleVersion())
@@ -105,7 +105,7 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
         DeviceId = FGenericPlatformMisc::GetDeviceMakeAndModel();
     }
 
-    if (WebSocketEnabled)
+    if (bWebSocketEnabled)
     {
         ApexSocket = MakeUnique<ApexWebSocket>();
 
@@ -121,7 +121,7 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
 
 bool UApexAPI::IsWebSocketConnected()
 {
-    if (WebSocketEnabled)
+    if (bWebSocketEnabled)
     {
         return ApexSocket->IsWebsocketConnected();
     }
@@ -132,7 +132,7 @@ bool UApexAPI::IsWebSocketConnected()
 
 void UApexAPI::ConnectWebSocketService()
 {
-    if (WebSocketEnabled)
+    if (bWebSocketEnabled)
     {
         if (!ApexSocket->AttemptConnect(WebSocketURL))
         {
@@ -143,7 +143,7 @@ void UApexAPI::ConnectWebSocketService()
 
 void UApexAPI::RequestAuthorizationCode()
 {
-    if (WebSocketEnabled)
+    if (bWebSocketEnabled)
     {
         ApexSocket->RequestAuthorizationCode();
     }
@@ -181,7 +181,7 @@ void UApexAPI::OnPingFail(const UVaRestRequestJSON* Request)
     OnStaticRequestFail.Broadcast(EApexRequestType::Ping, Request);
 }
 
-void UApexAPI::Login(const FApexLoginInfo& InLoginInfo, bool bShouldLogout)
+void UApexAPI::Login(const FString& InUserName, const FString& InPassword, bool bShouldLogout)
 {
     if (bShouldLogout && CurrentActiveLogin.IsSet())
     {
@@ -193,8 +193,8 @@ void UApexAPI::Login(const FApexLoginInfo& InLoginInfo, bool bShouldLogout)
     Request->SetURL(RequestURL);
 
     UVaRestJsonObject* LoginJson = VaRestSubsystem->ConstructVaRestJsonObject();
-    LoginJson->SetField("login", VaRestSubsystem->ConstructJsonValueString(InLoginInfo.Username));
-    LoginJson->SetField("password", VaRestSubsystem->ConstructJsonValueString(InLoginInfo.Password));
+    LoginJson->SetField("login", VaRestSubsystem->ConstructJsonValueString(InUserName));
+    LoginJson->SetField("password", VaRestSubsystem->ConstructJsonValueString(InPassword));
 
     Request->SetRequestObject(LoginJson);
 
@@ -202,6 +202,11 @@ void UApexAPI::Login(const FApexLoginInfo& InLoginInfo, bool bShouldLogout)
     Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLoginFail(Request); });
 
     Request->ExecuteProcessRequest();
+}
+
+bool UApexAPI::IsLoggedIn()
+{
+    return CurrentActiveLogin.IsSet();
 }
 
 void UApexAPI::OnLoginComplete(const UVaRestRequestJSON* Request)
@@ -409,7 +414,7 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
         ScenarioId = TEXT("<Unavailable>");
     }
 
-    if (SessionInProgress == true)
+    if (bSessionInProgress == true)
     {
         ErrorAPEX("Session is already in progress. The previous session didn't complete or a new session was started during an active session.");
     }
@@ -480,7 +485,7 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
 void UApexAPI::OnJoinSessionComplete(const UVaRestRequestJSON* Request)
 {
     LogAPEX("Session was successfully joined.");
-    SessionInProgress = true;
+    bSessionInProgress = true;
     OnRequestComplete.Broadcast(EApexRequestType::JoinSession, Request);
     OnStaticRequestComplete.Broadcast(EApexRequestType::JoinSession, Request);
 }
@@ -488,7 +493,7 @@ void UApexAPI::OnJoinSessionComplete(const UVaRestRequestJSON* Request)
 void UApexAPI::OnJoinSessionFail(const UVaRestRequestJSON* Request)
 {
     LogAPEX("Failed to join session. %d", Request->GetResponseCode());
-    SessionInProgress = false;
+    bSessionInProgress = false;
     CurrentSessionGuid.Invalidate();
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
@@ -508,7 +513,7 @@ bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
         return false;
     }
 
-    if (SessionInProgress == false)
+    if (bSessionInProgress == false)
     {
         ErrorAPEX("No current session in progress.");
         return false;
@@ -590,7 +595,7 @@ bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
 void UApexAPI::OnCompleteSessionComplete(const UVaRestRequestJSON* Request)
 {
     LogAPEX("Session complete!");
-    SessionInProgress = false;
+    bSessionInProgress = false;
     CurrentSessionGuid.Invalidate();
     OnRequestComplete.Broadcast(EApexRequestType::CompleteSession, Request);
     OnStaticRequestComplete.Broadcast(EApexRequestType::CompleteSession, Request);
@@ -618,7 +623,7 @@ bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
         return false;
     }
 
-    if (SessionInProgress == false)
+    if (bSessionInProgress == false)
     {
         ErrorAPEX("No current session in progress.");
         return false;

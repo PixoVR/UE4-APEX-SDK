@@ -19,11 +19,13 @@ class APEXSDK_API UApexLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
-public:
+public: // Data related type functions
+
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	static FXAPIExtension CreateExtensionData(const TMap<FString, UVaRestJsonValue*>& Data);
 	
-public:
+public: 
+
 	static TArray<TSharedPtr<FJsonValue>> ConvertToJsonValueStringArray(const TArray<FString>& Array)
 	{
 		TArray<TSharedPtr<FJsonValue>> ConvertedArray;
