@@ -134,7 +134,13 @@ public:
 	void Ping();
 
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
+	bool HasLaunchAuthToken();
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
 	bool IsLoggedIn();
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	void LoginWithAuthToken();
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void Login(const FString& InUserName, const FString& InPassword, bool bShouldLogout = true);
@@ -175,6 +181,7 @@ public:
 protected:
 
 #pragma region PrivateFunctions
+	TSharedRef<FJsonObject> GetUserJsonObject(TSharedRef<FJsonObject>& RootJsonObject);
 	bool FetchTopTen(int UserId, float TimePriorToToday, FString Scenario, int OrgUnit);
 	void HandleLogin(class UVaRestJsonObject* LoginJsonObject);
 	void VerifyModuleAcess();
@@ -204,7 +211,7 @@ private:
 	class UVaRestSubsystem* VaRestSubsystem;
 	class UApexSDKSettings* ApexSettings;
 
-	FString AuthorizationToken;
+	FString LaunchToken;
 
 	TUniquePtr<ApexWebSocket> ApexSocket;
 #pragma endregion PrivateVariables
