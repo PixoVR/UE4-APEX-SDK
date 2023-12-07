@@ -10,14 +10,15 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogApexAPI, Log, All);
 
-#define LogAPEX(pmt, ...) UE_LOG(LogApexAPI, Log, TEXT(pmt), ##__VA_ARGS__)
-#define WarnAPEX(pmt, ...) UE_LOG(LogApexAPI, Warning, TEXT(pmt), ##__VA_ARGS__)
-#define ErrorAPEX(pmt, ...) UE_LOG(LogApexAPI, Error, TEXT(pmt), ##__VA_ARGS__)
-#define FatalAPEX(pmt, ...) UE_LOG(LogApexAPI, Fatal, TEXT(pmt), ##__VA_ARGS__)
+#define Log(pmt, ...) UE_LOG(LogApexAPI, Log, TEXT(pmt), ##__VA_ARGS__)
+#define Warn(pmt, ...) UE_LOG(LogApexAPI, Warning, TEXT(pmt), ##__VA_ARGS__)
+#define Error(pmt, ...) UE_LOG(LogApexAPI, Error, TEXT(pmt), ##__VA_ARGS__)
+#define Fatal(pmt, ...) UE_LOG(LogApexAPI, Fatal, TEXT(pmt), ##__VA_ARGS__)
 
 UApexAPI::UApexAPI()
     : UGameInstanceSubsystem()
     , ApexSettings(nullptr)
+    , LaunchToken(TEXT(""))
 {
 }
 
@@ -34,7 +35,7 @@ void UApexAPI::SetupModuleSettings()
 
         if (URL.IsEmpty())
         {
-            FatalAPEX("No URL available. Please set the Server URI in the settings.");
+            Fatal("No URL available. Please set the Server URI in the settings.");
         }
         else
         {
@@ -81,7 +82,7 @@ void UApexAPI::SetupModuleSettings()
 
         check(ApexSettings->CheckModuleVersion())
         ModuleVersion = ApexSettings->ModuleVersion;
-        LogAPEX("Launching module %d version %s", LoadedModuleId, *ModuleVersion);
+        Log("Launching module %d version %s", LoadedModuleId, *ModuleVersion);
     }
 }
 
@@ -117,6 +118,13 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
 
         ApexSocket->AttemptConnect(WebSocketURL);
     }
+
+    FString PassedLaunchToken;
+    if (FParse::Value(FCommandLine::Get(), TEXT("-PIXO_TOKEN="), PassedLaunchToken))
+    {
+        Log("Token found: %s.", *PassedLaunchToken);
+        LaunchToken = PassedLaunchToken;
+    }
 }
 
 bool UApexAPI::IsWebSocketConnected()
@@ -136,7 +144,7 @@ void UApexAPI::ConnectWebSocketService()
     {
         if (!ApexSocket->AttemptConnect(WebSocketURL))
         {
-            WarnAPEX("Web Socket already connected.");
+            Warn("Web Socket already connected.");
         }
     }
 }
@@ -163,14 +171,14 @@ void UApexAPI::Ping()
 
 void UApexAPI::OnPingComplete(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("On Ping Completed!");
+    Log("On Ping Completed!");
     OnRequestComplete.Broadcast(EApexRequestType::Ping, Request);
     OnStaticRequestComplete.Broadcast(EApexRequestType::Ping, Request);
 }
 
 void UApexAPI::OnPingFail(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("On Ping Failed!");
+    Log("On Ping Failed!");
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
     FAPEXRequestFailed APEXFailedRequest;
@@ -179,6 +187,20 @@ void UApexAPI::OnPingFail(const UVaRestRequestJSON* Request)
 
     OnRequestFail.Broadcast(EApexRequestType::Ping, Request, APEXFailedRequest);
     OnStaticRequestFail.Broadcast(EApexRequestType::Ping, Request);
+}
+
+void UApexAPI::LoginWithAuthToken()
+{
+    // Now we build our fun request here!
+    UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
+    FString RequestURL = URL + "/v2/auth/validate-signature";
+    Request->SetURL(RequestURL);
+    Request->SetHeader("Authorization: Bearer", LaunchToken);
+
+    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLoginComplete(Request); });
+    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLoginFail(Request); });
+
+    Request->ExecuteProcessRequest();
 }
 
 void UApexAPI::Login(const FString& InUserName, const FString& InPassword, bool bShouldLogout)
@@ -202,6 +224,11 @@ void UApexAPI::Login(const FString& InUserName, const FString& InPassword, bool 
     Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLoginFail(Request); });
 
     Request->ExecuteProcessRequest();
+}
+
+bool UApexAPI::HasLaunchAuthToken()
+{
+    return !LaunchToken.IsEmpty();
 }
 
 bool UApexAPI::IsLoggedIn()
@@ -230,7 +257,7 @@ void UApexAPI::OnLoginComplete(const UVaRestRequestJSON* Request)
 
 void UApexAPI::OnLoginFail(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Login failed with response code %i", Request->GetResponseCode());
+    Log("Login failed with response code %i", Request->GetResponseCode());
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
     FAPEXRequestFailed APEXFailedRequest;
@@ -244,16 +271,26 @@ void UApexAPI::OnLoginFail(const UVaRestRequestJSON* Request)
 
 void UApexAPI::HandleLogin(UVaRestJsonObject* LoginJsonObject)
 {
-    LogAPEX("Login Completed!");
+    Log("Login Completed!");
     if (CurrentActiveLogin.IsSet())
     {
-        WarnAPEX("Replacing the current login.");
+        Warn("Replacing the current login.");
         CurrentActiveLogin.Invalidate();
     }
 
-    CurrentActiveLogin.FromJsonObject(LoginJsonObject->GetRootObject());
+    CurrentActiveLogin.FromJsonObject(GetUserJsonObject(LoginJsonObject->GetRootObject()));
 
     VerifyModuleAcess();
+}
+
+TSharedRef<FJsonObject> UApexAPI::GetUserJsonObject(TSharedRef<FJsonObject> &RootJsonObject)
+{
+    if (RootJsonObject->HasField("User"))
+    {
+        return RootJsonObject->GetObjectField("User").ToSharedRef();
+    }
+
+    return RootJsonObject;
 }
 
 void UApexAPI::Logout()
@@ -261,22 +298,8 @@ void UApexAPI::Logout()
     const UVaRestRequestJSON* DummyRequestJSON = VaRestSubsystem->ConstructVaRestRequest();
     if (CurrentActiveLogin.IsSet())
     {
-        // TODO MGruber - Uncomment once the logout endpoint is added to the v2 of the platform API.
-        /*UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
-        FString RequestURL = URL + "/logout";
-        Request->SetURL(RequestURL);
-
-        UVaRestJsonObject* LogoutJson = VaRestSubsystem->ConstructVaRestJsonObject();
-        LogoutJson->SetField("id", VaRestSubsystem->ConstructJsonValueNumber(CurrentActiveLogin.ID));
-
-        Request->SetRequestObject(LogoutJson);
-
-        Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLogoutComplete(Request); });
-        Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLogoutFail(Request); });
-
-        Request->ExecuteProcessRequest();*/
-
         CurrentActiveLogin.Invalidate();
+        LaunchToken = nullptr;
 
         OnRequestComplete.Broadcast(EApexRequestType::Logout, DummyRequestJSON);
         OnStaticRequestComplete.Broadcast(EApexRequestType::Logout, DummyRequestJSON);
@@ -316,7 +339,7 @@ void UApexAPI::OnLogoutComplete(const UVaRestRequestJSON* Request)
 
 void UApexAPI::OnLogoutFail(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Logout failed with response code %i", Request->GetResponseCode());
+    Log("Logout failed with response code %i", Request->GetResponseCode());
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
     FAPEXRequestFailed APEXFailedRequest;
@@ -353,7 +376,7 @@ void UApexAPI::OnUserVerificationComplete(const UVaRestRequestJSON* Request)
         UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
         if (!ResponseObject->GetRootObject()->HasField("Error"))
         {
-            LogAPEX("User Verification Completed!");
+            Log("User Verification Completed!");
 
             if (ResponseObject->HasField("access"))
             {
@@ -376,7 +399,7 @@ void UApexAPI::OnUserVerificationComplete(const UVaRestRequestJSON* Request)
 
 void UApexAPI::OnUserVerificationFail(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("User module access verification failed with response code %i", Request->GetResponseCode());
+    Log("User module access verification failed with response code %i", Request->GetResponseCode());
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
     FAPEXRequestFailed APEXFailedRequest;
@@ -401,7 +424,7 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
 {
     if (!CurrentActiveLogin.IsSet())
     {
-        ErrorAPEX("Cannot join session with no active login.");
+        Error("Cannot join session with no active login.");
         return false;
     }
 
@@ -416,7 +439,7 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
 
     if (bSessionInProgress == true)
     {
-        ErrorAPEX("Session is already in progress. The previous session didn't complete or a new session was started during an active session.");
+        Error("Session is already in progress. The previous session didn't complete or a new session was started during an active session.");
     }
 
     CurrentSessionGuid = FGuid::NewGuid();
@@ -489,7 +512,7 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
 
 void UApexAPI::OnJoinSessionComplete(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Session was successfully joined.");
+    Log("Session was successfully joined.");
     bSessionInProgress = true;
     OnRequestComplete.Broadcast(EApexRequestType::JoinSession, Request);
     OnStaticRequestComplete.Broadcast(EApexRequestType::JoinSession, Request);
@@ -497,7 +520,7 @@ void UApexAPI::OnJoinSessionComplete(const UVaRestRequestJSON* Request)
 
 void UApexAPI::OnJoinSessionFail(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Failed to join session. %d", Request->GetResponseCode());
+    Log("Failed to join session. %d", Request->GetResponseCode());
     bSessionInProgress = false;
     CurrentSessionGuid.Invalidate();
 
@@ -514,13 +537,13 @@ bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
 {
     if (!CurrentActiveLogin.IsSet())
     {
-        ErrorAPEX("Cannot complete session with no active login.");
+        Error("Cannot complete session with no active login.");
         return false;
     }
 
     if (bSessionInProgress == false)
     {
-        ErrorAPEX("No current session in progress.");
+        Error("No current session in progress.");
         return false;
     }
 
@@ -599,7 +622,7 @@ bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
 
 void UApexAPI::OnCompleteSessionComplete(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Session complete!");
+    Log("Session complete!");
     bSessionInProgress = false;
     CurrentSessionGuid.Invalidate();
     OnRequestComplete.Broadcast(EApexRequestType::CompleteSession, Request);
@@ -608,7 +631,7 @@ void UApexAPI::OnCompleteSessionComplete(const UVaRestRequestJSON* Request)
 
 void UApexAPI::OnCompleteSessionFail(const UVaRestRequestJSON* Request)
 {
-    WarnAPEX("Failed to complete session. %d", Request->GetResponseCode());
+    Warn("Failed to complete session. %d", Request->GetResponseCode());
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
     FAPEXRequestFailed APEXFailedRequest;
@@ -624,42 +647,42 @@ bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
     FXAPIStatement EventStatement = InStatement;
     if (!CurrentActiveLogin.IsSet())
     {
-        ErrorAPEX("Cannot complete session with no active login.");
+        Error("Cannot complete session with no active login.");
         return false;
     }
 
     if (bSessionInProgress == false)
     {
-        ErrorAPEX("No current session in progress.");
+        Error("No current session in progress.");
         return false;
     }
 
     if (EventStatement.IsEmpty())
     {
-        ErrorAPEX("No event data to send.");
+        Error("No event data to send.");
         return false;
     }
 
     if (!EventStatement.Actor.IsEmpty())
     {
-        WarnAPEX("Actor data should not be filled out.");
+        Warn("Actor data should not be filled out.");
     }
 
     if (EventStatement.Verb.IsEmpty())
     {
-        ErrorAPEX("Verb missing from eventStatement.");
+        Error("Verb missing from eventStatement.");
         return false;
     }
 
     if (EventStatement.Verb.ID.IsEmpty())
     {
-        ErrorAPEX("Verb ID missing from eventStatement.");
+        Error("Verb ID missing from eventStatement.");
         return false;
     }
 
     if (EventStatement.Target.IsEmpty())
     {
-        ErrorAPEX("Object (target) missing from eventStatement.");
+        Error("Object (target) missing from eventStatement.");
         return false;
     }
 
@@ -701,14 +724,14 @@ bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
 
 void UApexAPI::OnSendSessionEventComplete(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Session event was sent successfully.");
+    Log("Session event was sent successfully.");
     OnRequestComplete.Broadcast(EApexRequestType::SessionEvent, Request);
     OnStaticRequestComplete.Broadcast(EApexRequestType::SessionEvent, Request);
 }
 
 void UApexAPI::OnSendSessionEventFail(const UVaRestRequestJSON* Request)
 {
-    WarnAPEX("Failed to send session event. %d", Request->GetResponseCode());
+    Warn("Failed to send session event. %d", Request->GetResponseCode());
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
     FAPEXRequestFailed APEXFailedRequest;
@@ -743,7 +766,7 @@ bool UApexAPI::FetchTopTen(int UserId, float TimePriorToToday, FString Scenario,
 {
     if (!CurrentActiveLogin.IsSet())
     {
-        ErrorAPEX("Cannot complete session with no active login.");
+        Error("Cannot complete session with no active login.");
         return false;
     }
 
@@ -808,7 +831,7 @@ void UApexAPI::OnTopTenComplete(const UVaRestRequestJSON* Request)
         {
             if (!ResponseObject->GetBoolField("Error"))
             {
-                LogAPEX("Successfully fetched top ten data!");
+                Log("Successfully fetched top ten data!");
 
                 // It's not a failed response!
                 FailedResponse = false;
@@ -830,7 +853,7 @@ void UApexAPI::OnTopTenComplete(const UVaRestRequestJSON* Request)
 
 void UApexAPI::OnTopTenFail(const UVaRestRequestJSON* Request)
 {
-    LogAPEX("Fetch Top Ten failed with response code %i", Request->GetResponseCode());
+    Log("Fetch Top Ten failed with response code %i", Request->GetResponseCode());
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
     FAPEXRequestFailed APEXFailedRequest;
@@ -841,7 +864,7 @@ void UApexAPI::OnTopTenFail(const UVaRestRequestJSON* Request)
     OnStaticFetchTopTenFail.Broadcast(Request, APEXFailedRequest);
 }
 
-#undef FatalAPEX
-#undef ErrorAPEX
-#undef WarnAPEX
+#undef Fatal
+#undef Error
+#undef Warn
 #undef LogAPEX
