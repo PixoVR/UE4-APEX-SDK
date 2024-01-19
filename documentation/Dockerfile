@@ -32,4 +32,3 @@ RUN	./documentation/build.sh && \
 #CMD	["nginx", "-g", "daemon off;"]
 
 
-
