@@ -867,4 +867,4 @@ void UApexAPI::OnTopTenFail(const UVaRestRequestJSON* Request)
 #undef Fatal
 #undef Error
 #undef Warn
-#undef LogAPEX
+#undef Log
