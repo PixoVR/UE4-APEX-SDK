@@ -64,6 +64,16 @@ namespace UnrealBuildTool.Rules
 			{
 				PublicDependencyModuleNames.Add("AndroidRuntimeSettings");
 			}
+
+			if (Target.Platform == UnrealTargetPlatform.Android)
+			{
+				PublicDependencyModuleNames.Add("Launch");
+				string PluginPath = Utils.MakePathRelativeTo(ModuleDirectory, Target.RelativeEnginePath);
+				AdditionalPropertiesForReceipt.Add(
+					"AndroidPlugin",
+					Path.Combine(PluginPath, "ApexSDKAndroid_UPL.xml")
+				);
+			}
 		}
 	}
 }

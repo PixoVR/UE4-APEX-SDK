@@ -210,6 +210,7 @@ private:
 #pragma region PrivateVariables
 	class UVaRestSubsystem* VaRestSubsystem;
 	class UApexSDKSettings* ApexSettings;
+	class UPixoLauncherSubsystem* LauncherSubsystem;
 
 	FString LaunchToken;
 

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+	<init>
+		<log text="PixoLauncherAndroid init"/>
+	</init>
+
+	<prebuildCopies>
+	</prebuildCopies>
+
+	<proguardAdditions>
+		<insert>
+		</insert>
+	</proguardAdditions>
+
+	<resourceCopies>
+	</resourceCopies>
+
+	<androidManifestUpdates>
+		<addElements tag="application"> 
+		</addElements>
+		<addAttribute tag="application" name="android:sharedUserId" value="android.uid.system"/>
+	</androidManifestUpdates>
+
+	<gameActivityImportAdditions>
+		<insert>
+            import android.util.Log;
+        </insert>
+	</gameActivityImportAdditions>
+
+	<gameActivityClassAdditions>
+		<insert>            
+			private final static String TAG = "ApexSDKAndroid: ";
+            
+            public boolean AndroidThunkJava_Launch(String packageName, String extraKey, String extraValue)
+			{
+				Log.debug(TAG + " AndroidThunkJava_Launch");
+				Intent intent;
+				String intentAction = "";
+				String intentComponent = "";
+
+				int intentActionIndex = packageName.indexOf(":");
+				if (intentActionIndex >= 0)
+				{
+					intentAction = packageName.substring(intentActionIndex + 1);
+					packageName = packageName.substring(0, intentActionIndex);
+
+					intentActionIndex = intentAction.indexOf(":");
+					if (intentActionIndex >= 0)
+					{
+						intentComponent = intentAction.substring(intentActionIndex + 1);
+						intentAction = intentAction.substring(0, intentActionIndex);
+					}
+				}
+
+				if (!AndroidThunkJava_IsPackageInstalled(packageName))
+				{
+					return false;
+				}
+
+				if (intentAction.equals(""))
+				{
+					Log.debug(TAG + "Does not have intent!");
+                
+					intent = getPackageManager().getLaunchIntentForPackage(packageName);
+					if (intent == null)
+					{
+						return false;
+					}
+				}
+				else
+				{
+					Log.debug(TAG + "Has intent!");
+					intent = new Intent(intentAction);
+					if (intent == null)
+					{
+						return false;
+					}
+					intent.setPackage(packageName);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				}
+
+				if (!extraKey.equals(""))
+				{
+					Log.debug(TAG + extraKey + " - " + extraValue);
+					intent.putExtra(extraKey, extraValue);
+				}
+
+				if (!intentComponent.equals(""))
+				{
+					intent.setComponent(new android.content.ComponentName(packageName, intentComponent));
+				}
+
+				if (intent.resolveActivity(getPackageManager()) != null)
+				{
+					startActivity(intent);
+					AndroidThunkJava_ForceQuit();
+					return true;
+				}
+
+				return false;
+			}
+            
+            public String AndroidThunkJava_GetApplicationExtra(String InExtraName)
+            {
+				Log.debug(TAG + "AndroidThunkJava_GetApplicationExtra: " + InExtraName);
+				Intent AppIntent = getIntent();
+                Bundle AppExtras = AppIntent.getExtras();
+                
+                String ExtraString = "";
+                
+                if (AppExtras != null)
+                {
+					Log.debug(TAG + "Getting extras.");
+					ExtraString = AppExtras.getString(InExtraName);
+                    Log.debug(TAG + "Got extra as: " + ExtraString);
+				}
+                
+                return ExtraString;
+            }
+		</insert>
+	</gameActivityClassAdditions>
+
+	<gameActivityOnPauseAdditions>
+		<insert>
+		</insert>
+	</gameActivityOnPauseAdditions>
+
+	<gameActivityOnResumeAdditions>
+		<insert>
+		</insert>
+	</gameActivityOnResumeAdditions>
+
+	<gameActivityOnCreateAdditions>
+		<insert>
+		</insert>
+	</gameActivityOnCreateAdditions>
+
+	<gameActivityOnActivityResultAdditions>
+		<insert>
+		</insert>
+	</gameActivityOnActivityResultAdditions>
+</root>

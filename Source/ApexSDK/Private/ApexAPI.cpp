@@ -91,6 +91,7 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
     Super::Initialize(Collection);
 
     VaRestSubsystem = GEngine->GetEngineSubsystem<UVaRestSubsystem>();
+    LauncherSubsystem = GEngine->GetEngineSubsystem<UPixoLauncherSubsystem>();
 
     SetupModuleSettings();
 
@@ -119,12 +120,26 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
         ApexSocket->AttemptConnect(WebSocketURL);
     }
 
+#if PLATFORM_ANDROID
+    UPixoLauncherSubsystem* LauncherSubsystem = GEngine->GetEngineSubsystem<UPixoLauncherSubsystem>();
+    LaunchToken = LauncherSubsystem->GetApplicationExtra("pixotoken");
+    if (!LaunchToken.IsEmpty())
+    {
+        Log("Found token: %s", *LaunchToken);
+        GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Cyan, FString::Printf(TEXT("Found token: %s"), *LaunchToken));
+    }
+    else
+    {
+        Log("Failed to find token.");
+    }
+#else
     FString PassedLaunchToken;
     if (FParse::Value(FCommandLine::Get(), TEXT("-PIXO_TOKEN="), PassedLaunchToken))
     {
         Log("Token found: %s.", *PassedLaunchToken);
         LaunchToken = PassedLaunchToken;
     }
+#endif
 }
 
 bool UApexAPI::IsWebSocketConnected()
