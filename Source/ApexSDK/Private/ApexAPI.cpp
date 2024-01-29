@@ -5,6 +5,7 @@
 #include "VaRest/Public/VaRestSubsystem.h"
 #include "ApexSDK.h"
 #include "ApexSDKSettings.h"
+#include "PixoLauncherSubsystem.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "GenericPlatform/GenericPlatformMisc.h"
 
@@ -121,7 +122,6 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
     }
 
 #if PLATFORM_ANDROID
-    UPixoLauncherSubsystem* LauncherSubsystem = GEngine->GetEngineSubsystem<UPixoLauncherSubsystem>();
     LaunchToken = LauncherSubsystem->GetApplicationExtra("pixotoken");
     if (!LaunchToken.IsEmpty())
     {
