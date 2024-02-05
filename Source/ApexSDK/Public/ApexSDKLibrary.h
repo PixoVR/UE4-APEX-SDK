@@ -18,38 +18,38 @@ class APEXSDK_API UApexSDKLibrary : public UBlueprintFunctionLibrary
 
 public:
 
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
-	static bool GetCurrentSessionGuid(FGuid& OutCurrentSessionId);
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API", meta = (WorldContext = "WorldContextObject"))
+	static bool GetCurrentSessionGuid(UObject* WorldContextObject, FGuid& OutCurrentSessionId);
 
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
-	static FString GetClientIP();
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API", meta = (WorldContext = "WorldContextObject"))
+	static FString GetClientIP(UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
-	static FString GetDeviceModel();
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API", meta = (WorldContext = "WorldContextObject"))
+	static FString GetDeviceModel(UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
-	static FString GetDeviceId();
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API", meta = (WorldContext = "WorldContextObject"))
+	static FString GetDeviceId(UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
-	static FString GetPlatform();
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API", meta = (WorldContext = "WorldContextObject"))
+	static FString GetPlatform(UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
-	static int GetModuleId();
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API", meta=(WorldContext = "WorldContextObject"))
+	static int GetModuleId(UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
-	static FString GetModuleVersion();
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API", meta=(WorldContext = "WorldContextObject"))
+	static FString GetModuleVersion(UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
-	static bool GetCurrentUser(FUserSessionData& OutUser);
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API", meta=(WorldContext = "WorldContextObject"))
+	static bool GetCurrentUser(UObject* WorldContextObject, FUserSessionData& OutUser);
 	
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
-	static bool IsUserLoggedIn();
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API", meta=(WorldContext = "WorldContextObject"))
+	static bool IsUserLoggedIn(UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
-	static bool IsSessionInProgress();
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API", meta=(WorldContext = "WorldContextObject"))
+	static bool IsSessionInProgress(UObject* WorldContextObject);
 
 public:
 
-	static class UApexAPI* GetApexAPI();
-	static FString GetAuthToken();
+	static class UApexAPI* GetApexAPI(UObject* WorldContextObject);
+	static FString GetAuthToken(UObject* WorldContextObject);
 };

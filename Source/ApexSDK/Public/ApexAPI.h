@@ -178,6 +178,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	bool FetchTopTenByTimeRange(float TimePriorToToday, FString Scenario, int OrgUnit);
 
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	void FilloutLaunchToken();
+
 protected:
 
 #pragma region PrivateFunctions

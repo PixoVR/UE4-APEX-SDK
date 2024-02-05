@@ -206,16 +206,30 @@ void UApexAPI::OnPingFail(const UVaRestRequestJSON* Request)
 
 void UApexAPI::LoginWithAuthToken()
 {
+    GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Magenta, FString::Printf(TEXT("Login with Auth Token.")));
     // Now we build our fun request here!
-    UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
+    UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::GET, EVaRestRequestContentType::none);
     FString RequestURL = URL + "/v2/auth/validate-signature";
+    
+    // Temporary fix until validate signature has been added to the modules api
+    RequestURL = RequestURL.Replace(TEXT("modules."), TEXT(""));
+
+    GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Emerald, FString::Printf(TEXT("Endpoint: %s"), *RequestURL));
+
     Request->SetURL(RequestURL);
     Request->SetHeader("Authorization: Bearer", LaunchToken);
 
     Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLoginComplete(Request); });
     Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLoginFail(Request); });
 
+    GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Purple, FString::Printf(TEXT("Executing process request.")));
+
     Request->ExecuteProcessRequest();
+}
+
+void UApexAPI::FilloutLaunchToken()
+{
+    LaunchToken = CurrentActiveLogin.SessionToken;
 }
 
 void UApexAPI::Login(const FString& InUserName, const FString& InPassword, bool bShouldLogout)
@@ -260,6 +274,7 @@ void UApexAPI::OnLoginComplete(const UVaRestRequestJSON* Request)
         if (!Request->GetResponseObject()->GetRootObject()->HasField("Error"))
         {
             FailedResponse = false;
+            GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Purple, FString::Printf(TEXT("Login completed!")));
             HandleLogin(Request->GetResponseObject());
         }
     }
@@ -272,6 +287,7 @@ void UApexAPI::OnLoginComplete(const UVaRestRequestJSON* Request)
 
 void UApexAPI::OnLoginFail(const UVaRestRequestJSON* Request)
 {
+    GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Red, FString::Printf(TEXT("Login failed with response code %i"), Request->GetResponseCode()));
     Log("Login failed with response code %i", Request->GetResponseCode());
 
     UVaRestJsonObject* ResponseObject = Request->GetResponseObject();

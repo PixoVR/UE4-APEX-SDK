@@ -8,9 +8,9 @@
 #include "Editor/EditorEngine.h"
 #endif
 
-bool UApexSDKLibrary::GetCurrentSessionGuid(FGuid& OutCurrentSessionId)
+bool UApexSDKLibrary::GetCurrentSessionGuid(UObject* WorldContextObject, FGuid& OutCurrentSessionId)
 {
-	UApexAPI* Subsystem = GetApexAPI();
+	UApexAPI* Subsystem = GetApexAPI(WorldContextObject);
 	if (Subsystem != nullptr)
 	{
 		OutCurrentSessionId = Subsystem->CurrentSessionGuid;
@@ -20,9 +20,9 @@ bool UApexSDKLibrary::GetCurrentSessionGuid(FGuid& OutCurrentSessionId)
 	return false;
 }
 
-FString UApexSDKLibrary::GetClientIP()
+FString UApexSDKLibrary::GetClientIP(UObject* WorldContextObject)
 {
-	UApexAPI* Subsystem = GetApexAPI();
+	UApexAPI* Subsystem = GetApexAPI(WorldContextObject);
 	if (Subsystem != nullptr)
 	{
 		return Subsystem->ClientIP;
@@ -31,9 +31,9 @@ FString UApexSDKLibrary::GetClientIP()
 	return TEXT("");
 }
 
-FString UApexSDKLibrary::GetDeviceModel()
+FString UApexSDKLibrary::GetDeviceModel(UObject* WorldContextObject)
 {
-	UApexAPI* Subsystem = GetApexAPI();
+	UApexAPI* Subsystem = GetApexAPI(WorldContextObject);
 	if (Subsystem != nullptr)
 	{
 		return Subsystem->DeviceModel;
@@ -42,9 +42,9 @@ FString UApexSDKLibrary::GetDeviceModel()
 	return TEXT("");
 }
 
-FString UApexSDKLibrary::GetDeviceId()
+FString UApexSDKLibrary::GetDeviceId(UObject* WorldContextObject)
 {
-	UApexAPI* Subsystem = GetApexAPI();
+	UApexAPI* Subsystem = GetApexAPI(WorldContextObject);
 	if (Subsystem != nullptr)
 	{
 		return Subsystem->DeviceId;
@@ -53,9 +53,9 @@ FString UApexSDKLibrary::GetDeviceId()
 	return TEXT("");
 }
 
-FString UApexSDKLibrary::GetPlatform()
+FString UApexSDKLibrary::GetPlatform(UObject* WorldContextObject)
 {
-	UApexAPI* Subsystem = GetApexAPI();
+	UApexAPI* Subsystem = GetApexAPI(WorldContextObject);
 	if (Subsystem != nullptr)
 	{
 		return Subsystem->Platform;
@@ -64,9 +64,9 @@ FString UApexSDKLibrary::GetPlatform()
 	return TEXT("");
 }
 
-int UApexSDKLibrary::GetModuleId()
+int UApexSDKLibrary::GetModuleId(UObject* WorldContextObject)
 {
-	UApexAPI* Subsystem = GetApexAPI();
+	UApexAPI* Subsystem = GetApexAPI(WorldContextObject);
 	if (Subsystem != nullptr)
 	{
 		return Subsystem->LoadedModuleId;
@@ -75,9 +75,9 @@ int UApexSDKLibrary::GetModuleId()
 	return -1;
 }
 
-FString UApexSDKLibrary::GetModuleVersion()
+FString UApexSDKLibrary::GetModuleVersion(UObject* WorldContextObject)
 {
-	UApexAPI* Subsystem = GetApexAPI();
+	UApexAPI* Subsystem = GetApexAPI(WorldContextObject);
 	if (Subsystem != nullptr)
 	{
 		return Subsystem->ModuleVersion;
@@ -87,11 +87,11 @@ FString UApexSDKLibrary::GetModuleVersion()
 }
 
 
-bool UApexSDKLibrary::GetCurrentUser(FUserSessionData& OutUser)
+bool UApexSDKLibrary::GetCurrentUser(UObject* WorldContextObject, FUserSessionData& OutUser)
 {
 	bool bIsLoggedIn = false;
 
-	UApexAPI* Subsystem = GetApexAPI();
+	UApexAPI* Subsystem = GetApexAPI(WorldContextObject);
 	if (Subsystem != nullptr)
 	{
 		bIsLoggedIn = Subsystem->IsLoggedIn();
@@ -104,9 +104,9 @@ bool UApexSDKLibrary::GetCurrentUser(FUserSessionData& OutUser)
 	return bIsLoggedIn;
 }
 
-bool UApexSDKLibrary::IsUserLoggedIn()
+bool UApexSDKLibrary::IsUserLoggedIn(UObject* WorldContextObject)
 {
-	UApexAPI* Subsystem = GetApexAPI();
+	UApexAPI* Subsystem = GetApexAPI(WorldContextObject);
 	if (Subsystem != nullptr)
 	{
 		return Subsystem->IsLoggedIn();
@@ -115,9 +115,9 @@ bool UApexSDKLibrary::IsUserLoggedIn()
 	return false;
 }
 
-bool UApexSDKLibrary::IsSessionInProgress()
+bool UApexSDKLibrary::IsSessionInProgress(UObject* WorldContextObject)
 {
-	UApexAPI* Subsystem = GetApexAPI();
+	UApexAPI* Subsystem = GetApexAPI(WorldContextObject);
 	if (Subsystem != nullptr)
 	{
 		return Subsystem->bSessionInProgress;
@@ -126,9 +126,9 @@ bool UApexSDKLibrary::IsSessionInProgress()
 	return false;
 }
 
-FString UApexSDKLibrary::GetAuthToken()
+FString UApexSDKLibrary::GetAuthToken(UObject* WorldContextObject)
 {
-	UApexAPI* Subsystem = GetApexAPI();
+	UApexAPI* Subsystem = GetApexAPI(WorldContextObject);
 	if (Subsystem != nullptr)
 	{
 		if (Subsystem->IsLoggedIn())
@@ -140,26 +140,9 @@ FString UApexSDKLibrary::GetAuthToken()
 	return TEXT("");
 }
 
-UApexAPI* UApexSDKLibrary::GetApexAPI()
+UApexAPI* UApexSDKLibrary::GetApexAPI(UObject* WorldContextObject)
 {
-	UWorld* World = nullptr;
-#if WITH_EDITOR
-	UEditorEngine* EEngine = Cast<UEditorEngine>(GEngine);
-	if (GIsEditor && EEngine != nullptr)
-	{
-#if ENGINE_MAJOR_VERSION >= 5
-		// lets use PlayWorld during PIE/Simulate and regular world from editor otherwise, to draw debug information
-		World = EEngine->PlayWorld != nullptr ? ToRawPtr(EEngine->PlayWorld) : EEngine->GetEditorWorldContext().World();
-#else
-		World = EEngine->PlayWorld != nullptr ? EEngine->PlayWorld : EEngine->GetEditorWorldContext().World();
-#endif
-	}
-#endif
-
-	if (!GIsEditor && World == nullptr && GEngine != nullptr)
-	{
-		World = GEngine->GetWorld();
-	}
+	UWorld* World = WorldContextObject->GetWorld();
 
 	check(World);
 	UGameInstance* GameInstance = World->GetGameInstance();
