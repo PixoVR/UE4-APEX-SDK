@@ -46,11 +46,9 @@ bool UPixoLauncherSubsystem::IsApplicationInstalled(const FString& ApplicationNa
 bool UPixoLauncherSubsystem::LaunchApplication(const FString& ApplicationName, const FString& ExtraKey, const FString& ExtraValue)
 {
 	bool bResult = false;
-	GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Yellow, FString::Printf(TEXT("%s %s=%s"), *ApplicationName, *ExtraKey, *ExtraValue));
 #if PLATFORM_ANDROID
 	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Red, "Trying to launch app.");
 		auto ApplicationNameArg = FJavaHelper::ToJavaString(Env, ApplicationName);
 		auto ExtraKeyArg = FJavaHelper::ToJavaString(Env, ExtraKey);
 		auto ExtraValueArg = FJavaHelper::ToJavaString(Env, ExtraValue);
