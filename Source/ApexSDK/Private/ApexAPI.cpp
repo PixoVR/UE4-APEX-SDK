@@ -464,6 +464,10 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
     {
         Error("Session is already in progress. The previous session didn't complete or a new session was started during an active session.");
     }
+    else
+    {
+        GetWorld()->GetTimerManager().SetTimer(HeartbeatHandle, this, &UApexAPI::SendHeartbeat, 10.0f, true, 10.0f);
+    }
 
     CurrentSessionGuid = FGuid::NewGuid();
 
@@ -536,6 +540,15 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
 void UApexAPI::OnJoinSessionComplete(const UVaRestRequestJSON* Request)
 {
     Log("Session was successfully joined.");
+    if (Request->GetResponseCode() == 200)
+    {
+        UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
+        FPSessionData JoinSessionData;
+
+        JoinSessionData.FromJsonObject(ResponseObject->GetRootObject());
+        SessionId = JoinSessionData.SessionId;
+    }
+
     bSessionInProgress = true;
     OnRequestComplete.Broadcast(EApexRequestType::JoinSession, Request);
     OnStaticRequestComplete.Broadcast(EApexRequestType::JoinSession, Request);
@@ -569,6 +582,8 @@ bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
         Error("No current session in progress.");
         return false;
     }
+
+    GetWorld()->GetTimerManager().ClearTimer(HeartbeatHandle);
 
     // Create our actor
     FXAPIAgent Actor;
@@ -885,6 +900,33 @@ void UApexAPI::OnTopTenFail(const UVaRestRequestJSON* Request)
 
     OnFetchTopTenFail.Broadcast(Request, APEXFailedRequest);
     OnStaticFetchTopTenFail.Broadcast(Request, APEXFailedRequest);
+}
+
+void UApexAPI::SendHeartbeat()
+{
+    if (SessionId < 0)
+    {
+        Error("Trying to send heartbeat without a valid session.");
+        return;
+    }
+
+    FHeartbeatEvent HeartbeatEvent;
+    HeartbeatEvent.SessionId = SessionId;
+
+    UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
+    FString RequestURL = URL.Replace(TEXT("modules."), TEXT("")) + "/heartbeat/pulse";
+    Request->SetURL(RequestURL);
+    Request->SetHeader("Authorization: Bearer", CurrentActiveLogin.SessionToken);
+
+    UVaRestJsonObject* HeartbeatJson = VaRestSubsystem->ConstructVaRestJsonObject();
+    HeartbeatJson->SetRootObject(HeartbeatEvent.ToJsonObject());
+
+    Request->SetRequestObject(HeartbeatJson);
+
+    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void { Log("Heartbeat sent.") });
+    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { Log("Failed to send heartbeat.") });
+
+    Request->ExecuteProcessRequest();
 }
 
 #undef Fatal

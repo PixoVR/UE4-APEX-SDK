@@ -100,6 +100,33 @@ struct APEXSDK_API FAPEXRequestFailed : public FJsonable
 };
 
 USTRUCT(BlueprintType)
+struct APEXSDK_API FPSessionData : public FAPEXRequestFailed
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Platform|Session")
+    int SessionId = -1;
+
+    FPSessionData() : FAPEXRequestFailed()
+    {
+    }
+
+    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+    {
+        FAPEXRequestFailed::FromJsonObject(JObject);
+
+        if (JObject->HasField("Data"))
+        {
+            const TSharedPtr<FJsonObject>& DataObject = JObject->GetObjectField("Data");
+            if (DataObject->HasField("SessionId"))
+            {
+                SessionId = DataObject->GetIntegerField("SessionId");
+            }
+        }
+    }
+};
+
+USTRUCT(BlueprintType)
 struct APEXSDK_API FSessionData : public FJsonable
 {
     GENERATED_BODY()
@@ -611,3 +638,23 @@ public:
     }
 };
 
+USTRUCT(BlueprintType)
+struct APEXSDK_API FHeartbeatEvent : public FJsonable
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Hearbeat Event")
+    int SessionId;
+
+public:
+    virtual ~FHeartbeatEvent() { }
+
+    virtual TSharedPtr<FJsonObject> ToJsonObject() const override
+    {
+        TSharedPtr<FJsonObject> Result(new FJsonObject);
+
+        Result->SetNumberField("sessionId", SessionId);
+
+        return Result;
+    }
+};

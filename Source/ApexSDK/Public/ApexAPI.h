@@ -189,6 +189,7 @@ protected:
 	void HandleLogin(class UVaRestJsonObject* LoginJsonObject);
 	void VerifyModuleAcess();
 	void SetupModuleSettings();
+	void SendHeartbeat();
 
 	void OnLoginComplete(const class UVaRestRequestJSON* Request);
 	void OnLoginFail(const class UVaRestRequestJSON* Request);
@@ -216,6 +217,8 @@ private:
 	class UPixoLauncherSubsystem* LauncherSubsystem;
 
 	FString LaunchToken;
+	FTimerHandle HeartbeatHandle;
+	int SessionId;
 
 	TUniquePtr<ApexWebSocket> ApexSocket;
 #pragma endregion PrivateVariables
