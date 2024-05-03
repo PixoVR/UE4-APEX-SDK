@@ -303,7 +303,7 @@ void UApexAPI::HandleLogin(UVaRestJsonObject* LoginJsonObject)
 
     CurrentActiveLogin.FromJsonObject(GetUserJsonObject(LoginJsonObject->GetRootObject()));
 
-    VerifyModuleAcess();
+    VerifyModuleAccess(LoadedModuleId);
 }
 
 TSharedRef<FJsonObject> UApexAPI::GetUserJsonObject(TSharedRef<FJsonObject> &RootJsonObject)
@@ -373,14 +373,14 @@ void UApexAPI::OnLogoutFail(const UVaRestRequestJSON* Request)
     OnStaticRequestFail.Broadcast(EApexRequestType::Logout, Request);
 }
 
-void UApexAPI::VerifyModuleAcess()
+void UApexAPI::VerifyModuleAccess(int InModuleId)
 {
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::GET, EVaRestRequestContentType::none);
 
     FStringFormatOrderedArguments FormatArguments;
     FormatArguments.Add(FStringFormatArg(URL));
     FormatArguments.Add(FStringFormatArg(CurrentActiveLogin.ID));
-    FormatArguments.Add(FStringFormatArg(LoadedModuleId));
+    FormatArguments.Add(FStringFormatArg(InModuleId));
     FString AccessURL = FString::Format(TEXT("{0}/access/user/{1}/module/{2}"), FormatArguments);
     Request->SetURL(AccessURL);
     Request->SetHeader("Authorization: Bearer", CurrentActiveLogin.SessionToken);

@@ -92,7 +92,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FString ScenarioId;
 
-	UPROPERTY(BlueprintReadOnly, Meta=(DisplayName="Module Id"))
+	UPROPERTY(BlueprintReadWrite, Meta=(DisplayName="Module Id"))
 	int LoadedModuleId;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -181,13 +181,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void FilloutLaunchToken();
 
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	void VerifyModuleAccess(int InModuleId);
+
 protected:
 
 #pragma region PrivateFunctions
 	TSharedRef<FJsonObject> GetUserJsonObject(TSharedRef<FJsonObject>& RootJsonObject);
 	bool FetchTopTen(int UserId, float TimePriorToToday, FString Scenario, int OrgUnit);
 	void HandleLogin(class UVaRestJsonObject* LoginJsonObject);
-	void VerifyModuleAcess();
 	void SetupModuleSettings();
 	void SendHeartbeat();
 
