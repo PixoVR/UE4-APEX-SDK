@@ -10,11 +10,11 @@
 #include "ApexJSON.h"
 #include "XAPIBase.h"
 #include "XAPIExtension.h"
-#include "ApexLibrary.h"
 #include "OptionalTypes.h"
+#include "ApexLibrary.h"
 #include "XAPITypes.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct APEXSDK_API FXAPIStatementTarget
 {
 	GENERATED_BODY()
@@ -724,7 +724,7 @@ struct APEXSDK_API FXAPIScore : public FXAPIBase
 };
 
 USTRUCT(BlueprintType)
-struct FXAPIResult : public FXAPIBase
+struct APEXSDK_API FXAPIResult : public FXAPIBase
 {
 	GENERATED_BODY()
 
@@ -947,75 +947,19 @@ struct APEXSDK_API FXAPIStatement : public FXAPIStatementBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Statement")
-	mutable FGuid Id;
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Statement")
+		mutable FGuid Id;
 
 	mutable TOptional<FDateTime> Stored;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|XAPI|Statement")
-	FXAPIAgent Authority;
+		FXAPIAgent Authority;
 
-	void Stamp() const
-	{
-		if (!Id.IsValid())
-		{
-			Id = FGuid::NewGuid();
-		}
+	void Stamp() const;
 
-		if (!Stored.IsSet())
-		{
-			Stored = FDateTime::UtcNow();
-		}
-	}
+	virtual bool IsEmpty() const override;
 
-	virtual bool IsEmpty() const override
-	{
-		bool Empty = FXAPIStatementBase::IsEmpty() && !Id.IsValid() && !Stored.IsSet() && Authority.IsEmpty();
-		return Empty;
-	}
+	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override;
 
-	virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
-	{
-		FXAPIStatementBase::FromJsonObject(JObject);
-
-		if (JObject->HasField("id"))
-		{
-			FGuid::Parse(JObject->GetStringField("id"), Id);
-		}
-
-		if (JObject->HasField("stored"))
-		{
-			FString StoredString = JObject->GetStringField("stored");
-			FDateTime StoredDateTime;
-			FDateTime::Parse(StoredString, StoredDateTime);
-			Stored = StoredDateTime;
-		}
-
-		if (JObject->HasField("authority"))
-		{
-			Authority.FromJsonObject(JObject->GetObjectField("authority"));
-		}
-	}
-
-	virtual TSharedPtr<FJsonObject> ToJsonObject() const override
-	{
-		TSharedPtr<FJsonObject> JsonResult = FXAPIStatementBase::ToJsonObject();
-
-		if (Id.IsValid())
-		{
-			JsonResult->SetStringField("id", Id.ToString());
-		}
-		if (Stored.IsSet())
-		{
-			JsonResult->SetStringField("stored", Stored.GetValue().ToString());
-		}
-		if (!Authority.IsEmpty())
-		{
-			JsonResult->SetObjectField("authority", Authority.ToJsonObject());
-		}
-		
-		JsonResult->SetStringField("version", TEXT("1.0.3"));
-
-		return JsonResult;
-	}
+	virtual TSharedPtr<FJsonObject> ToJsonObject() const override;
 };

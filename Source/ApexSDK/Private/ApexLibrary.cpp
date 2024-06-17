@@ -1,9 +1,12 @@
 // Copyright 2022 PixoVR Corp. All Rights Reserved.
 
 #include "ApexLibrary.h"
-
+#include "ApexAPI.h"
 #include "Interfaces/IPluginManager.h"
-#include "XAPITypes.h"
+
+#if WITH_EDITOR
+#include "Editor/EditorEngine.h"
+#endif
 
 FXAPIExtension UApexLibrary::CreateExtensionData(const TMap<FString, UVaRestJsonValue*>& Data)
 {

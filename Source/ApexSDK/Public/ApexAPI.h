@@ -1,5 +1,13 @@
 // Copyright 2022 PixoVR Corp. All Rights Reserved.
 
+// This cannot be #pragma once'd.
+#undef PACKAGE_SCOPE
+#ifdef APEXSDK_PACKAGE
+#define PACKAGE_SCOPE public
+#else
+#define PACKAGE_SCOPE protected
+#endif
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -84,7 +92,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FString ScenarioId;
 
-	UPROPERTY(BlueprintReadOnly, Meta=(DisplayName="Module Id"))
+	UPROPERTY(BlueprintReadWrite, Meta=(DisplayName="Module Id"))
 	int LoadedModuleId;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -109,13 +117,13 @@ public:
 	FUserSessionData CurrentActiveLogin;
 #pragma endregion PublicProperties
 
-protected:
+PACKAGE_SCOPE:
 
 	UPROPERTY(BlueprintReadOnly)
-	bool SessionInProgress;
+	bool bSessionInProgress;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool WebSocketEnabled;
+	bool bWebSocketEnabled;
 
 public:
 	UApexAPI();
@@ -125,8 +133,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void Ping();
 
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
+	bool HasLaunchAuthToken();
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Apex|API")
+	bool IsLoggedIn();
+
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	void Login(const FApexLoginInfo& InLoginInfo, bool bShouldLogout = true);
+	void LoginWithAuthToken();
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	void Login(const FString& InUserName, const FString& InPassword, bool bShouldLogout = true);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void Logout();
@@ -141,7 +158,7 @@ public:
 	void RequestAuthorizationCode();
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	bool JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension);
+	bool JoinSession(FString InScenarioId, const FXAPIExtension& InContextExtension, bool bIsMultiplayer = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	bool CompleteSession(const FSessionData& InSessionData);
@@ -161,13 +178,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	bool FetchTopTenByTimeRange(float TimePriorToToday, FString Scenario, int OrgUnit);
 
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	void FilloutLaunchToken();
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	void VerifyModuleAccess(int InModuleId);
+
 protected:
 
 #pragma region PrivateFunctions
+	TSharedRef<FJsonObject> GetUserJsonObject(TSharedRef<FJsonObject>& RootJsonObject);
 	bool FetchTopTen(int UserId, float TimePriorToToday, FString Scenario, int OrgUnit);
 	void HandleLogin(class UVaRestJsonObject* LoginJsonObject);
-	void VerifyModuleAcess();
 	void SetupModuleSettings();
+	void SendHeartbeat();
 
 	void OnLoginComplete(const class UVaRestRequestJSON* Request);
 	void OnLoginFail(const class UVaRestRequestJSON* Request);
@@ -192,8 +216,11 @@ private:
 #pragma region PrivateVariables
 	class UVaRestSubsystem* VaRestSubsystem;
 	class UApexSDKSettings* ApexSettings;
+	class UPixoLauncherSubsystem* LauncherSubsystem;
 
-	FString AuthorizationToken;
+	FString LaunchToken;
+	FTimerHandle HeartbeatHandle;
+	int SessionId;
 
 	TUniquePtr<ApexWebSocket> ApexSocket;
 #pragma endregion PrivateVariables

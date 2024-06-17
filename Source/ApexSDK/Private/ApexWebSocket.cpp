@@ -5,12 +5,12 @@
 #include "IWebSocket.h"
 #include "ApexLibrary.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogApexWebSocket, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogWebSocket, Log, All);
 
-#define LogAPEX(pmt, ...) UE_LOG(LogApexWebSocket, Log, TEXT(pmt), ##__VA_ARGS__)
-#define WarnAPEX(pmt, ...) UE_LOG(LogApexWebSocket, Warning, TEXT(pmt), ##__VA_ARGS__)
-#define ErrorAPEX(pmt, ...) UE_LOG(LogApexWebSocket, Error, TEXT(pmt), ##__VA_ARGS__)
-#define FatalAPEX(pmt, ...) UE_LOG(LogApexWebSocket, Fatal, TEXT(pmt), ##__VA_ARGS__)
+#define Log(pmt, ...) UE_LOG(LogWebSocket, Log, TEXT(pmt), ##__VA_ARGS__)
+#define Warn(pmt, ...) UE_LOG(LogWebSocket, Warning, TEXT(pmt), ##__VA_ARGS__)
+#define Error(pmt, ...) UE_LOG(LogWebSocket, Error, TEXT(pmt), ##__VA_ARGS__)
+#define Fatal(pmt, ...) UE_LOG(LogWebSocket, Fatal, TEXT(pmt), ##__VA_ARGS__)
 
 ApexWebSocket::ApexWebSocket()
 {
@@ -67,30 +67,30 @@ void ApexWebSocket::SetupSocket(TSharedPtr<IWebSocket>& Socket, FString Uri, FSt
     Socket = FWebSocketsModule::Get().CreateWebSocket(Uri, Protocol);
 
     Socket->OnConnected().AddLambda([&]() -> void {
-        LogAPEX("Apex websocket connected.");
+        Log("Apex websocket connected.");
         ProcessNextRequest();
         ApexConnectedEvent.Broadcast();
     });
 
     Socket->OnConnectionError().AddLambda([&](const FString& Error) -> void {
-        ErrorAPEX("Failed to connect with error: %s", *Error);
+        Error("Failed to connect with error: %s", *Error);
         CleanUpRequests();
         ApexConnectFailedEvent.Broadcast(Error);
     });
 
     Socket->OnClosed().AddLambda([&](int32 StatusCode, const FString& Reason, bool bWasClean) -> void {
-        LogAPEX("Socket closed with status %d, for reason %s", StatusCode, *Reason);
+        Log("Socket closed with status %d, for reason %s", StatusCode, *Reason);
         CleanUpRequests();
         ApexDisconnectedEvent.Broadcast(StatusCode, Reason, bWasClean);
     });
 
     Socket->OnMessage().AddLambda([&](const FString& Message) -> void {
         // This code will run when we receive a string message from the server.
-        LogAPEX("Message received: %s", *Message);
+        Log("Message received: %s", *Message);
         UVaRestSubsystem* RestSubsystem = UApexLibrary::GetRestSubsystem();
         if (!RestSubsystem)
         {
-            ErrorAPEX("Unable to parse message.");
+            Error("Unable to parse message.");
             return;
         }
 
@@ -108,11 +108,11 @@ void ApexWebSocket::SetupSocket(TSharedPtr<IWebSocket>& Socket, FString Uri, FSt
 
     Socket->OnRawMessage().AddLambda([&](const void* Data, SIZE_T Size, SIZE_T BytesRemaining) -> void {
         // This code will run when we receive a raw (binary) message from the server.
-        LogAPEX("A raw message was received.");
+        Log("A raw message was received.");
     });
 
     Socket->OnMessageSent().AddLambda([&](const FString& MessageString) -> void {
-        LogAPEX("Apex message sent.");
+        Log("Apex message sent.");
         ProcessNextRequest();
     });
 }
@@ -131,7 +131,7 @@ void ApexWebSocket::ProcessNextRequest()
             }
             break;
         default:
-            ErrorAPEX("Invalid request type submitted of type %d", NextRequestType);
+            Error("Invalid request type submitted of type %d", NextRequestType);
         }
     }
 }
@@ -163,7 +163,7 @@ void ApexWebSocket::SendData(FString Data)
     WebSocket->Send(Data);
 }
 
-#undef FatalAPEX
-#undef ErrorAPEX
-#undef WarnAPEX
-#undef LogAPEX
+#undef Fatal
+#undef Error
+#undef Warn
+#undef Log

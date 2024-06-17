@@ -4,33 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "ApexSDKDefines.h"
-#include "XAPITypes.h"
 #include "ApexJSON.h"
+#include "XAPITypes.h"
 #include "ApexTypes.generated.h"
-
-USTRUCT(BlueprintType)
-struct APEXSDK_API FApexLoginInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Login")
-		FString Username;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Login")
-		FString Password;
-
-public:
-
-	FApexLoginInfo()
-		: Username("")
-		, Password("")
-	{ }
-
-	FApexLoginInfo(FString InUsername, FString InPassword)
-		: Username(InUsername)
-		, Password(InPassword)
-	{ }
-};
 
 USTRUCT(BlueprintType)
 struct APEXSDK_API FJoinSessionData : public FJsonable
@@ -38,15 +14,15 @@ struct APEXSDK_API FJoinSessionData : public FJsonable
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    FString Uuid;
+    FString Uuid = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    FString EventType;
+    FString EventType = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    int ModuleId;
+    int ModuleId = -1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    FString DeviceId;
+    FString DeviceId = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    FString IpAddress;
+    FString IpAddress = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
     FXAPIStatement JsonData;
 
@@ -94,13 +70,13 @@ struct APEXSDK_API FAPEXRequestFailed : public FJsonable
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
-    bool Error;
+    bool Error = false;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
-    FString HttpCode;
+    FString HttpCode = TEXT("0");
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
-    FString Message;
+    FString Message = TEXT("");
 
     FAPEXRequestFailed()
     {
@@ -124,25 +100,52 @@ struct APEXSDK_API FAPEXRequestFailed : public FJsonable
 };
 
 USTRUCT(BlueprintType)
+struct APEXSDK_API FPSessionData : public FAPEXRequestFailed
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Platform|Session")
+    int SessionId = -1;
+
+    FPSessionData() : FAPEXRequestFailed()
+    {
+    }
+
+    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
+    {
+        FAPEXRequestFailed::FromJsonObject(JObject);
+
+        if (JObject->HasField("Data"))
+        {
+            const TSharedPtr<FJsonObject>& DataObject = JObject->GetObjectField("Data");
+            if (DataObject->HasField("SessionId"))
+            {
+                SessionId = DataObject->GetIntegerField("SessionId");
+            }
+        }
+    }
+};
+
+USTRUCT(BlueprintType)
 struct APEXSDK_API FSessionData : public FJsonable
 {
     GENERATED_BODY()
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    bool Complete;
+    bool Complete = false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    bool Success;
+    bool Success = false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    float Score;
+    float Score = 0.0f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    float ScoreScaled;
+    float ScoreScaled = 0.0f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    float ScoreMin;
+    float ScoreMin = 0.0f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    float ScoreMax;
+    float ScoreMax = 0.0f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    int Duration;
+    int Duration = 0;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
     FXAPIExtension AdditionalContextData;
@@ -190,13 +193,13 @@ struct APEXSDK_API FCompleteSessionData : public FJsonable
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
-    FString Uuid;
+    FString Uuid = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
-    FString EventType;
+    FString EventType = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
-    int ModuleId;
+    int ModuleId = -1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
-    FString DeviceId;
+    FString DeviceId = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
     FXAPIStatement JsonData;
 
@@ -286,13 +289,13 @@ struct APEXSDK_API FSessionEventData : public FJsonable
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
-    FString Uuid;
+    FString Uuid = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
-    FString EventType;
+    FString EventType = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
-    int ModuleId;
+    int ModuleId = -1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
-    FString DeviceId;
+    FString DeviceId = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
     FXAPIStatement JsonData;
 
@@ -338,11 +341,11 @@ struct APEXSDK_API FAPEXOrganization : public FJsonable
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Apex Org")
-    int ID;
+    int ID = -1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Apex Org")
-    FString Name;
+    FString Name = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Apex Org")
-    FString Status;
+    FString Status = TEXT("");
 
 public:
     virtual ~FAPEXOrganization() { }
@@ -372,19 +375,19 @@ struct APEXSDK_API FUserSessionData : public FJsonable
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    int ID;
+    int ID = -1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    int OrgId;
+    int OrgId = -1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    int OrgUnit;
+    int OrgUnit = -1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    FString FirstName;
+    FString FirstName = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    FString LastName;
+    FString LastName = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    FString Email;
+    FString Email = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    FString SessionToken;
+    FString SessionToken = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
     FAPEXOrganization Organization;
 
@@ -446,22 +449,22 @@ struct APEXSDK_API FApexUserData : public FJsonable
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    int Id;
+    int Id = -1;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    int OrgUnit;
+    int OrgUnit = -1;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    FString FirstName;
+    FString FirstName = TEXT("");
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    FString LastName;
+    FString LastName = TEXT("");
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    FString Email;
+    FString Email = TEXT("");
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    FString Username;
+    FString Username = TEXT("");
 
     virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
     {
@@ -504,23 +507,23 @@ struct APEXSDK_API FSessionReportData : public FJsonable
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    FString Id;
+    FString Id = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    FString EventType;
+    FString EventType = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    int UserId;
+    int UserId = -1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    int ModuleId;
+    int ModuleId = -1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    int SessionId;
+    int SessionId = -1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    float SessionDuration;
+    float SessionDuration = 0.0f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    bool LessonStatus;
+    bool LessonStatus = false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    FString CreatedAt;
+    FString CreatedAt = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    FString UpdatedAt;
+    FString UpdatedAt = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
     FXAPIStatement JsonData;
 
@@ -586,9 +589,9 @@ struct APEXSDK_API FTopTenData : public FJsonable
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
-    bool Error;
+    bool Error = false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
-    FString Message;
+    FString Message = TEXT("");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
     FApexUserData User;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
@@ -635,3 +638,23 @@ public:
     }
 };
 
+USTRUCT(BlueprintType)
+struct APEXSDK_API FHeartbeatEvent : public FJsonable
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Hearbeat Event")
+    int SessionId;
+
+public:
+    virtual ~FHeartbeatEvent() { }
+
+    virtual TSharedPtr<FJsonObject> ToJsonObject() const override
+    {
+        TSharedPtr<FJsonObject> Result(new FJsonObject);
+
+        Result->SetNumberField("sessionId", SessionId);
+
+        return Result;
+    }
+};

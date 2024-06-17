@@ -12,13 +12,32 @@ Authentication with Apex is as simple as calling the Login function. If you read
 documentation you can get a better understanding of what is happening under the hood, but the SDK automates
 nearly everything and makes authentication a breeze.
 
-To authenticate, you must bundle a username and password into a FApexLoginInfo object and pass it to UApexAPI::Login().
+To authenticate, you must pass a username and password to UApexAPI::Login().
 You can also bundle an Assisted Login code, generated on the PixoVR Platform, as the username and any length string into the password into a FApexLoginInfo object and pass it to UApexAPI::Login().
 
 Features of this function are that it:
 
  - Sends the users information to the Apex Server to login. Return `TRUE`.
  - Returns `FALSE` if the password or login are of zero length.
+
+\subsection authlaunches Authenticated Launch
+
+More and more users are adopting the PixoVR Hub App. Alongside the many features of the Hub App, one feature, Authenticated Launches, are something you'll want to integrate with your application.
+Authenticated Launch takes a user who is already logged and passes their user token into another application.
+
+You can check if your application has been passed a user token by calling [UApexAPI::HasLaunchAuthToken()](@ref UApexAPI::HasLaunchAuthToken), which will return true if there is a token waiting for you to use.
+
+Now that you know there is a token, you'll want to call [UApexAPI::LoginWithAuthToken()](@ref UApexAPI::LoginWithAuthToken). This function takes the token and calls a login flow.
+After this function is called, you can follow the login event flow to know when the users token has been verified and the users information is available to your application.
+
+\subsection returntohub Returning to Hub
+
+When your application exits, it's important to return the user to the Hub App, or in the case of Saudi, the Training Academy.
+
+You can do this with a call to [UPixoLauncherSubsystem::LaunchApplication](@ref UPixoLauncherSubsystem::LaunchApplication), which takes in 3 parameters.
+ - `ApplicationName:FString` - com.PixoVR.PixoHub for NA environments, com.PixoVR.SA_TrainingAcademy for Saudi environments.
+ - `ExtraKey:FString` - This value should always be `pixotoken`.
+ - `ExtraValue:FString` - This should be the currently logged in users token.
 
 \subsection requesthandling Handling Authentication API Responses
 
@@ -81,8 +100,7 @@ Using C++:
 
 \code{.cpp}
 UApexAPI* ApexAPI = GetGameInstance()->GetSubsystem<UApexAPI>();
-FApexLoginInfo PixoLoginData("pixo@pixovr.com", "123abc");
-ApexAPI->Login(PixoLoginData);
+ApexAPI->Login("pixo@pixovr.com", "123abc");
 \endcode
 
 Using Blueprint:
