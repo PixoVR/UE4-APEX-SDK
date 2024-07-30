@@ -3,7 +3,9 @@
 <root xmlns:android="http://schemas.android.com/apk/res/android">
 	<init>
 		<log text="PixoLauncherAndroid init"/>
-	</init>
+        <setStringFromProperty result="HostString" ini="Engine" section="/Script/AndroidRuntimeSettings.AndroidRuntimeSettings" property="PackageName" default="com.pixovr.blank"/>
+        <log text="$S(HostString)"/>
+    </init>
 
 	<prebuildCopies>
 	</prebuildCopies>
@@ -17,14 +19,44 @@
 	</resourceCopies>
 
 	<androidManifestUpdates>
-		<addElements tag="application"> 
+        <addAttribute tag="application" name="android:requestLegacyExternalStorage" value="true" />
+        <addPermission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+        <addPermission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
+        <addPermission android:name="android.permission.READ_PHONE_STATE"/>
+        <addPermission android:name="android.permission.ACCESS_WIFI_STATE"/>
+        <addElements tag="application"> 
 		</addElements>
 		<addAttribute tag="application" name="android:sharedUserId" value="android.uid.system"/>
-	</androidManifestUpdates>
+
+        <loopElements tag="activity">
+            <setStringFromAttribute result="activityName" tag="$" name="android:name"/>
+            <setBoolIsEqual result="bGameActivity" arg1="$S(activityName)" arg2="com.epicgames.unreal.GameActivity"/>
+            <if condition="bGameActivity">
+                <true>
+                    <setElement result="DataElement" value="data" />
+                    <addAttribute tag="$DataElement" name="android:scheme" value="pixovr" />
+                    <addAttribute tag="$DataElement" name="android:host" value="$S(HostString)" />
+                    <setElement result="IntentFilter" value="intent-filter" />
+                    <addElements tag="$IntentFilter">
+                        <action android:name="android.intent.action.VIEW" />
+                        <category android:name="android.intent.category.DEFAULT" />
+                        <category android:name="android.intent.category.BROWSABLE" />
+                    </addElements>
+                    <addElement tag="$IntentFilter" name="DataElement" />
+                    <addElement tag="$" name="IntentFilter" />
+                </true>
+            </if>
+        </loopElements>
+        <replace find="[HostString]" with="$S(HostString)"/>
+
+    </androidManifestUpdates>
 
 	<gameActivityImportAdditions>
 		<insert>
             import android.util.Log;
+            import android.Manifest.permission;
+            import android.net.wifi.WifiManager;
+            import android.net.wifi.WifiInfo;
         </insert>
 	</gameActivityImportAdditions>
 
@@ -118,6 +150,21 @@
                 
                 return ExtraString;
             }
+            
+            public String AndroidThunkJava_GetDeviceSerialNumber()
+            {
+				Log.error("GAOCA: Getting device serial number.");
+				return android.os.Build.getSerial();
+            }
+            
+            public String AndroidThunkJava_GetMacAddress()
+            {
+				Log.error("GAOCA: Getting mac address.");
+				WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+				WifiInfo wInfo = wifiManager.getConnectionInfo();
+				String macAddress = wInfo.getMacAddress();
+                return macAddress;
+            }
 		</insert>
 	</gameActivityClassAdditions>
 
@@ -133,7 +180,27 @@
 
 	<gameActivityOnCreateAdditions>
 		<insert>
-		</insert>
+            //if (PermissionHelper.checkPermission("android.permission.READ_PRIVILEGED_PHONE_STATE") == false) {
+            //	String[] permissions = {"android.permission.READ_PRIVILEGED_PHONE_STATE"};
+            //	PermissionHelper.acquirePermissions(permissions);
+            //    Log.debug("GAOCA: Acquired read privileged phone permission.");
+            //}
+            //
+            //if (PermissionHelper.checkPermission("android.permission.READ_PHONE_STATE") == false) {
+            //	String[] permissions = {"android.permission.READ_PHONE_STATE"};
+            //	PermissionHelper.acquirePermissions(permissions);
+            //    Log.debug("GAOCA: Acquired read phone state permission.");
+            //}
+
+            if (PermissionHelper.checkPermission("android.permission.ACCESS_WIFI_STATE") == false) {
+            	String[] permissions = {"android.permission.ACCESS_WIFI_STATE"};
+            	PermissionHelper.acquirePermissions(permissions);
+                Log.debug("GAOCA: Acquired access wifi state permission.");
+            }
+
+            Log.error("GAOCA: Post acquired permission.");
+            Log.debug("GAOCA: " + AndroidThunkJava_GetMacAddress());
+        </insert>
 	</gameActivityOnCreateAdditions>
 
 	<gameActivityOnActivityResultAdditions>

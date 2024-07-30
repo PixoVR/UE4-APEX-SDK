@@ -24,6 +24,7 @@ void UPixoLauncherSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		IsApplicationInstalledFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_IsPackageInstalled", "(Ljava/lang/String;)Z", false);
 		LaunchApplicationFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_Launch", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z", false);
 		GetApplicationExtraFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetApplicationExtra", "(Ljava/lang/String;)Ljava/lang/String;", false);
+		GetDeviceSerialNumberFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetDeviceSerialNumber", "()Ljava/lang/String;", false);
 	}
 #endif
 }
@@ -68,6 +69,21 @@ FString UPixoLauncherSubsystem::GetApplicationExtra(const FString& ExtraKey)
 	{
 		auto ExtraKeyArg = FJavaHelper::ToJavaString(Env, ExtraKey);
 		auto JavaKeyValue = (jstring)FJavaWrapper::CallObjectMethod(Env, FJavaWrapper::GameActivityThis, GetApplicationExtraFunction, *ExtraKeyArg);
+		ReturnedExtraValue = FJavaHelper::FStringFromLocalRef(Env, JavaKeyValue);
+	}
+
+	Log("UPixoLauncherSubsystem::GetApplicationExtra: %s", *ReturnedExtraValue);
+#endif
+	return ReturnedExtraValue;
+}
+
+FString UPixoLauncherSubsystem::GetDeviceSerialNumber()
+{
+	FString ReturnedExtraValue = FString("");
+#if PLATFORM_ANDROID
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		auto JavaKeyValue = (jstring)FJavaWrapper::CallObjectMethod(Env, FJavaWrapper::GameActivityThis, GetDeviceSerialNumberFunction);
 		ReturnedExtraValue = FJavaHelper::FStringFromLocalRef(Env, JavaKeyValue);
 	}
 

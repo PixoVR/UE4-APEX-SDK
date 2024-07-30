@@ -42,10 +42,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
 	FString GetApplicationExtra(const FString& ExtraKey);
 
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
+	FString GetDeviceSerialNumber();
+
 #if PLATFORM_ANDROID
 	jclass PlatformClassID;
 	jmethodID LaunchApplicationFunction;
 	jmethodID IsApplicationInstalledFunction;
 	jmethodID GetApplicationExtraFunction;
+	jmethodID GetDeviceSerialNumberFunction;
 #endif
 };

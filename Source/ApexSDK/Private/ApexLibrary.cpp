@@ -20,6 +20,15 @@ FXAPIExtension UApexLibrary::CreateExtensionData(const TMap<FString, UVaRestJson
     return Extension;
 }
 
+UVaRestJsonValue* UApexLibrary::JsonValueFromString(FString String)
+{
+    TSharedPtr<FJsonValue> SharedValue = MakeShared<FJsonValueString>(String);
+    UVaRestJsonValue* RestJsonValue = NewObject<UVaRestJsonValue>();
+    RestJsonValue->SetRootValue(SharedValue);
+
+    return RestJsonValue;
+}
+
 FString UApexLibrary::GetApexSDKVersion()
 {
     const auto PluginRef = IPluginManager::Get().FindPlugin("ApexSDK");
