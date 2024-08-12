@@ -45,11 +45,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
 	FString GetDeviceSerialNumber();
 
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
+	FString GetDeviceMacAddress();
+
 #if PLATFORM_ANDROID
 	jclass PlatformClassID;
 	jmethodID LaunchApplicationFunction;
 	jmethodID IsApplicationInstalledFunction;
 	jmethodID GetApplicationExtraFunction;
 	jmethodID GetDeviceSerialNumberFunction;
+	jmethodID GetDeviceMacAddressFunction;
 #endif
 };

@@ -8,6 +8,8 @@
     </init>
 
 	<prebuildCopies>
+        <log text="Copying all the Java files."/>
+        <copyDir src="$S(PluginDir)/Java" dst="$S(BuildDir)" />
 	</prebuildCopies>
 
 	<proguardAdditions>
@@ -24,6 +26,7 @@
         <addPermission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
         <addPermission android:name="android.permission.READ_PHONE_STATE"/>
         <addPermission android:name="android.permission.ACCESS_WIFI_STATE"/>
+        <addPermission android:name="android.permission.QUERY_ALL_PACKAGES"/>
         <addElements tag="application"> 
 		</addElements>
 		<addAttribute tag="application" name="android:sharedUserId" value="android.uid.system"/>
@@ -53,16 +56,20 @@
 
 	<gameActivityImportAdditions>
 		<insert>
+            import com.managexr.getserialsample.*;
+            import com.Pixo.PixoPlatform.*;
             import android.util.Log;
             import android.Manifest.permission;
             import android.net.wifi.WifiManager;
             import android.net.wifi.WifiInfo;
+            import java.net.NetworkInterface;
         </insert>
 	</gameActivityImportAdditions>
 
 	<gameActivityClassAdditions>
 		<insert>            
 			private final static String TAG = "ApexSDKAndroid: ";
+            private String SerialNumber = "";
             
             public boolean AndroidThunkJava_Launch(String packageName, String extraKey, String extraValue)
 			{
@@ -154,16 +161,13 @@
             public String AndroidThunkJava_GetDeviceSerialNumber()
             {
 				Log.error("GAOCA: Getting device serial number.");
-				return android.os.Build.getSerial();
+                return SerialNumber;
             }
             
             public String AndroidThunkJava_GetMacAddress()
             {
 				Log.error("GAOCA: Getting mac address.");
-				WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-				WifiInfo wInfo = wifiManager.getConnectionInfo();
-				String macAddress = wInfo.getMacAddress();
-                return macAddress;
+				return PixoUtilities.getMacAddres();
             }
 		</insert>
 	</gameActivityClassAdditions>
@@ -180,23 +184,24 @@
 
 	<gameActivityOnCreateAdditions>
 		<insert>
-            //if (PermissionHelper.checkPermission("android.permission.READ_PRIVILEGED_PHONE_STATE") == false) {
-            //	String[] permissions = {"android.permission.READ_PRIVILEGED_PHONE_STATE"};
-            //	PermissionHelper.acquirePermissions(permissions);
-            //    Log.debug("GAOCA: Acquired read privileged phone permission.");
-            //}
-            //
-            //if (PermissionHelper.checkPermission("android.permission.READ_PHONE_STATE") == false) {
-            //	String[] permissions = {"android.permission.READ_PHONE_STATE"};
-            //	PermissionHelper.acquirePermissions(permissions);
-            //    Log.debug("GAOCA: Acquired read phone state permission.");
-            //}
-
+            
+            if (PermissionHelper.checkPermission("android.permission.QUERY_ALL_PACKAGES") == false) {
+            	String[] permissions = {"android.permission.QUERY_ALL_PACKAGES"};
+            	PermissionHelper.acquirePermissions(permissions);
+                Log.debug("GAOCA: Acquired query all packages permission.");
+            }
+            
             if (PermissionHelper.checkPermission("android.permission.ACCESS_WIFI_STATE") == false) {
             	String[] permissions = {"android.permission.ACCESS_WIFI_STATE"};
             	PermissionHelper.acquirePermissions(permissions);
                 Log.debug("GAOCA: Acquired access wifi state permission.");
             }
+            
+            MXRAdminAppMessenger mxrAdminAppMessenger = new MXRAdminAppMessenger(this);
+			mxrAdminAppMessenger.onSerialUpdated((serial)->{
+				Log.error("GAOCA: SN# - " + serial);
+				SerialNumber = serial;
+			});
 
             Log.error("GAOCA: Post acquired permission.");
             Log.debug("GAOCA: " + AndroidThunkJava_GetMacAddress());
@@ -207,4 +212,19 @@
 		<insert>
 		</insert>
 	</gameActivityOnActivityResultAdditions>
+
+    <buildGradleAdditions>
+        <insert>
+            android {
+				compileOptions {
+					sourceCompatibility JavaVersion.VERSION_1_8
+					targetCompatibility JavaVersion.VERSION_1_8
+				}
+            }
+            
+            dependencies {
+				implementation 'org.apache.commons:commons-lang3:3.0'
+			}
+        </insert>
+	</buildGradleAdditions>
 </root>

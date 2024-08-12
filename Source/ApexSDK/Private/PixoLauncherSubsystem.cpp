@@ -2,6 +2,7 @@
 
 
 #include "PixoLauncherSubsystem.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPixoLauncherSubsystem, Log, All);
 
@@ -25,6 +26,7 @@ void UPixoLauncherSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		LaunchApplicationFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_Launch", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z", false);
 		GetApplicationExtraFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetApplicationExtra", "(Ljava/lang/String;)Ljava/lang/String;", false);
 		GetDeviceSerialNumberFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetDeviceSerialNumber", "()Ljava/lang/String;", false);
+		GetDeviceMacAddressFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetMacAddress", "()Ljava/lang/String;", false);
 	}
 #endif
 }
@@ -87,7 +89,26 @@ FString UPixoLauncherSubsystem::GetDeviceSerialNumber()
 		ReturnedExtraValue = FJavaHelper::FStringFromLocalRef(Env, JavaKeyValue);
 	}
 
-	Log("UPixoLauncherSubsystem::GetApplicationExtra: %s", *ReturnedExtraValue);
+	Log("UPixoLauncherSubsystem::GetDeviceSerialNumber: %s", *ReturnedExtraValue);
+#else
+	ReturnedExtraValue = TEXT("No Serial Number");
+#endif
+	return ReturnedExtraValue;
+}
+
+FString UPixoLauncherSubsystem::GetDeviceMacAddress()
+{
+	FString ReturnedExtraValue = FString("");
+#if PLATFORM_ANDROID
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		auto JavaKeyValue = (jstring)FJavaWrapper::CallObjectMethod(Env, FJavaWrapper::GameActivityThis, GetDeviceMacAddressFunction);
+		ReturnedExtraValue = FJavaHelper::FStringFromLocalRef(Env, JavaKeyValue);
+	}
+
+	Log("UPixoLauncherSubsystem::GetDeviceMacAddress: %s", *ReturnedExtraValue);
+#else
+	ReturnedExtraValue = FGenericPlatformMisc::GetMacAddressString();
 #endif
 	return ReturnedExtraValue;
 }
