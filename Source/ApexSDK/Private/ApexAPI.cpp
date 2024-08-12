@@ -377,11 +377,21 @@ void UApexAPI::VerifyModuleAccess(int InModuleId)
 {
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::GET, EVaRestRequestContentType::none);
 
+    FString OptionalParameters = TEXT("");
+    FString SerialNumber = LauncherSubsystem->GetDeviceSerialNumber();
+    if (!SerialNumber.IsEmpty())
+    {
+        OptionalParameters = "?serial=" + SerialNumber;
+        Log("Serial number: %s", *SerialNumber);
+    }
+
     FStringFormatOrderedArguments FormatArguments;
     FormatArguments.Add(FStringFormatArg(URL));
     FormatArguments.Add(FStringFormatArg(CurrentActiveLogin.ID));
     FormatArguments.Add(FStringFormatArg(InModuleId));
-    FString AccessURL = FString::Format(TEXT("{0}/access/user/{1}/module/{2}"), FormatArguments);
+    FormatArguments.Add(FStringFormatArg(OptionalParameters));
+
+    FString AccessURL = FString::Format(TEXT("{0}/access/user/{1}/module/{2}{3}"), FormatArguments);
     Request->SetURL(AccessURL);
     Request->SetHeader("Authorization: Bearer", CurrentActiveLogin.SessionToken);
 
@@ -397,7 +407,7 @@ void UApexAPI::OnUserVerificationComplete(const UVaRestRequestJSON* Request)
     if (Request->GetResponseCode() == 200)
     {
         UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
-        if (!ResponseObject->GetRootObject()->HasField("Error"))
+        if (!ResponseObject->GetRootObject()->HasField("error"))
         {
             Log("User Verification Completed!");
 
@@ -865,20 +875,23 @@ void UApexAPI::OnTopTenComplete(const UVaRestRequestJSON* Request)
     if (Request->GetResponseCode() == 200)
     {
         UVaRestJsonObject* ResponseObject = Request->GetResponseObject();
-        if (ResponseObject->HasField("Error"))
+        if (ResponseObject->HasField("error"))
         {
-            if (!ResponseObject->GetBoolField("Error"))
+            if (UVaRestJsonValue* ErrorField = ResponseObject->GetField("error"))
             {
-                Log("Successfully fetched top ten data!");
+                if (ErrorField->GetType() == EVaJson::Boolean && !ErrorField->AsBool())
+                {
+                    Log("Successfully fetched top ten data!");
 
-                // It's not a failed response!
-                FailedResponse = false;
+                    // It's not a failed response!
+                    FailedResponse = false;
 
-                FTopTenData FetchedTopTenData;
-                FetchedTopTenData.FromJsonObject(ResponseObject->GetRootObject());
+                    FTopTenData FetchedTopTenData;
+                    FetchedTopTenData.FromJsonObject(ResponseObject->GetRootObject());
 
-                OnFetchTopTenComplete.Broadcast(Request, FetchedTopTenData);
-                OnStaticFetchTopTenComplete.Broadcast(Request, FetchedTopTenData);
+                    OnFetchTopTenComplete.Broadcast(Request, FetchedTopTenData);
+                    OnStaticFetchTopTenComplete.Broadcast(Request, FetchedTopTenData);
+                }
             }
         }
     }
