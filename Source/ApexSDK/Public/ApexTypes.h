@@ -88,8 +88,18 @@ struct APEXSDK_API FAPEXRequestFailed : public FJsonable
 
     virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
     {
-        if(JObject->HasField("Error"))
-            Error = JObject->GetBoolField("Error");
+        if (JObject->HasField("Error"))
+        {
+            if (JObject->HasTypedField<EJson::Boolean>("Error"))
+            {
+                Error = JObject->GetBoolField("Error");
+            }
+            else
+            {
+                Error = true;
+                Message = JObject->GetStringField("error");
+            }
+        }
 
         if (JObject->HasField("HttpCode"))
             HttpCode = JObject->GetStringField("HttpCode");

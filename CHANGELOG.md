@@ -58,3 +58,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed the FApexLoginInfo structure.
 ### Adds the ApexSDKLibrary that exposes variables from the ApexSDK without the need to access the subsystem directly.
 ### Cleans up internal dependencies.
+
+## [1.3.1] - 2024-08-12
+### Fixes a bug with handling platform errors.
+### Integrates the ManageXR plugin to get headset information when a headset is registered with ManageXR.
+### Passes the devices information in the user access check when available.
+### Adds a heartbeat process to end sessions when a user closes the app without ending the session.

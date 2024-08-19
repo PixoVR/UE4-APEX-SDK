@@ -23,7 +23,10 @@ public: // Data related type functions
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	static FXAPIExtension CreateExtensionData(const TMap<FString, UVaRestJsonValue*>& Data);
-	
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	static UVaRestJsonValue* JsonValueFromString(FString String);
+
 public: 
 
 	static TArray<TSharedPtr<FJsonValue>> ConvertToJsonValueStringArray(const TArray<FString>& Array)

@@ -3,9 +3,13 @@
 <root xmlns:android="http://schemas.android.com/apk/res/android">
 	<init>
 		<log text="PixoLauncherAndroid init"/>
-	</init>
+        <setStringFromProperty result="HostString" ini="Engine" section="/Script/AndroidRuntimeSettings.AndroidRuntimeSettings" property="PackageName" default="com.pixovr.blank"/>
+        <log text="$S(HostString)"/>
+    </init>
 
 	<prebuildCopies>
+        <log text="Copying all the Java files."/>
+        <copyDir src="$S(PluginDir)/Java" dst="$S(BuildDir)" />
 	</prebuildCopies>
 
 	<proguardAdditions>
@@ -17,20 +21,55 @@
 	</resourceCopies>
 
 	<androidManifestUpdates>
-		<addElements tag="application"> 
+        <addAttribute tag="application" name="android:requestLegacyExternalStorage" value="true" />
+        <addPermission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+        <addPermission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
+        <addPermission android:name="android.permission.READ_PHONE_STATE"/>
+        <addPermission android:name="android.permission.ACCESS_WIFI_STATE"/>
+        <addPermission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+        <addElements tag="application"> 
 		</addElements>
 		<addAttribute tag="application" name="android:sharedUserId" value="android.uid.system"/>
-	</androidManifestUpdates>
+
+        <loopElements tag="activity">
+            <setStringFromAttribute result="activityName" tag="$" name="android:name"/>
+            <setBoolIsEqual result="bGameActivity" arg1="$S(activityName)" arg2="com.epicgames.unreal.GameActivity"/>
+            <if condition="bGameActivity">
+                <true>
+                    <setElement result="DataElement" value="data" />
+                    <addAttribute tag="$DataElement" name="android:scheme" value="pixovr" />
+                    <addAttribute tag="$DataElement" name="android:host" value="$S(HostString)" />
+                    <setElement result="IntentFilter" value="intent-filter" />
+                    <addElements tag="$IntentFilter">
+                        <action android:name="android.intent.action.VIEW" />
+                        <category android:name="android.intent.category.DEFAULT" />
+                        <category android:name="android.intent.category.BROWSABLE" />
+                    </addElements>
+                    <addElement tag="$IntentFilter" name="DataElement" />
+                    <addElement tag="$" name="IntentFilter" />
+                </true>
+            </if>
+        </loopElements>
+        <replace find="[HostString]" with="$S(HostString)"/>
+
+    </androidManifestUpdates>
 
 	<gameActivityImportAdditions>
 		<insert>
+            import com.managexr.getserialsample.*;
+            import com.Pixo.PixoPlatform.*;
             import android.util.Log;
+            import android.Manifest.permission;
+            import android.net.wifi.WifiManager;
+            import android.net.wifi.WifiInfo;
+            import java.net.NetworkInterface;
         </insert>
 	</gameActivityImportAdditions>
 
 	<gameActivityClassAdditions>
 		<insert>            
 			private final static String TAG = "ApexSDKAndroid: ";
+            private String SerialNumber = "";
             
             public boolean AndroidThunkJava_Launch(String packageName, String extraKey, String extraValue)
 			{
@@ -118,6 +157,18 @@
                 
                 return ExtraString;
             }
+            
+            public String AndroidThunkJava_GetDeviceSerialNumber()
+            {
+				Log.error("GAOCA: Getting device serial number.");
+                return SerialNumber;
+            }
+            
+            public String AndroidThunkJava_GetMacAddress()
+            {
+				Log.error("GAOCA: Getting mac address.");
+				return PixoUtilities.getMacAddres();
+            }
 		</insert>
 	</gameActivityClassAdditions>
 
@@ -133,11 +184,47 @@
 
 	<gameActivityOnCreateAdditions>
 		<insert>
-		</insert>
+            
+            if (PermissionHelper.checkPermission("android.permission.QUERY_ALL_PACKAGES") == false) {
+            	String[] permissions = {"android.permission.QUERY_ALL_PACKAGES"};
+            	PermissionHelper.acquirePermissions(permissions);
+                Log.debug("GAOCA: Acquired query all packages permission.");
+            }
+            
+            if (PermissionHelper.checkPermission("android.permission.ACCESS_WIFI_STATE") == false) {
+            	String[] permissions = {"android.permission.ACCESS_WIFI_STATE"};
+            	PermissionHelper.acquirePermissions(permissions);
+                Log.debug("GAOCA: Acquired access wifi state permission.");
+            }
+            
+            MXRAdminAppMessenger mxrAdminAppMessenger = new MXRAdminAppMessenger(this);
+			mxrAdminAppMessenger.onSerialUpdated((serial)->{
+				Log.error("GAOCA: SN# - " + serial);
+				SerialNumber = serial;
+			});
+
+            Log.error("GAOCA: Post acquired permission.");
+            Log.debug("GAOCA: " + AndroidThunkJava_GetMacAddress());
+        </insert>
 	</gameActivityOnCreateAdditions>
 
 	<gameActivityOnActivityResultAdditions>
 		<insert>
 		</insert>
 	</gameActivityOnActivityResultAdditions>
+
+    <buildGradleAdditions>
+        <insert>
+            android {
+				compileOptions {
+					sourceCompatibility JavaVersion.VERSION_1_8
+					targetCompatibility JavaVersion.VERSION_1_8
+				}
+            }
+            
+            dependencies {
+				implementation 'org.apache.commons:commons-lang3:3.0'
+			}
+        </insert>
+	</buildGradleAdditions>
 </root>
