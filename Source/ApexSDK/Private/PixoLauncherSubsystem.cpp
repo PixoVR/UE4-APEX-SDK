@@ -91,7 +91,7 @@ FString UPixoLauncherSubsystem::GetDeviceSerialNumber()
 
 	Log("UPixoLauncherSubsystem::GetDeviceSerialNumber: %s", *ReturnedExtraValue);
 #else
-	ReturnedExtraValue = TEXT("No Serial Number");
+	ReturnedExtraValue = TEXT("");
 #endif
 	return ReturnedExtraValue;
 }
