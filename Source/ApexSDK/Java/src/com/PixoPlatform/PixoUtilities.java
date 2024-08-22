@@ -40,7 +40,7 @@ public class PixoUtilities {
         return serialNumber;
     }
 
-    public static String getMacAddres()
+    public static String getMacAddress()
     {
         Log.d("PixoUtilities", "Getting mac address.");
         try {
