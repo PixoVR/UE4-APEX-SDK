@@ -71,7 +71,7 @@
 			private final static String TAG = "ApexSDKAndroid: ";
             private String SerialNumber = "";
             
-            public boolean AndroidThunkJava_Launch(String packageName, String extraKey, String extraValue)
+            public boolean AndroidThunkJava_Launch(String packageName, String[] extraKey, String[] extraValue)
 			{
 				Log.debug(TAG + " AndroidThunkJava_Launch");
 				Intent intent;
@@ -119,10 +119,13 @@
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				}
 
-				if (!extraKey.equals(""))
-				{
-					Log.debug(TAG + extraKey + " - " + extraValue);
-					intent.putExtra(extraKey, extraValue);
+				if (!extraKey.length > 0)
+				{                
+                    for(int extraIndex = 0; extraKey.length > extraIndex; extraIndex++)
+                    {
+						Log.debug(TAG + extraKey[extraIndex] + " - " + extraValue[extraIndex]);
+						intent.putExtra(extraKey[extraIndex], extraValue[extraIndex]);
+                    }
 				}
 
 				if (!intentComponent.equals(""))
@@ -167,7 +170,7 @@
             public String AndroidThunkJava_GetMacAddress()
             {
 				Log.error("GAOCA: Getting mac address.");
-				return PixoUtilities.getMacAddres();
+				return PixoUtilities.getMacAddress();
             }
 		</insert>
 	</gameActivityClassAdditions>

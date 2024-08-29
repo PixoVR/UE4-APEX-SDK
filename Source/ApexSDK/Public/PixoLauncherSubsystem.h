@@ -37,7 +37,7 @@ public:
 	bool IsApplicationInstalled(const FString& ApplicationName);
 	
 	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
-	bool LaunchApplication(const FString& ApplicationName, const FString& ExtraKey, const FString& ExtraValue);
+	bool LaunchApplication(const FString& ApplicationName, const TArray<FString>& ExtraKey, const TArray<FString>& ExtraValue);
 
 	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
 	FString GetApplicationExtra(const FString& ExtraKey);
