@@ -1,35 +1,32 @@
 
-#FROM	docs-docker-base
-FROM	gcr.io/pixo-bootstrap/docs-docker-base:latest
+FROM gcr.io/pixo-bootstrap/docs-docker-base:latest as builder
 
-ARG	CACHEBREAKER=https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h
+WORKDIR /build
 
-WORKDIR	/build
+COPY . .
 
-COPY	. .
+RUN doxygen -v
 
-RUN	doxygen -v	# confirm doxygen version from docs-docker-base
+RUN git submodule update --init --recursive; \
+    cd documentation/docs-doxygen; \
+    git pull origin main
 
-ADD	$CACHEBREAKER skipcache
+RUN git fetch --tags
 
-# ensure the doxygen stuff is most up to date
-RUN	cd /build && \
-	git submodule update --init --recursive && \
-	cd documentation/docs-doxygen && git pull origin main
-
-RUN	git fetch --tags
-
-#ADD	$CACHEBREAKER skipcache
-
-RUN	./documentation/build.sh && \
-	eval "$(cat ./documentation/env.sh | grep "PROJECT_URL")" && \
-	mkdir -p /var/www/html && \
-	mv ./documentation/html /var/www/html/$PROJECT_URL
-	#mkdir -p /var/www/html/$PROJECT_URL && \
-	#cp -r ./documentation/html/* /var/www/html/$PROJECT_URL
-
-#ENTRYPOINT ["/docker-entrypoint.sh"]
-#CMD	["nginx", "-g", "daemon off;"]
+RUN ./documentation/build.sh
 
 
+FROM nginx:1.27.1-alpine3.20
+
+RUN rm -v /etc/nginx/conf.d/default.conf
+
+COPY --from=builder /build/documentation/docs-doxygen/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder /build/documentation/docs-doxygen/nginx/errors /var/www/errors
+
+COPY --from=builder /build/documentation/env.sh ./env.sh
+COPY --from=builder /build/documentation/html /tmp/html
+
+RUN eval "$(cat ./env.sh | grep "PROJECT_URL")" && \
+        mkdir -p /var/www/html && \
+        mv /tmp/html/ /var/www/html/$PROJECT_URL
 
