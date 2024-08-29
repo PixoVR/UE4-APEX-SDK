@@ -926,6 +926,8 @@ void UApexAPI::SendHeartbeat()
     FHeartbeatEvent HeartbeatEvent;
     HeartbeatEvent.SessionId = SessionId;
 
+    Log("Heartbeat Session ID: %i", SessionId);
+
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
     FString RequestURL = URL.Replace(TEXT("modules."), TEXT("")) + "/heartbeat/pulse";
     Request->SetURL(RequestURL);
