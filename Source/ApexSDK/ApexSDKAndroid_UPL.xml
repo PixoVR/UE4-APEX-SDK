@@ -33,7 +33,7 @@
 
         <loopElements tag="activity">
             <setStringFromAttribute result="activityName" tag="$" name="android:name"/>
-            <setBoolIsEqual result="bGameActivity" arg1="$S(activityName)" arg2="com.epicgames.unreal.GameActivity"/>
+            <setBoolIsEqual result="bGameActivity" arg1="$S(activityName)" arg2="com.epicgames.ue4.GameActivity"/>
             <if condition="bGameActivity">
                 <true>
                     <setElement result="DataElement" value="data" />
@@ -70,6 +70,12 @@
 		<insert>            
 			private final static String TAG = "ApexSDKAndroid: ";
             private String SerialNumber = "";
+            
+            public void AndroidThunkJava_OpenURL(String URL)
+            {
+				AndroidThunkJava_LaunchURL(URL);
+				AndroidThunkJava_ForceQuit();
+            }
             
             public boolean AndroidThunkJava_Launch(String packageName, String[] extraKey, String[] extraValue)
 			{
@@ -119,7 +125,7 @@
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				}
 
-				if (!extraKey.length > 0)
+				if (extraKey.length > 0)
 				{                
                     for(int extraIndex = 0; extraKey.length > extraIndex; extraIndex++)
                     {
@@ -142,6 +148,23 @@
 
 				return false;
 			}
+            
+            public String AndroidThunkJava_GetIntentData()
+            {
+                Log.debug(TAG + "AndroidThunkJava_GetIntentData");
+                Intent intent = getIntent();
+                String action = intent.getAction();
+                Uri data = intent.getData();
+                String dataString = "";
+                if(data != null)
+                {
+                    dataString = data.toString();
+                }
+                Log.debug(TAG + "Data: " + dataString);
+                Log.debug(TAG + "Action: " + action);
+                
+                return dataString;
+            }
             
             public String AndroidThunkJava_GetApplicationExtra(String InExtraName)
             {
