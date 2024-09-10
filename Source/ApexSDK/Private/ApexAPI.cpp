@@ -122,14 +122,53 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
     }
 
 #if PLATFORM_ANDROID
-    LaunchToken = LauncherSubsystem->GetApplicationExtra("pixotoken");
-    if (!LaunchToken.IsEmpty())
+    FString IntentData = LauncherSubsystem->GetIntentData();
+    if (!IntentData.IsEmpty())
     {
-        Log("Found token: %s", *LaunchToken);
+        Log("Parsing data from intent. Most likely was passed by URL.");
+        ParseIntentData(IntentData);
     }
     else
     {
-        Log("Failed to find token.");
+        LaunchToken = LauncherSubsystem->GetApplicationExtra("pixotoken");
+        if (!LaunchToken.IsEmpty())
+        {
+            Log("Found token: %s", *LaunchToken);
+        }
+        else
+        {
+            Log("Failed to find token.");
+        }
+
+        ReturnTarget = LauncherSubsystem->GetApplicationExtra("returntarget");
+        if (!ReturnTarget.IsEmpty())
+        {
+            Log("Found return target: %s", *ReturnTarget);
+        }
+        else
+        {
+            Log("Failed to find return target.");
+        }
+
+        ReturnTargetType = LauncherSubsystem->GetApplicationExtra("targettype");
+        if (!ReturnTargetType.IsEmpty())
+        {
+            Log("Found return type: %s", *ReturnTargetType);
+        }
+        else
+        {
+            Log("Failed to find return type.");
+        }
+
+        ReturnParameters = LauncherSubsystem->GetApplicationExtra("optional");
+        if (!ReturnParameters.IsEmpty())
+        {
+            Log("Found return params: %s", *ReturnParameters);
+        }
+        else
+        {
+            Log("Failed to find return params.");
+        }
     }
 #else
     FString PassedLaunchToken;
@@ -139,6 +178,49 @@ void UApexAPI::Initialize(FSubsystemCollectionBase& Collection)
         LaunchToken = PassedLaunchToken;
     }
 #endif
+}
+
+void UApexAPI::ParseIntentData(const FString& InIntentData)
+{
+    Log("Found intent data: %s", *InIntentData);
+    FString URI, Data;
+    FString SplitPoint = "?";
+    if (InIntentData.Split(SplitPoint, &URI, &Data))
+    {
+        Log("Grabbing data from full intent: %s", *Data);
+        TArray<FString> DataParts;
+        if (Data.ParseIntoArray(DataParts, TEXT("&")) > 0)
+        {
+            Log("Parsed into array.");
+            for (FString DataPart : DataParts)
+            {
+                Log("Intent part: %s", *DataPart);
+                if (DataPart.Contains("pixotoken"))
+                {
+                    LaunchToken = DataPart.Replace(TEXT("pixotoken="), TEXT(""));
+                    Log("Found token: %s", *LaunchToken);
+                }
+
+                if (DataPart.Contains("returntarget"))
+                {
+                    ReturnTarget = DataPart.Replace(TEXT("returntarget="), TEXT(""));
+                    Log("Found return target: %s", *ReturnTarget);
+                }
+
+                if (DataPart.Contains("targettype"))
+                {
+                    ReturnTargetType = DataPart.Replace(TEXT("targettype="), TEXT(""));
+                    Log("Found return target type: %s", *ReturnTargetType);
+                }
+
+                if (DataPart.Contains("optional"))
+                {
+                    ReturnParameters = DataPart.Replace(TEXT("optional="), TEXT(""));
+                    Log("Found token: %s", *ReturnParameters);
+                }
+            }
+        }
+    }
 }
 
 bool UApexAPI::IsWebSocketConnected()
@@ -168,6 +250,97 @@ void UApexAPI::RequestAuthorizationCode()
     if (bWebSocketEnabled)
     {
         ApexSocket->RequestAuthorizationCode();
+    }
+}
+
+void UApexAPI::SetExitTarget(const FString& InExitTarget, const FString& InExitTargetType)
+{
+    Log("UApexAPI::SetExitTarget");
+    ReturnTarget = InExitTarget;
+    ReturnTargetType = InExitTargetType;
+}
+
+void UApexAPI::SetExitParameters(const FString& InParameters)
+{
+    Log("UApexAPI::SetExitParameters");
+    ReturnParameters = InParameters;
+}
+
+void UApexAPI::ExitApplication(const FString &InReturnTarget, const FString& InReturnTargetType)
+{
+    Log("UApexAPI::ExitApplication %s %s", *InReturnTarget, *InReturnTargetType);
+
+    FilloutLaunchToken();
+
+    FString Parameters = "";
+    Parameters = "pixotoken=" + LaunchToken;
+
+    if (!ReturnParameters.IsEmpty())
+    {
+        Parameters += "&optional=" + ReturnParameters;
+    }
+
+    if (!InReturnTarget.IsEmpty())
+    {
+        Parameters += "&returntarget=" + InReturnTarget;
+    }
+
+    if (!InReturnTargetType.IsEmpty())
+    {
+        Parameters += "&targettype=" + InReturnTargetType;
+    }
+
+    if (!ReturnTarget.IsEmpty())
+    {
+        if (ReturnTargetType.Compare("url") == 0)
+        {
+            FString ReturnURL = ReturnTarget;
+            if (Parameters.IsEmpty() == false)
+            {
+                ReturnURL += "?" + Parameters;
+            }
+            Log("Custom Target: %s", *ReturnURL);
+            LauncherSubsystem->OpenURL(ReturnURL);
+        }
+        else
+        {
+            TArray<FString> Keys, Values;
+            Keys.Add("pixotoken");
+            Values.Add(LaunchToken);
+
+            if (!ReturnParameters.IsEmpty())
+            {
+                Keys.Add("optional");
+                Values.Add(ReturnParameters);
+            }
+
+            if (!InReturnTarget.IsEmpty())
+            {
+                Keys.Add("returntarget");
+                Values.Add(InReturnTarget);
+            }
+
+            if (!InReturnTargetType.IsEmpty())
+            {
+                Keys.Add("targettype");
+                Values.Add(InReturnTargetType);
+            }
+
+            LauncherSubsystem->LaunchApplication(ReturnTarget, Keys, Values);
+        }
+    }
+
+    if (URL.Contains("apexsa.") || URL.Contains("saudi."))
+    {
+        FString ReturnURL = "pixovr://com.PixoVR.SA_TrainingAcademy?" + Parameters;
+        Log("Training Hub: %s", *ReturnURL);
+        LauncherSubsystem->OpenURL(ReturnURL);
+    }
+    else
+    {
+        FString ReturnURL = "pixovr://com.PixoVR.PixoHub?" + Parameters;
+        Log("Hub App: %s", *ReturnURL);
+        LauncherSubsystem->OpenURL(ReturnURL);
     }
 }
 
@@ -223,6 +396,7 @@ void UApexAPI::LoginWithAuthToken()
 
 void UApexAPI::FilloutLaunchToken()
 {
+    Log("UApexAPI::FilloutLaunchToken");
     LaunchToken = CurrentActiveLogin.SessionToken;
 }
 
@@ -925,6 +1099,8 @@ void UApexAPI::SendHeartbeat()
 
     FHeartbeatEvent HeartbeatEvent;
     HeartbeatEvent.SessionId = SessionId;
+
+    Log("Heartbeat Session ID: %i", SessionId);
 
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
     FString RequestURL = URL.Replace(TEXT("modules."), TEXT("")) + "/heartbeat/pulse";

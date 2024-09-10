@@ -23,7 +23,9 @@ void UPixoLauncherSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
 	{
 		IsApplicationInstalledFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_IsPackageInstalled", "(Ljava/lang/String;)Z", false);
-		LaunchApplicationFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_Launch", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z", false);
+		LaunchApplicationFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_Launch", "(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;)Z", false);
+		OpenURLFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_OpenURL", "(Ljava/lang/String;)V", false);
+		GetIntentDataFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetIntentData", "()Ljava/lang/String;", false);
 		GetApplicationExtraFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetApplicationExtra", "(Ljava/lang/String;)Ljava/lang/String;", false);
 		GetDeviceSerialNumberFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetDeviceSerialNumber", "()Ljava/lang/String;", false);
 		GetDeviceMacAddressFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetMacAddress", "()Ljava/lang/String;", false);
@@ -46,21 +48,44 @@ bool UPixoLauncherSubsystem::IsApplicationInstalled(const FString& ApplicationNa
 	return bResult;
 }
 
-bool UPixoLauncherSubsystem::LaunchApplication(const FString& ApplicationName, const FString& ExtraKey, const FString& ExtraValue)
+bool UPixoLauncherSubsystem::LaunchApplication(const FString& ApplicationName, const TArray<FString>& ExtraKey, const TArray<FString>& ExtraValue)
 {
 	bool bResult = false;
 #if PLATFORM_ANDROID
 	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
 	{
 		auto ApplicationNameArg = FJavaHelper::ToJavaString(Env, ApplicationName);
-		auto ExtraKeyArg = FJavaHelper::ToJavaString(Env, ExtraKey);
-		auto ExtraValueArg = FJavaHelper::ToJavaString(Env, ExtraValue);
+
+		// Convert scope array into java fields
+		auto ExtraKeyArg = NewScopedJavaObject(Env, (jobjectArray)Env->NewObjectArray(ExtraKey.Num(), FJavaWrapper::JavaStringClass, nullptr));
+		auto ExtraValueArg = NewScopedJavaObject(Env, (jobjectArray)Env->NewObjectArray(ExtraKey.Num(), FJavaWrapper::JavaStringClass, nullptr));
+		for (uint32 Param = 0; Param < ExtraKey.Num(); Param++)
+		{
+			auto KeyStringValue = FJavaHelper::ToJavaString(Env, ExtraKey[Param]);
+			Env->SetObjectArrayElement(*ExtraKeyArg, Param, *KeyStringValue);
+
+			auto ValueStringValue = FJavaHelper::ToJavaString(Env, ExtraValue[Param]);
+			Env->SetObjectArrayElement(*ExtraValueArg, Param, *ValueStringValue);
+		}
 		bResult = FJavaWrapper::CallBooleanMethod(Env, FJavaWrapper::GameActivityThis, LaunchApplicationFunction, *ApplicationNameArg, *ExtraKeyArg, *ExtraValueArg);
 	}
 
-	Log("UPixoLauncherSubsystem::LaunchApplication: %s, %s : %s", *ApplicationName, *ExtraKey, *ExtraValue);
+	Log("UPixoLauncherSubsystem::LaunchApplication: %s, %i : %i", *ApplicationName, ExtraKey.Num(), ExtraValue.Num());
 #endif
 	return bResult;
+}
+
+void UPixoLauncherSubsystem::OpenURL(const FString& URL)
+{
+#if PLATFORM_ANDROID
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		auto URLArg = FJavaHelper::ToJavaString(Env, URL);
+		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, OpenURLFunction, *URLArg);
+	}
+
+	Log("UPixoLauncherSubsystem::OpenURL: %s", *URL);
+#endif
 }
 
 FString UPixoLauncherSubsystem::GetApplicationExtra(const FString& ExtraKey)
@@ -75,6 +100,21 @@ FString UPixoLauncherSubsystem::GetApplicationExtra(const FString& ExtraKey)
 	}
 
 	Log("UPixoLauncherSubsystem::GetApplicationExtra: %s", *ReturnedExtraValue);
+#endif
+	return ReturnedExtraValue;
+}
+
+FString UPixoLauncherSubsystem::GetIntentData()
+{
+	FString ReturnedExtraValue = FString("");
+#if PLATFORM_ANDROID
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		auto JavaKeyValue = (jstring)FJavaWrapper::CallObjectMethod(Env, FJavaWrapper::GameActivityThis, GetIntentDataFunction);
+		ReturnedExtraValue = FJavaHelper::FStringFromLocalRef(Env, JavaKeyValue);
+	}
+
+	Log("UPixoLauncherSubsystem::GetIntentData: %s", *ReturnedExtraValue);
 #endif
 	return ReturnedExtraValue;
 }

@@ -8,6 +8,7 @@
 #if PLATFORM_ANDROID
 #include "Android/AndroidJNI.h"
 #include "Android/AndroidApplication.h"
+#include "Android/AndroidPlatformMisc.h"
 
 #include <android_native_app_glue.h>
 #endif
@@ -37,7 +38,13 @@ public:
 	bool IsApplicationInstalled(const FString& ApplicationName);
 	
 	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
-	bool LaunchApplication(const FString& ApplicationName, const FString& ExtraKey, const FString& ExtraValue);
+	bool LaunchApplication(const FString& ApplicationName, const TArray<FString>& ExtraKey, const TArray<FString>& ExtraValue);
+
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
+	void OpenURL(const FString& URL);
+
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
+	FString GetIntentData();
 
 	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
 	FString GetApplicationExtra(const FString& ExtraKey);
@@ -51,7 +58,9 @@ public:
 #if PLATFORM_ANDROID
 	jclass PlatformClassID;
 	jmethodID LaunchApplicationFunction;
+	jmethodID OpenURLFunction;
 	jmethodID IsApplicationInstalledFunction;
+	jmethodID GetIntentDataFunction;
 	jmethodID GetApplicationExtraFunction;
 	jmethodID GetDeviceSerialNumberFunction;
 	jmethodID GetDeviceMacAddressFunction;

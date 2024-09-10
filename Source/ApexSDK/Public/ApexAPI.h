@@ -73,6 +73,7 @@ public:
 
 #pragma region PublicProperties
 
+	// TODO (MG): Move all of these properties to PACKAGE_SCOPE and create getters/setters as needed
 	/**
 	* \brief The API URL
 	*
@@ -115,6 +116,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	FUserSessionData CurrentActiveLogin;
+
 #pragma endregion PublicProperties
 
 PACKAGE_SCOPE:
@@ -125,10 +127,22 @@ PACKAGE_SCOPE:
 	UPROPERTY(BlueprintReadOnly)
 	bool bWebSocketEnabled;
 
+	UPROPERTY(BlueprintReadOnly)
+	FString ReturnTarget;
+
+	UPROPERTY(BlueprintReadOnly)
+	FString ReturnTargetType;
+
+	UPROPERTY(BlueprintReadOnly)
+	FString ReturnParameters;
+
 public:
 	UApexAPI();
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|API")
+	void ExitApplication(const FString& InReturnTarget, const FString& InReturnTargetType);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void Ping();
@@ -184,6 +198,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void VerifyModuleAccess(int InModuleId);
 
+	// Overrides the current destination of where the app will exit to.
+	UFUNCTION(BlueprintCallable, Category = "Apex|SDK")
+	void SetExitTarget(const FString& InExitTarget, const FString& InExitTargetType);
+
+	UFUNCTION(BlueprintCallable, Category = "Apex|SDK")
+	void SetExitParameters(const FString& SetExitTarget);
+
 protected:
 
 #pragma region PrivateFunctions
@@ -192,6 +213,7 @@ protected:
 	void HandleLogin(class UVaRestJsonObject* LoginJsonObject);
 	void SetupModuleSettings();
 	void SendHeartbeat();
+	void ParseIntentData(const FString& InIntentData);
 
 	void OnLoginComplete(const class UVaRestRequestJSON* Request);
 	void OnLoginFail(const class UVaRestRequestJSON* Request);
