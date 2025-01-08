@@ -74,6 +74,12 @@ public class MXRAdminAppMessenger {
     public void onSerialUpdated(SerialListener _listener) {
         serialListener = _listener;
         String knownSerial = getSerial();
+        if (knownSerial == null) { 
+            Log.e(TAG, "No valid serial number.");
+        }
+        else {
+            Log.e(TAG, "Serial number: " + knownSerial);
+        }
         if (knownSerial != null) serialListener.onSerialUpdated(knownSerial);
     }
 
