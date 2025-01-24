@@ -25,6 +25,7 @@ void UPixoLauncherSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		IsApplicationInstalledFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_IsPackageInstalled", "(Ljava/lang/String;)Z", false);
 		LaunchApplicationFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_Launch", "(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;)Z", false);
 		OpenURLFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_OpenURL", "(Ljava/lang/String;)V", false);
+		QuitApplicationFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_QuitApp", "()V", false);
 		GetIntentDataFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetIntentData", "()Ljava/lang/String;", false);
 		GetApplicationExtraFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetApplicationExtra", "(Ljava/lang/String;)Ljava/lang/String;", false);
 		GetDeviceSerialNumberFunction = FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "AndroidThunkJava_GetDeviceSerialNumber", "()Ljava/lang/String;", false);
@@ -85,6 +86,18 @@ void UPixoLauncherSubsystem::OpenURL(const FString& URL)
 	}
 
 	Log("UPixoLauncherSubsystem::OpenURL: %s", *URL);
+#endif
+}
+
+void UPixoLauncherSubsystem::QuitApplication()
+{
+#if PLATFORM_ANDROID
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, QuitApplicationFunction);
+	}
+
+	Log("UPixoLauncherSubsystem::QuitApplication");
 #endif
 }
 

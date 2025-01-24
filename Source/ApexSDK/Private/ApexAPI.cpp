@@ -253,11 +253,20 @@ void UApexAPI::RequestAuthorizationCode()
     }
 }
 
-void UApexAPI::SetExitTarget(const FString& InExitTarget, const FString& InExitTargetType)
+void UApexAPI::SetExitTarget(const FString& InExitTarget)
 {
-    Log("UApexAPI::SetExitTarget");
+    Log("UApexAPI::SetExitTarget %s", *InExitTarget);
     ReturnTarget = InExitTarget;
-    ReturnTargetType = InExitTargetType;
+
+    ReturnTarget = InExitTarget;
+    if (ReturnTarget.Contains("://"))
+    {
+        ReturnTargetType = TEXT("url");
+    }
+    else
+    {
+        ReturnTargetType = TEXT("app");
+    }
 }
 
 void UApexAPI::SetExitParameters(const FString& InParameters)
@@ -266,8 +275,15 @@ void UApexAPI::SetExitParameters(const FString& InParameters)
     ReturnParameters = InParameters;
 }
 
-void UApexAPI::ExitApplication(const FString &InReturnTarget, const FString& InReturnTargetType)
+void UApexAPI::ExitApplication(const FString &InReturnTarget)
 {
+    FString InReturnTargetType = TEXT("app");
+
+    if (InReturnTarget.Contains("://"))
+    {
+        InReturnTargetType = TEXT("url");
+    }
+
     Log("UApexAPI::ExitApplication %s %s", *InReturnTarget, *InReturnTargetType);
 
     FilloutLaunchToken();
@@ -292,7 +308,7 @@ void UApexAPI::ExitApplication(const FString &InReturnTarget, const FString& InR
 
     if (!ReturnTarget.IsEmpty())
     {
-        if (ReturnTargetType.Compare("url") == 0)
+        if (ReturnTargetType.Equals(TEXT("url"), ESearchCase::IgnoreCase))
         {
             FString ReturnURL = ReturnTarget;
             if (Parameters.IsEmpty() == false)
@@ -327,21 +343,12 @@ void UApexAPI::ExitApplication(const FString &InReturnTarget, const FString& InR
             }
 
             LauncherSubsystem->LaunchApplication(ReturnTarget, Keys, Values);
+            return;
         }
     }
 
-    if (URL.Contains("apexsa.") || URL.Contains("saudi."))
-    {
-        FString ReturnURL = "pixovr://com.PixoVR.SA_TrainingAcademy?" + Parameters;
-        Log("Training Hub: %s", *ReturnURL);
-        LauncherSubsystem->OpenURL(ReturnURL);
-    }
-    else
-    {
-        FString ReturnURL = "pixovr://com.PixoVR.PixoHub?" + Parameters;
-        Log("Hub App: %s", *ReturnURL);
-        LauncherSubsystem->OpenURL(ReturnURL);
-    }
+    // If there is nothing to return to, just close the application.
+    LauncherSubsystem->QuitApplication();
 }
 
 void UApexAPI::Ping()

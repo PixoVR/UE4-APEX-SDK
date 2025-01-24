@@ -7,6 +7,12 @@
         <log text="$S(HostString)"/>
     </init>
 
+    <gradleProperties>
+        <insert>
+            android.useAndroidX=true
+        </insert>
+    </gradleProperties>
+
 	<prebuildCopies>
         <log text="Copying all the Java files."/>
         <copyDir src="$S(PluginDir)/Java" dst="$S(BuildDir)" />
@@ -51,7 +57,6 @@
             </if>
         </loopElements>
         <replace find="[HostString]" with="$S(HostString)"/>
-
     </androidManifestUpdates>
 
 	<gameActivityImportAdditions>
@@ -195,6 +200,12 @@
 				Log.error("GAOCA: Getting mac address.");
 				return PixoUtilities.getMacAddress();
             }
+            
+            public void AndroidThunkJava_QuitApp()
+            {
+                AndroidThunkJava_ForceQuit();
+                finishAndRemoveTask();
+            }
 		</insert>
 	</gameActivityClassAdditions>
 
@@ -250,6 +261,7 @@
             
             dependencies {
 				implementation 'org.apache.commons:commons-lang3:3.0'
+                implementation 'androidx.annotation:annotation:1.6.0' // Make sure this version is up to date
 			}
         </insert>
 	</buildGradleAdditions>

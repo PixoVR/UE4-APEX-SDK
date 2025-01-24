@@ -44,6 +44,9 @@ public:
 	void OpenURL(const FString& URL);
 
 	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
+	void QuitApplication();
+
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
 	FString GetIntentData();
 
 	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
@@ -59,6 +62,7 @@ public:
 	jclass PlatformClassID;
 	jmethodID LaunchApplicationFunction;
 	jmethodID OpenURLFunction;
+	jmethodID QuitApplicationFunction;
 	jmethodID IsApplicationInstalledFunction;
 	jmethodID GetIntentDataFunction;
 	jmethodID GetApplicationExtraFunction;

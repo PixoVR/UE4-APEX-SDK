@@ -13,7 +13,7 @@ documentation you can get a better understanding of what is happening under the 
 nearly everything and makes authentication a breeze.
 
 To authenticate, you must pass a username and password to UApexAPI::Login().
-You can also bundle an Assisted Login code, generated on the PixoVR Platform, as the username and any length string into the password into a FApexLoginInfo object and pass it to UApexAPI::Login().
+You can also bundle an Assisted Login code, generated on the PixoVR Platform, as the username and any length string into the password and pass it to UApexAPI::Login().
 
 Features of this function are that it:
 
@@ -32,12 +32,10 @@ After this function is called, you can follow the login event flow to know when 
 
 \subsection returntohub Returning to Hub
 
-When your application exits, it's important to return the user to the Hub App, or in the case of Saudi, the Training Academy.
+When your application exits, it's important to return the user to the Hub App.
 
-You can do this with a call to [UPixoLauncherSubsystem::LaunchApplication](@ref UPixoLauncherSubsystem::LaunchApplication), which takes in 3 parameters.
- - `ApplicationName:FString` - com.PixoVR.PixoHub for NA environments, com.PixoVR.SA_TrainingAcademy for Saudi environments.
- - `ExtraKey:FString` - This value should always be `pixotoken`.
- - `ExtraValue:FString` - This should be the currently logged in users token.
+You can do this with a call to [UApexAPI::ExitApplication](@ref UApexAPI::ExitApplication), which takes in 1 parameter.
+ - `InReturnTarget:FString` - Provides the returning application an application it could return to if not explicitly overriden. An empty string should be used in all cases that do not require the launched target to return to this application.
 
 \subsection requesthandling Handling Authentication API Responses
 

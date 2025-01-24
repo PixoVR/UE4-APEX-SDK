@@ -142,7 +142,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
-	void ExitApplication(const FString& InReturnTarget, const FString& InReturnTargetType);
+	void ExitApplication(const FString& InReturnTarget);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|API")
 	void Ping();
@@ -200,7 +200,7 @@ public:
 
 	// Overrides the current destination of where the app will exit to.
 	UFUNCTION(BlueprintCallable, Category = "Apex|SDK")
-	void SetExitTarget(const FString& InExitTarget, const FString& InExitTargetType);
+	void SetExitTarget(const FString& InExitTarget);
 
 	UFUNCTION(BlueprintCallable, Category = "Apex|SDK")
 	void SetExitParameters(const FString& SetExitTarget);
