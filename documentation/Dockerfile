@@ -16,7 +16,8 @@ RUN git fetch --tags
 RUN ./documentation/build.sh
 
 
-FROM nginx:1.27.4-alpine-slim
+FROM nginx:1.27.5-alpine3.21
+
 
 RUN rm -v /etc/nginx/conf.d/default.conf
 
