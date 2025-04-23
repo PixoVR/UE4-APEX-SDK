@@ -529,20 +529,39 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
     JoinData.EventType = Apex::EventTypes::PIXOVR_SESSION_JOINED;
     JoinData.JsonData = Statement;
 
-    UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
+    UVaRestRequestJSON* RequestSession = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
+    RequestSession->AddToRoot();
     FString RequestURL = URL + "/event";
-    Request->SetURL(RequestURL);
-    Request->SetHeader("Authorization: Bearer", CurrentActiveLogin.SessionToken);
+    RequestSession->SetURL(RequestURL);
+    RequestSession->SetHeader("Authorization: Bearer", CurrentActiveLogin.SessionToken);
 
     UVaRestJsonObject* JoinSessionJson = VaRestSubsystem->ConstructVaRestJsonObject();
     JoinSessionJson->SetRootObject(JoinData.ToJsonObject());
 
-    Request->SetRequestObject(JoinSessionJson);
+    RequestSession->SetRequestObject(JoinSessionJson);
 
-    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnJoinSessionComplete(Request); });
-    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnJoinSessionFail(Request); });
+    RequestSession->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        {
+            if (!Request)
+            {
+                Log("RequestSession object is not valid! Aborting OnJoinSessionComplete");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnJoinSessionComplete(Request); 
+        });
+    RequestSession->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        {
+            if (!Request)
+            {
+                Log("RequestSession object is not valid! Aborting OnJoinSessionFail");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnJoinSessionFail(Request); 
+        });
 
-    Request->ExecuteProcessRequest();
+    RequestSession->ExecuteProcessRequest();
 
     return true;
 }
@@ -917,6 +936,7 @@ void UApexAPI::OnTopTenFail(const UVaRestRequestJSON* Request)
 
 void UApexAPI::SendHeartbeat()
 {
+    return;
     if (SessionId < 0)
     {
         Error("Trying to send heartbeat without a valid session.");
