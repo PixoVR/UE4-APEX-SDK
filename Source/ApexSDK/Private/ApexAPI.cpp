@@ -174,6 +174,7 @@ void UApexAPI::RequestAuthorizationCode()
 void UApexAPI::Ping()
 {
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::GET, EVaRestRequestContentType::none);
+    
     FString RequestURL = URL + "/ping";
     Request->SetURL(RequestURL);
 
@@ -207,6 +208,7 @@ void UApexAPI::LoginWithAuthToken()
 {
     // Now we build our fun request here!
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::GET, EVaRestRequestContentType::none);
+    Request->AddToRoot();
     FString RequestURL = URL + "/v2/auth/validate-signature";
     
     // Temporary fix until validate signature has been added to the modules api
@@ -215,8 +217,26 @@ void UApexAPI::LoginWithAuthToken()
     Request->SetURL(RequestURL);
     Request->SetHeader("Authorization: Bearer", LaunchToken);
 
-    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLoginComplete(Request); });
-    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLoginFail(Request); });
+    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        {
+            if (!Request)
+            {
+                Log("Request object is not valid! Aborting OnLoginComplete");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnLoginComplete(Request); 
+        });
+    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        { 
+            if (!Request)
+            {
+                Log("RequestSession object is not valid! Aborting OnLoginFail");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnLoginFail(Request); 
+        });
 
     Request->ExecuteProcessRequest();
 }
@@ -234,6 +254,7 @@ void UApexAPI::Login(const FString& InUserName, const FString& InPassword, bool 
     }
 
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
+    Request->AddToRoot();
     FString RequestURL = URL + "/login";
     Request->SetURL(RequestURL);
 
@@ -243,8 +264,26 @@ void UApexAPI::Login(const FString& InUserName, const FString& InPassword, bool 
 
     Request->SetRequestObject(LoginJson);
 
-    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLoginComplete(Request); });
-    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnLoginFail(Request); });
+    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        {
+            if (!Request)
+            {
+                Log("RequestSession object is not valid! Aborting OnLoginComplete");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnLoginComplete(Request); 
+        });
+    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        { 
+            if (!Request)
+            {
+                Log("RequestSession object is not valid! Aborting OnLoginFail");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnLoginFail(Request); 
+        });
 
     Request->ExecuteProcessRequest();
 }
@@ -376,7 +415,7 @@ void UApexAPI::OnLogoutFail(const UVaRestRequestJSON* Request)
 void UApexAPI::VerifyModuleAccess(int InModuleId)
 {
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::GET, EVaRestRequestContentType::none);
-
+    Request->AddToRoot();
     FString OptionalParameters = TEXT("");
     FString SerialNumber = LauncherSubsystem->GetDeviceSerialNumber();
     if (!SerialNumber.IsEmpty())
@@ -395,8 +434,26 @@ void UApexAPI::VerifyModuleAccess(int InModuleId)
     Request->SetURL(AccessURL);
     Request->SetHeader("Authorization: Bearer", CurrentActiveLogin.SessionToken);
 
-    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnUserVerificationComplete(Request); });
-    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnUserVerificationFail(Request); });
+    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        { 
+            if (!Request)
+            {
+                Log("RequestSession object is not valid! Aborting OnUserVerificationComplete");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnUserVerificationComplete(Request); 
+        });
+    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        { 
+            if (!Request)
+            {
+                Log("RequestSession object is not valid! Aborting OnUserVerificationFail");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnUserVerificationFail(Request); 
+        });
 
     Request->ExecuteProcessRequest();
 }
@@ -670,6 +727,7 @@ bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
 
     // Now we create our request and send it!
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
+    Request->AddToRoot();
     FString RequestURL = URL + "/event";
     Request->SetURL(RequestURL);
     Request->SetHeader("Authorization: Bearer", CurrentActiveLogin.SessionToken);
@@ -679,8 +737,26 @@ bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
 
     Request->SetRequestObject(CompleteSessionJson);
 
-    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnCompleteSessionComplete(Request); });
-    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnCompleteSessionFail(Request); });
+    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        { 
+            if (!Request)
+            {
+                Log("RequestSession object is not valid! Aborting OnCompleteSessionComplete");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnCompleteSessionComplete(Request); 
+        });
+    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        { 
+            if (!Request)
+            {
+                Log("RequestSession object is not valid! Aborting OnCompleteSessionFail");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnCompleteSessionFail(Request); 
+        });
 
     Request->ExecuteProcessRequest();
 
@@ -772,6 +848,7 @@ bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
 
     // Now we create our request and send it!
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::POST, EVaRestRequestContentType::json);
+    Request->AddToRoot();
     FString RequestURL = URL + "/event";
     Request->SetURL(RequestURL);
     Request->SetHeader("Authorization: Bearer", CurrentActiveLogin.SessionToken);
@@ -781,8 +858,26 @@ bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
 
     Request->SetRequestObject(CompleteSessionJson);
 
-    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnSendSessionEventComplete(Request); });
-    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void { OnSendSessionEventFail(Request); });
+    Request->OnStaticRequestComplete.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        { 
+            if (!Request)
+            {
+                Log("RequestSession object is not valid! Aborting OnSendSessionEventComplete");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnSendSessionEventComplete(Request); 
+        });
+    Request->OnStaticRequestFail.AddLambda([&](UVaRestRequestJSON* Request) -> void 
+        { 
+            if (!Request)
+            {
+                Log("RequestSession object is not valid! Aborting OnSendSessionEventFail");
+                return;
+            }
+            Request->RemoveFromRoot();
+            OnSendSessionEventFail(Request); 
+        });
 
     Request->ExecuteProcessRequest();
 
@@ -936,7 +1031,6 @@ void UApexAPI::OnTopTenFail(const UVaRestRequestJSON* Request)
 
 void UApexAPI::SendHeartbeat()
 {
-    return;
     if (SessionId < 0)
     {
         Error("Trying to send heartbeat without a valid session.");
