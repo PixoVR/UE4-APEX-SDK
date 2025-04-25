@@ -174,7 +174,6 @@ void UApexAPI::RequestAuthorizationCode()
 void UApexAPI::Ping()
 {
     UVaRestRequestJSON* Request = VaRestSubsystem->ConstructVaRestRequestExt(EVaRestRequestVerb::GET, EVaRestRequestContentType::none);
-    
     FString RequestURL = URL + "/ping";
     Request->SetURL(RequestURL);
 
@@ -271,6 +270,7 @@ void UApexAPI::Login(const FString& InUserName, const FString& InPassword, bool 
             if (!Request)
             {
                 Log("RequestSession object is not valid! Aborting OnLoginComplete");
+                OnLoginFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
@@ -281,10 +281,11 @@ void UApexAPI::Login(const FString& InUserName, const FString& InPassword, bool 
             if (!Request)
             {
                 Log("RequestSession object is not valid! Aborting OnLoginFail");
+                OnLoginFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
-            OnLoginFail(Request); 
+            OnLoginFail(Request);
         });
 
     Request->ExecuteProcessRequest();
@@ -441,6 +442,7 @@ void UApexAPI::VerifyModuleAccess(int InModuleId)
             if (!Request)
             {
                 Log("RequestSession object is not valid! Aborting OnUserVerificationComplete");
+                OnUserVerificationFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
@@ -451,10 +453,11 @@ void UApexAPI::VerifyModuleAccess(int InModuleId)
             if (!Request)
             {
                 Log("RequestSession object is not valid! Aborting OnUserVerificationFail");
+                OnUserVerificationFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
-            OnUserVerificationFail(Request); 
+            OnUserVerificationFail(Request);
         });
 
     Request->ExecuteProcessRequest();
@@ -604,6 +607,7 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
             if (!Request)
             {
                 Log("RequestSession object is not valid! Aborting OnJoinSessionComplete");
+                OnJoinSessionFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
@@ -614,10 +618,11 @@ bool UApexAPI::JoinSession(FString InScenarioId, const FXAPIExtension& InContext
             if (!Request)
             {
                 Log("RequestSession object is not valid! Aborting OnJoinSessionFail");
+                OnJoinSessionFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
-            OnJoinSessionFail(Request); 
+            OnJoinSessionFail(Request);
         });
 
     RequestSession->ExecuteProcessRequest();
@@ -744,6 +749,7 @@ bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
             if (!Request)
             {
                 Log("RequestSession object is not valid! Aborting OnCompleteSessionComplete");
+                OnCompleteSessionFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
@@ -754,10 +760,11 @@ bool UApexAPI::CompleteSession(const FSessionData& InSessionData)
             if (!Request)
             {
                 Log("RequestSession object is not valid! Aborting OnCompleteSessionFail");
+                OnCompleteSessionFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
-            OnCompleteSessionFail(Request); 
+            OnCompleteSessionFail(Request);
         });
 
     Request->ExecuteProcessRequest();
@@ -865,6 +872,7 @@ bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
             if (!Request)
             {
                 Log("RequestSession object is not valid! Aborting OnSendSessionEventComplete");
+                OnSendSessionEventFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
@@ -875,10 +883,11 @@ bool UApexAPI::SendSessionEvent(const FXAPIStatement& InStatement)
             if (!Request)
             {
                 Log("RequestSession object is not valid! Aborting OnSendSessionEventFail");
+                OnSendSessionEventFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
-            OnSendSessionEventFail(Request); 
+            OnSendSessionEventFail(Request);
         });
 
     Request->ExecuteProcessRequest();
