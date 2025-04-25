@@ -222,6 +222,7 @@ void UApexAPI::LoginWithAuthToken()
             if (!Request)
             {
                 Log("Request object is not valid! Aborting OnLoginComplete");
+                OnLoginFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
@@ -232,10 +233,11 @@ void UApexAPI::LoginWithAuthToken()
             if (!Request)
             {
                 Log("RequestSession object is not valid! Aborting OnLoginFail");
+                OnLoginFail(nullptr);
                 return;
             }
             Request->RemoveFromRoot();
-            OnLoginFail(Request); 
+            OnLoginFail(Request);
         });
 
     Request->ExecuteProcessRequest();
