@@ -15,9 +15,9 @@ RUN git fetch --tags
 
 RUN ./documentation/build.sh
 
-# Updated to nginx:1.29.0 to address security vulnerabilities
-# Previous attempts with 1.28.0 still had CVE issues
-FROM nginx:1.29.0
+# Updated to nginx:1.29.0-alpine-slim to address security vulnerabilities
+# Alpine-slim variant may avoid vulnerable libxml2, libexpat, libtiff versions
+FROM nginx:1.29.0-alpine-slim
 
 
 RUN rm -v /etc/nginx/conf.d/default.conf
