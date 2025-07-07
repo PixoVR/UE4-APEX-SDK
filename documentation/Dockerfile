@@ -15,8 +15,9 @@ RUN git fetch --tags
 
 RUN ./documentation/build.sh
 
-
-FROM nginx:1.28.0
+# Updated to nginx:1.29.0 to address security vulnerabilities
+# Previous attempts with 1.28.0 still had CVE issues
+FROM nginx:1.29.0
 
 
 RUN rm -v /etc/nginx/conf.d/default.conf
