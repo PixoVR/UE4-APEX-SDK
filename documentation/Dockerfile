@@ -22,8 +22,8 @@ FROM nginx:1.29.0
 
 RUN rm -v /etc/nginx/conf.d/default.conf
 
-COPY --from=builder /build/documentation/docs-doxygen/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY --from=builder /build/documentation/docs-doxygen/nginx/errors /var/www/errors
+COPY --from=builder /build/documentation/docs-doxygen/nginx.conf /etc/nginx/nginx.conf
+# COPY --from=builder /build/documentation/docs-doxygen/nginx/errors /var/www/errors
 
 COPY --from=builder /build/documentation/env.sh ./env.sh
 COPY --from=builder /build/documentation/html /tmp/html
