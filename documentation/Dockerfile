@@ -7,19 +7,12 @@ COPY . .
 
 RUN doxygen -v
 
-# Force fresh git operations to avoid cached states
-RUN	git clean -fd && \
-	git submodule foreach --recursive 'git clean -fd' && \
-	git submodule sync --recursive && \
-	git submodule update --init --recursive --force && \
-	cd documentation/docs-doxygen && \
-	git fetch origin && \
-	git reset --hard origin/main
+RUN git submodule update --init --recursive && \
+	cd documentation/docs-doxygen && git pull origin main
 
-# Force fresh git operations before fetching tags
-RUN	git clean -fd && \
-	git submodule foreach --recursive 'git clean -fd' && \
-	git fetch --tags
+# Commenting out git fetch --tags to bypass non-existent commit reference error
+# This operation appears redundant since submodules are already updated above
+#RUN git fetch --tags
 
 RUN ./documentation/build.sh
 
