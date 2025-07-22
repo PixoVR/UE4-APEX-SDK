@@ -3,6 +3,7 @@
 
 #include "PixoLauncherSubsystem.h"
 #include "GenericPlatform/GenericPlatformMisc.h"
+#include <ApexAPI.h>
 
 DEFINE_LOG_CATEGORY_STATIC(LogPixoLauncherSubsystem, Log, All);
 
@@ -74,6 +75,105 @@ bool UPixoLauncherSubsystem::LaunchApplication(const FString& ApplicationName, c
 	Log("UPixoLauncherSubsystem::LaunchApplication: %s, %i : %i", *ApplicationName, ExtraKey.Num(), ExtraValue.Num());
 #endif
 	return bResult;
+}
+
+void UPixoLauncherSubsystem::AuthenticatedLaunched(const FString TargetApplication, const FString& InReturnTarget, const FString& ReturnParameters, const FString& LaunchToken)
+{
+	if (LaunchToken.IsEmpty())
+	{
+		Log("UPixoLauncherSubsystem::AuthenticatedLaunched: No session token found, cannot launch.");
+		GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Red, TEXT("No session token found, cannot launch."));
+		return;
+	}
+
+	FString ReturnTarget = TargetApplication;
+	FString ReturnTargetType = TEXT("");
+	if (ReturnTarget.Contains("://"))
+	{
+		ReturnTargetType = TEXT("url");
+	}
+	else
+	{
+		ReturnTargetType = TEXT("app");
+	}
+
+	FString InReturnTargetType = TEXT("app");
+
+	if (InReturnTarget.Contains("://"))
+	{
+		InReturnTargetType = TEXT("url");
+	}
+
+	Log("UPixoLauncher::AuthorizedLaunched %s %s", *InReturnTarget, *InReturnTargetType);
+	GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Cyan, FString::Printf(TEXT("UPixoLauncher::AuthorizedLaunched %s %s"), *ReturnTarget, *ReturnTargetType));
+
+	FString Parameters = "";
+	Parameters = "pixotoken=" + LaunchToken;
+
+	if (!ReturnParameters.IsEmpty())
+	{
+		Parameters += "&optional=" + ReturnParameters;
+	}
+
+	if (!InReturnTarget.IsEmpty())
+	{
+		Parameters += "&returntarget=" + InReturnTarget;
+	}
+
+	if (!InReturnTargetType.IsEmpty())
+	{
+		Parameters += "&targettype=" + InReturnTargetType;
+	}
+
+	if (!ReturnTarget.IsEmpty())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Cyan, FString::Printf(TEXT("Launching %s %s"), *ReturnTargetType, *ReturnTarget));
+		if (ReturnTargetType.Equals(TEXT("url"), ESearchCase::IgnoreCase))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Yellow, FString::Printf(TEXT("Launching url.")));
+			FString ReturnURL = ReturnTarget;
+			if (Parameters.IsEmpty() == false)
+			{
+				if (!ReturnURL.Contains("?"))
+				{
+					ReturnURL += "?" + Parameters;
+				}
+				else
+				{
+					ReturnURL += "&" + Parameters;
+				}
+			}
+			Log("Custom Target: %s", *ReturnURL);
+			OpenURL(ReturnURL);
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Purple, FString::Printf(TEXT("Launching android package.")));
+			TArray<FString> Keys, Values;
+			Keys.Add("pixotoken");
+			Values.Add(LaunchToken);
+
+			if (!ReturnParameters.IsEmpty())
+			{
+				Keys.Add("optional");
+				Values.Add(ReturnParameters);
+			}
+
+			if (!InReturnTarget.IsEmpty())
+			{
+				Keys.Add("returntarget");
+				Values.Add(InReturnTarget);
+			}
+
+			if (!InReturnTargetType.IsEmpty())
+			{
+				Keys.Add("targettype");
+				Values.Add(InReturnTargetType);
+			}
+
+			LaunchApplication(ReturnTarget, Keys, Values);
+		}
+	}
 }
 
 void UPixoLauncherSubsystem::OpenURL(const FString& URL)
