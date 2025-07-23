@@ -41,6 +41,9 @@ public:
 	bool LaunchApplication(const FString& ApplicationName, const TArray<FString>& ExtraKey, const TArray<FString>& ExtraValue);
 
 	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
+	void AuthenticatedLaunched(const FString TargetApplication, const FString& InReturnTarget, const FString& ReturnParameters, const FString& LaunchToken);
+
+	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
 	void OpenURL(const FString& URL);
 
 	UFUNCTION(BlueprintCallable, Category = "PixoVR|Launcher")
