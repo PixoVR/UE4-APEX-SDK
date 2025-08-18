@@ -18,7 +18,6 @@ RUN ./documentation/build.sh
 
 FROM nginx:1.29.1-alpine
 
-
 RUN rm -v /etc/nginx/conf.d/default.conf
 
 COPY --from=builder /build/documentation/docs-doxygen/nginx/nginx.conf /etc/nginx/nginx.conf
