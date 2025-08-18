@@ -11,7 +11,7 @@ RUN git submodule update --init --recursive; \
     cd documentation/docs-doxygen; \
     git pull origin main
 
-RUN git fetch --tags
+RUN git fetch --tags || echo "Warning: git fetch --tags failed, continuing build"
 
 RUN ./documentation/build.sh
 
