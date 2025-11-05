@@ -15,9 +15,9 @@ RUN git fetch --tags || echo "Warning: git fetch --tags failed, continuing build
 
 RUN ./documentation/build.sh
 
-# Updated to nginx:1.29.0-alpine-slim to address security vulnerabilities
-# Alpine-slim variant may avoid vulnerable libxml2, libexpat, libtiff versions
-FROM nginx:1.29.0-alpine-slim
+# Updated to nginx:1.29.3-alpine-slim to address CVE-2025-9230
+# This version includes openssl:3.5.4-r0 which fixes the vulnerability
+FROM nginx:1.29.3-alpine-slim
 
 
 RUN rm -v /etc/nginx/conf.d/default.conf
