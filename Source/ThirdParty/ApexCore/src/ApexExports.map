@@ -1,0 +1,9 @@
+/* Exports only the C API from the shared library on ELF platforms, so C++
+ * standard library symbols cannot clash with the engine's own runtime. */
+{
+global:
+	Apex*;
+	JNI_OnLoad;
+local:
+	*;
+};

@@ -64,3 +64,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Integrates the ManageXR plugin to get headset information when a headset is registered with ManageXR.
 ### Passes the devices information in the user access check when available.
 ### Adds a heartbeat process to end sessions when a user closes the app without ending the session.
+
+## [2.0.0] - Unreleased
+### Rebuilt on apex-sdk-core 0.2.0, compiled from source in the new ApexCore module. Every platform call, session event and telemetry packet goes through the core; VaRest and the xAPI types are gone.
+### UApexSubsystem replaces UApexAPI. It adds token, Quick ID and login-code logins, module lists and pages with lifecycles, data or xAPI sessions, environments (NA production, staging and development, Saudi production, local, custom), launch arguments from the command line, pixovr:// links and Android intents, and the launcher hand-off.
+### Blueprint async nodes for every call, with Success and Failure pins and typed results.
+### Brings in the UE5 plugins: the launcher (install, update, uninstall, launch, intents, shared files, ManageXR serial number, Quest/Pico/HTC installers) from pixo-unreal-core, the authorization-code login and module launch from pixo-unreal-auth, and sessions from pixo-unreal-datareporting.
+### Adds the ApexAnalytics module: tracked objects, interactables, gaze tracking (head and eye tracker), spatial sampling, steps, a drop-in session component, and analytics providers, with the built-in PixoVR provider sending the Unity SDK 2.0's telemetry format.
+### Removes the reporting queries (FetchTopTen); see docs/MIGRATING.md.
+

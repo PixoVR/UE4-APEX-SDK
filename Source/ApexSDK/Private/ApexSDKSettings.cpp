@@ -1,134 +1,117 @@
-// Copyright 2022 PixoVR Corp. All Rights Reserved.
+// Copyright 2022-2026 PixoVR Corp. All Rights Reserved.
 
 #include "ApexSDKSettings.h"
 
-#if WITH_EDITORONLY_DATA
-#include "GeneralProjectSettings.h"
+#include "apex/Apex.h"
+
+#if WITH_EDITOR
 #include "AndroidRuntimeSettings.h"
+#include "GeneralProjectSettings.h"
 #endif
 
 DEFINE_LOG_CATEGORY_STATIC(LogApexSDKSettings, Log, All);
 
-#define LogAPEX(pmt, ...) UE_LOG(LogApexSDKSettings, Log, TEXT(pmt), ##__VA_ARGS__)
-#define WarnAPEX(pmt, ...) UE_LOG(LogApexSDKSettings, Warning, TEXT(pmt), ##__VA_ARGS__)
-#define ErrorAPEX(pmt, ...) UE_LOG(LogApexSDKSettings, Error, TEXT(pmt), ##__VA_ARGS__)
-#define FatalAPEX(pmt, ...) UE_LOG(LogApexSDKSettings, Fatal, TEXT(pmt), ##__VA_ARGS__)
-
-UApexSDKSettings::UApexSDKSettings(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+UApexSDKSettings::UApexSDKSettings()
+	: ModuleId(-1),
+	  ModuleName(TEXT("Generic")),
+	  ModuleVersion(TEXT("1.00.00")),
+	  bSyncVersion(true),
+	  Environment(EApexServerEnvironment::NA_PRODUCTION),
+	  bReadPixoConfigFile(true),
+	  bAlwaysUseUnrealHttp(false),
+	  RequestTimeoutSeconds(30.0f),
+	  bCheckModuleAccessOnLogin(true),
+	  bLoginWithLaunchTokenOnStart(false),
+	  DefaultScenarioId(TEXT("Generic")),
+	  bSendXapiSessionEvents(true),
+	  bRequireModuleAccessForSessions(true),
+	  bCompleteSessionOnShutdown(true),
+	  HeartbeatIntervalSeconds(5.0f),
+	  bAnalyticsEnabled(true),
+	  bPixoVRProviderEnabled(true),
+	  TelemetrySink(EApexTelemetrySinkType::LOG),
+	  TelemetryFlushIntervalSeconds(10.0f),
+	  PoseSamplesPerSecond(2.0f),
+	  MaximumRecordsPerPacket(500)
 {
-	ServerURI = "";
-	ModuleId = -1;
-	ModuleVersion = "1.00.00";
-	bSyncVersion = true;
 }
 
-bool UApexSDKSettings::CheckModuleVersion()
+FName UApexSDKSettings::GetCategoryName() const
 {
-	TArray<FString> ModuleVersionArray;
-	return GetModuleVersionArray(ModuleVersion, ModuleVersionArray);
+	return TEXT("Plugins");
 }
 
-bool UApexSDKSettings::GetModuleVersionArray(FString Version, TArray<FString>& ModuleVersionArray)
+bool UApexSDKSettings::IsPixoVRProviderEnabled() const
 {
-	int VersionPartCount = Version.ParseIntoArray(ModuleVersionArray, TEXT("."));
-
-	if (VersionPartCount != 3)
-	{
-		return false;
-	}
-
-	if (ModuleVersionArray[0].Len() <= 0 || ModuleVersionArray[0].StartsWith("0") || !ModuleVersionArray[0].IsNumeric())
-	{
-		return false;
-	}
-
-	if (ModuleVersionArray[1].Len() != 2 || !ModuleVersionArray[1].IsNumeric())
-	{
-		return false;
-	}
-
-	if (ModuleVersionArray[2].Len() != 2 || !ModuleVersionArray[2].IsNumeric())
-	{
-		return false;
-	}
-
-	return true;
+	return bAnalyticsEnabled && bPixoVRProviderEnabled && !DisabledProviders.Contains(TEXT("PixoVR")) &&
+		   TelemetrySink != EApexTelemetrySinkType::NONE;
 }
 
-#if WITH_EDITORONLY_DATA
-void UApexSDKSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+bool UApexSDKSettings::IsModuleVersionValid() const
 {
-	if (PropertyChangedEvent.Property != nullptr)
+	return ApexModuleVersionIsValid(TCHAR_TO_UTF8(*ModuleVersion)) != 0;
+}
+
+#if WITH_EDITOR
+void UApexSDKSettings::PostEditChangeProperty(FPropertyChangedEvent& propertyChangedEvent)
+{
+	Super::PostEditChangeProperty(propertyChangedEvent);
+
+	const FName propertyName = propertyChangedEvent.GetPropertyName();
+	const bool isVersionProperty = propertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, ModuleVersion) ||
+								   propertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, bSyncVersion) ||
+								   propertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, AdditionalVersionFields);
+	if (!isVersionProperty)
 	{
-		const FName PropertyName(PropertyChangedEvent.Property->GetFName());
-		if (PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, ModuleVersion) ||
-			PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, bSyncVersion) ||
-			PropertyName == GET_MEMBER_NAME_CHECKED(UApexSDKSettings, AdditionalVersionFields))
+		return;
+	}
+
+	if (!IsModuleVersionValid())
+	{
+		UE_LOG(LogApexSDKSettings, Error, TEXT("Module version %s is not MAJOR.MINOR.PATCH."), *ModuleVersion);
+		return;
+	}
+
+	if (bSyncVersion)
+	{
+		SyncProjectVersions();
+	}
+}
+
+void UApexSDKSettings::SyncProjectVersions() const
+{
+	TArray<FString> versionParts;
+	ModuleVersion.ParseIntoArray(versionParts, TEXT("."));
+	const int32 majorVersion = FCString::Atoi(*versionParts[0]);
+	const int32 minorVersion = FCString::Atoi(*versionParts[1]);
+	const int32 patchVersion = FCString::Atoi(*versionParts[2]);
+	const FString fullVersion = FString::Printf(TEXT("%d.%02d.%02d"), majorVersion, minorVersion, patchVersion);
+
+	if (UGeneralProjectSettings* projectSettings = GetMutableDefault<UGeneralProjectSettings>())
+	{
+		projectSettings->ProjectVersion = fullVersion;
+		projectSettings->UpdateSinglePropertyInConfigFile(
+			projectSettings->GetClass()->FindPropertyByName(
+				GET_MEMBER_NAME_CHECKED(UGeneralProjectSettings, ProjectVersion)),
+			projectSettings->GetDefaultConfigFilename());
+	}
+
+	if (UAndroidRuntimeSettings* androidSettings = GetMutableDefault<UAndroidRuntimeSettings>())
+	{
+		androidSettings->VersionDisplayName = fullVersion;
+		androidSettings->UpdateSinglePropertyInConfigFile(
+			androidSettings->GetClass()->FindPropertyByName(
+				GET_MEMBER_NAME_CHECKED(UAndroidRuntimeSettings, VersionDisplayName)),
+			androidSettings->GetDefaultConfigFilename());
+
+		if (AdditionalVersionFields.Contains(EApexVersionField::ANDROID_STORE_VERSION))
 		{
-			TArray<FString> ModuleVersionParts;
-			if (GetModuleVersionArray(ModuleVersion, ModuleVersionParts))
-			{
-				if (bSyncVersion)
-				{
-					UpdateVersion(ModuleVersionParts, AdditionalVersionFields);
-				}
-			}
-			else
-			{
-				ErrorAPEX("Module Version %s is invalid.", *ModuleVersion);
-			}
-		}
-	}
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-}
-
-void UApexSDKSettings::UpdateVersion(const TArray<FString>& VersionParts, const TArray<EPVRVersionFields>& Fields)
-{
-	int MajorVerison = FCString::Atoi(*VersionParts[0]);
-	int MinorVersion = FCString::Atoi(*VersionParts[1]);
-	int PatchVersion = FCString::Atoi(*VersionParts[2]);
-
-	FString FullVersion = FString::Printf(TEXT("%i.%.2i.%.2i"), MajorVerison, MinorVersion, PatchVersion);
-
-	if (UGeneralProjectSettings* Settings = GetMutableDefault<UGeneralProjectSettings>())
-	{
-		Settings->ProjectVersion = FullVersion;
-		Settings->UpdateSinglePropertyInConfigFile(Settings->GetClass()->FindPropertyByName(GET_MEMBER_NAME_CHECKED(UGeneralProjectSettings, ProjectVersion)), Settings->GetDefaultConfigFilename());
-	}
-
-	if (UAndroidRuntimeSettings* Settings = GetMutableDefault<UAndroidRuntimeSettings>())
-	{
-		Settings->VersionDisplayName = FullVersion;
-		Settings->UpdateSinglePropertyInConfigFile(Settings->GetClass()->FindPropertyByName(GET_MEMBER_NAME_CHECKED(UAndroidRuntimeSettings, VersionDisplayName)), Settings->GetDefaultConfigFilename());
-
-		if (Fields.Contains(EPVRVersionFields::AndroidStoreVersion))
-		{
-			FString AndroidVersionNumber = FString::Printf(TEXT("%i%.2i%.2i"), MajorVerison, MinorVersion, PatchVersion);
-			Settings->StoreVersion = FCString::Atoi(*AndroidVersionNumber);
-			Settings->UpdateSinglePropertyInConfigFile(Settings->GetClass()->FindPropertyByName(GET_MEMBER_NAME_CHECKED(UAndroidRuntimeSettings, StoreVersion)), Settings->GetDefaultConfigFilename());
-		}
-	}
-
-	if (Fields.Contains(EPVRVersionFields::PixoVRPluginVersion))
-	{
-		if (GConfig)
-		{
-			static const FString DefaultGamePath = FString::Printf(TEXT("%sDefaultGame.ini"), *FPaths::SourceConfigDir());
-			FString Setting;
-
-			if (GConfig->GetString(TEXT("/Script/PixoVR.PixoVRSettings"), TEXT("ModuleVersion"), Setting, DefaultGamePath))
-			{
-				GConfig->SetString(TEXT("/Script/PixoVR.PixoVRSettings"), TEXT("ModuleVersion"), *FullVersion, DefaultGamePath);
-			}
-
-			GConfig->Flush(false, DefaultGamePath);
+			androidSettings->StoreVersion = majorVersion * 10000 + minorVersion * 100 + patchVersion;
+			androidSettings->UpdateSinglePropertyInConfigFile(
+				androidSettings->GetClass()->FindPropertyByName(
+					GET_MEMBER_NAME_CHECKED(UAndroidRuntimeSettings, StoreVersion)),
+				androidSettings->GetDefaultConfigFilename());
 		}
 	}
 }
 #endif
-
-#undef FatalAPEX
-#undef ErrorAPEX
-#undef WarnAPEX
-#undef LogAPEX

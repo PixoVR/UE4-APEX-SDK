@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	Android side of the ApexLauncher module, for Unreal Engine 4.26 and 4.27.
+
+	Adds to the GameActivity the calls UApexLauncherSubsystem makes through JNI: launching apps and
+	URLs, reading the launch intent, installing, updating and uninstalling packages, shared-storage
+	files, and the device serial number (from ManageXR). The Java under Java/ is copied into the build;
+	Other/, Pico/ or WaveVR/ supply the installer for the headset chosen in
+	Project Settings > Plugins > Apex Launcher.
+-->
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+	<init>
+		<log text="ApexLauncher init"/>
+		<setStringFromProperty result="HeadsetType" ini="Engine" section="/Script/ApexLauncher.ApexLauncherSettings" property="HeadsetType" default="OTHER"/>
+		<setBoolFromProperty result="bUseSystemSharedUserId" ini="Engine" section="/Script/ApexLauncher.ApexLauncherSettings" property="bUseSystemSharedUserId" default="true"/>
+		<setStringFromProperty result="HostString" ini="Engine" section="/Script/AndroidRuntimeSettings.AndroidRuntimeSettings" property="PackageName" default="com.pixovr.blank"/>
+		<setBoolIsEqual result="bIsOther" arg1="$S(HeadsetType)" arg2="OTHER"/>
+		<setBoolIsEqual result="bIsQuest" arg1="$S(HeadsetType)" arg2="QUEST"/>
+		<setBoolIsEqual result="bIsWaveVR" arg1="$S(HeadsetType)" arg2="HTC_FOCUS"/>
+		<setBoolIsEqual result="bIsPico" arg1="$S(HeadsetType)" arg2="PICO"/>
+		<setBoolIsEqual result="bIsHTCBusiness" arg1="$S(HeadsetType)" arg2="HTC_BUSINESS"/>
+		<setBoolNot result="bIsNotPico" source="$B(bIsPico)"/>
+		<setBoolAnd result="bAddSystemSharedUserId" arg1="$B(bUseSystemSharedUserId)" arg2="$B(bIsNotPico)"/>
+		<log text="ApexLauncher headset type: $S(HeadsetType)"/>
+	</init>
+
+	<prebuildCopies>
+		<log text="Copying the ApexLauncher Java files."/>
+		<copyDir src="$S(PluginDir)/Java" dst="$S(BuildDir)" />
+		<if condition="bIsWaveVR">
+			<true>
+				<copyDir src="$S(PluginDir)/WaveVR" dst="$S(BuildDir)" />
+			</true>
+			<false>
+				<if condition="bIsPico">
+					<true>
+						<copyDir src="$S(PluginDir)/Pico" dst="$S(BuildDir)" />
+					</true>
+					<false>
+						<!-- OTHER, QUEST and HTC_BUSINESS use the standard PackageInstaller. -->
+						<copyDir src="$S(PluginDir)/Other" dst="$S(BuildDir)" />
+					</false>
+				</if>
+			</false>
+		</if>
+	</prebuildCopies>
+
+	<proguardAdditions>
+		<insert>
+			-keep class com.Pixo.PixoPlatform.** { *; }
+			-keep class com.managexr.getserialsample.** { *; }
+		</insert>
+		<if condition="bIsWaveVR">
+			<true>
+				<insert>
+					-keep class com.htc.customizedlib.** { *; }
+					-keep class com.htc.protos.** { *; }
+				</insert>
+			</true>
+		</if>
+	</proguardAdditions>
+
+	<resourceCopies>
+		<if condition="bIsWaveVR">
+			<true>
+				<log text="Copying the HTC jars."/>
+				<copyFile src="$S(PluginDir)/../../Libs/customizedlib-0.0.23.jar" dst="$S(BuildDir)/libs/customizedlib-0.0.23.jar" />
+				<copyFile src="$S(PluginDir)/../../Libs/gson-2.8.5.jar" dst="$S(BuildDir)/libs/gson-2.8.5.jar" />
+				<copyFile src="$S(PluginDir)/../../Libs/protobuf-javalite-3.8.0.jar" dst="$S(BuildDir)/libs/protobuf-javalite-3.8.0.jar" />
+			</true>
+		</if>
+	</resourceCopies>
+
+	<androidManifestUpdates>
+		<addAttribute tag="application" name="android:requestLegacyExternalStorage" value="true" />
+		<addPermission android:name="com.htc.companionservice.permission.ACCESS_COMPANION_SERVICE" />
+		<addPermission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION"/>
+		<addPermission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+		<addPermission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+		<addPermission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+		<addPermission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
+		<addPermission android:name="android.permission.READ_PHONE_STATE"/>
+		<addPermission android:name="android.permission.ACCESS_WIFI_STATE"/>
+		<addPermission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+		<setBoolOr result="bRequestsInstall" arg1="$B(bIsOther)" arg2="$B(bIsHTCBusiness)"/>
+		<setBoolOr result="bRequestsInstall" arg1="$B(bRequestsInstall)" arg2="$B(bIsQuest)"/>
+		<if condition="bRequestsInstall">
+			<true>
+				<addPermission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+				<addPermission android:name="android.permission.REQUEST_DELETE_PACKAGES"/>
+			</true>
+			<false>
+				<addPermission android:name="android.permission.INSTALL_PACKAGES"/>
+				<addPermission android:name="android.permission.DELETE_PACKAGES"/>
+			</false>
+		</if>
+		<addElements tag="application">
+			<service android:name="com.Pixo.PixoPlatform.PixoDownloaderService" />
+			<service android:name="com.Pixo.PixoPlatform.PixoInstallerService" />
+			<service android:name="com.Pixo.PixoPlatform.PixoExtendedInstallService" />
+			<receiver android:name="com.Pixo.PixoPlatform.PackageInstallerStatusReceiver" android:exported="true">
+				<intent-filter>
+					<action android:name="PACKAGE_INSTALLED_ACTION" />
+				</intent-filter>
+			</receiver>
+			<meta-data android:name="pico_advance_interface" android:value="0"/>
+		</addElements>
+		<if condition="bIsQuest">
+			<true>
+				<addElements tag="application">
+					<receiver
+						android:name="com.Pixo.PixoPlatform.DeviceOwnerReceiver"
+						android:description="@string/app_name"
+						android:label="@string/app_name"
+						android:permission="android.permission.BIND_DEVICE_ADMIN"
+						android:exported="true">
+						<meta-data android:name="android.app.device_admin" android:resource="@xml/device_owner_receiver" />
+						<intent-filter>
+							<action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+						</intent-filter>
+					</receiver>
+				</addElements>
+			</true>
+			<false>
+				<addElements tag="application">
+					<receiver
+						android:name="com.Pixo.PixoPlatform.DeviceOwnerReceiver"
+						android:description="@string/app_name"
+						android:label="@string/app_name"
+						android:permission="android.permission.BIND_DEVICE_ADMIN"
+						android:exported="true">
+						<meta-data android:name="android.app.device_admin" android:resource="@xml/device_owner_receiver"/>
+						<intent-filter>
+							<action android:name="android.app.action.PROFILE_PROVISIONING_COMPLETE"/>
+						</intent-filter>
+					</receiver>
+				</addElements>
+			</false>
+		</if>
+		<if condition="bAddSystemSharedUserId">
+			<true>
+				<addAttribute tag="manifest" name="android:sharedUserId" value="android.uid.system"/>
+			</true>
+		</if>
+		<!-- pixovr://<package>?pixotoken=...: the launcher's deep link into this module. -->
+		<loopElements tag="activity">
+			<setStringFromAttribute result="activityName" tag="$" name="android:name"/>
+			<setBoolIsEqual result="bGameActivity" arg1="$S(activityName)" arg2="com.epicgames.ue4.GameActivity"/>
+			<if condition="bGameActivity">
+				<true>
+					<addElements tag="intent-filter" once="true">
+						<category android:name="pvr.intent.category.VR" />
+					</addElements>
+					<setElement result="DataElement" value="data" />
+					<addAttribute tag="$DataElement" name="android:scheme" value="pixovr" />
+					<addAttribute tag="$DataElement" name="android:host" value="$S(HostString)" />
+					<setElement result="IntentFilter" value="intent-filter" />
+					<addElements tag="$IntentFilter">
+						<action android:name="android.intent.action.VIEW" />
+						<category android:name="android.intent.category.DEFAULT" />
+						<category android:name="android.intent.category.BROWSABLE" />
+					</addElements>
+					<addElement tag="$IntentFilter" name="DataElement" />
+					<addElement tag="$" name="IntentFilter" />
+				</true>
+			</if>
+		</loopElements>
+	</androidManifestUpdates>
+
+	<gameActivityImportAdditions>
+		<insert>
+			import com.managexr.getserialsample.MXRAdminAppMessenger;
+			import com.Pixo.PixoPlatform.*;
+			import android.app.admin.DevicePolicyManager;
+			import android.content.ComponentName;
+			import android.content.ContentResolver;
+			import android.content.ContentUris;
+			import android.content.ContentValues;
+			import android.content.Context;
+			import android.content.Intent;
+			import android.content.pm.ApplicationInfo;
+			import android.content.pm.PackageInfo;
+			import android.content.pm.PackageManager;
+			import android.database.Cursor;
+			import android.net.Uri;
+			import android.os.Build;
+			import android.os.Bundle;
+			import android.os.Environment;
+			import android.provider.MediaStore;
+			import java.io.BufferedReader;
+			import java.io.IOException;
+			import java.io.InputStream;
+			import java.io.InputStreamReader;
+			import java.io.OutputStream;
+			import java.nio.charset.StandardCharsets;
+		</insert>
+		<if condition="bIsWaveVR">
+			<true>
+				<insert>
+					import java.io.File;
+					import com.htc.customizedlib.ConfigPackManager;
+					import com.htc.customizedlib.CustomizedService;
+				</insert>
+			</true>
+		</if>
+		<if condition="bIsPico">
+			<true>
+				<insert>
+					import com.pvr.tobservice.ToBServiceHelper;
+				</insert>
+			</true>
+		</if>
+	</gameActivityImportAdditions>
+
+	<buildGradleAdditions>
+		<insert>
+			android {
+				compileOptions {
+					sourceCompatibility JavaVersion.VERSION_1_8
+					targetCompatibility JavaVersion.VERSION_1_8
+				}
+			}
+
+			dependencies {
+				implementation 'org.apache.commons:commons-lang3:3.0'
+			}
+		</insert>
+		<if condition="bIsWaveVR">
+			<true>
+				<insert>
+					repositories {
+						flatDir {
+							dirs 'libs'
+						}
+					}
+				</insert>
+			</true>
+		</if>
+		<if condition="bIsPico">
+			<true>
+				<insert>
+					allprojects {
+						repositories {
+							maven {
+								url 'https://artifacts-cn-beijing.volces.com/repository/picoxrtob'
+							}
+						}
+					}
+
+					dependencies {
+						implementation "com.picoxr.tobservice:tobservicelib:4.3.18"
+					}
+				</insert>
+			</true>
+		</if>
+	</buildGradleAdditions>
+
+	<gameActivityClassAdditions>
+		<insert>
+			private final static String APEX_LAUNCHER_TAG = "ApexLauncher";
+			private String ApexDeviceSerialNumber = "";
+			private boolean bApexIsDeviceOwner = false;
+		</insert>
+		<!-- PixoDownloader and PixoInstaller pick the installer by this number. -->
+		<if condition="bIsWaveVR">
+			<true>
+				<insert>private static final int ApexHeadsetType = 1;</insert>
+			</true>
+			<false>
+				<if condition="bIsPico">
+					<true>
+						<insert>private static final int ApexHeadsetType = 2;</insert>
+					</true>
+					<false>
+						<if condition="bIsHTCBusiness">
+							<true>
+								<insert>private static final int ApexHeadsetType = 3;</insert>
+							</true>
+							<false>
+								<if condition="bIsQuest">
+									<true>
+										<insert>private static final int ApexHeadsetType = 4;</insert>
+									</true>
+									<false>
+										<insert>private static final int ApexHeadsetType = 0;</insert>
+									</false>
+								</if>
+							</false>
+						</if>
+					</false>
+				</if>
+			</false>
+		</if>
+
+		<insert>
+			public String AndroidThunkJava_GetApplicationVersionName(String packageName)
+			{
+				try
+				{
+					PackageInfo packageInformation = getPackageManager().getPackageInfo(packageName, 0);
+					return packageInformation.versionName != null ? packageInformation.versionName : "";
+				}
+				catch (Exception exception)
+				{
+					android.util.Log.w(APEX_LAUNCHER_TAG, "No version for " + packageName + ": " + exception);
+				}
+
+				return "";
+			}
+
+			public boolean AndroidThunkJava_PixoIsPackageInstalled(String packageName)
+			{
+				return PixoUtilities.isPackageInstalled(getApplicationContext(), packageName);
+			}
+
+			public void AndroidThunkJava_LogAllPackages()
+			{
+				PixoUtilities.logAllPackages(getApplicationContext());
+			}
+
+			// packageName may be "package", "package:action" or "package:action:component".
+			public boolean AndroidThunkJava_PixoLaunch(String packageName, String[] extraKeys, String[] extraValues, boolean bQuitAfterLaunch)
+			{
+				String intentAction = "";
+				String intentComponent = "";
+
+				int separatorIndex = packageName.indexOf(":");
+				if (separatorIndex >= 0)
+				{
+					intentAction = packageName.substring(separatorIndex + 1);
+					packageName = packageName.substring(0, separatorIndex);
+
+					separatorIndex = intentAction.indexOf(":");
+					if (separatorIndex >= 0)
+					{
+						intentComponent = intentAction.substring(separatorIndex + 1);
+						intentAction = intentAction.substring(0, separatorIndex);
+					}
+				}
+
+				if (!PixoUtilities.isPackageInstalled(getApplicationContext(), packageName))
+				{
+					android.util.Log.e(APEX_LAUNCHER_TAG, packageName + " is not installed.");
+					return false;
+				}
+
+				Intent launchIntent;
+				if (intentAction.equals(""))
+				{
+					launchIntent = getPackageManager().getLaunchIntentForPackage(packageName);
+					if (launchIntent == null)
+					{
+						return false;
+					}
+				}
+				else
+				{
+					launchIntent = new Intent(intentAction);
+					launchIntent.setPackage(packageName);
+					launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				}
+
+				for (int extraIndex = 0; extraIndex &lt; extraKeys.length &amp;&amp; extraIndex &lt; extraValues.length; extraIndex++)
+				{
+					launchIntent.putExtra(extraKeys[extraIndex], extraValues[extraIndex]);
+				}
+
+				if (!intentComponent.equals(""))
+				{
+					launchIntent.setComponent(new ComponentName(packageName, intentComponent));
+				}
+
+				if (launchIntent.resolveActivity(getPackageManager()) == null)
+				{
+					return false;
+				}
+
+				startActivity(launchIntent);
+				if (bQuitAfterLaunch)
+				{
+					AndroidThunkJava_ForceQuit();
+				}
+
+				return true;
+			}
+
+			public boolean AndroidThunkJava_PixoOpenURL(String url, boolean bQuitAfterLaunch)
+			{
+				if (!url.contains("://") &amp;&amp; !(url.indexOf(":") >= 1))
+				{
+					url = "http://" + url;
+				}
+
+				try
+				{
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+					browserIntent.addCategory(Intent.CATEGORY_BROWSABLE);
+					browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					if (browserIntent.resolveActivity(getPackageManager()) == null)
+					{
+						android.util.Log.e(APEX_LAUNCHER_TAG, "No application handles " + url);
+						return false;
+					}
+
+					startActivity(browserIntent);
+					if (bQuitAfterLaunch)
+					{
+						AndroidThunkJava_ForceQuit();
+						finishAndRemoveTask();
+					}
+
+					return true;
+				}
+				catch (Exception exception)
+				{
+					android.util.Log.e(APEX_LAUNCHER_TAG, "Failed to open a URL: " + exception);
+				}
+
+				return false;
+			}
+
+			public void AndroidThunkJava_PixoQuit()
+			{
+				AndroidThunkJava_ForceQuit();
+				finishAndRemoveTask();
+			}
+
+			public String AndroidThunkJava_GetIntentData()
+			{
+				Uri intentData = getIntent().getData();
+				return intentData != null ? intentData.toString() : "";
+			}
+
+			public String AndroidThunkJava_GetApplicationExtra(String extraName)
+			{
+				Bundle intentExtras = getIntent().getExtras();
+				if (intentExtras == null)
+				{
+					return "";
+				}
+
+				Object extraValue = intentExtras.get(extraName);
+				return extraValue != null ? extraValue.toString() : "";
+			}
+
+			public void AndroidThunkJava_PixoLog(String message)
+			{
+				android.util.Log.i(APEX_LAUNCHER_TAG, message);
+			}
+
+			// Downloads the APK (or a zip holding it) from url, then installs it. Installing over an
+			// installed package updates it. Progress arrives through PixoEventNotifier.
+			public boolean AndroidThunkJava_InstallApplication(String packageName, String url)
+			{
+				PixoDownloader packageDownloader = PixoDownloader.createDownloader(getApplicationContext(), url, packageName, ApexHeadsetType);
+				packageDownloader.startDownloadPackage();
+				return true;
+			}
+
+			public boolean AndroidThunkJava_UninstallApplication(String packageName)
+			{
+				PixoInstaller packageInstaller = PixoInstaller.createInstaller(getApplicationContext(), packageName, null, ApexHeadsetType);
+				packageInstaller.startUninstallPackage();
+				return true;
+			}
+
+			public String AndroidThunkJava_GetAppFileLocation(String packageName)
+			{
+				try
+				{
+					ApplicationInfo applicationInformation = getPackageManager().getApplicationInfo(packageName, 0);
+					return applicationInformation.sourceDir;
+				}
+				catch (PackageManager.NameNotFoundException exception)
+				{
+					return "";
+				}
+			}
+
+			// Shared storage: files in Download/, which outlive this app and other apps can read. A name
+			// without an extension gets ".txt", as in PixoCore; lookups try the name as given first.
+			private String ApexSharedFileName(String fileName)
+			{
+				return fileName.contains(".") ? fileName : fileName + ".txt";
+			}
+
+			private Uri ApexFindSharedFileNamed(String displayName)
+			{
+				ContentResolver resolver = getApplicationContext().getContentResolver();
+				Uri collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+				String selection = MediaStore.MediaColumns.DISPLAY_NAME + "=? AND " + MediaStore.MediaColumns.RELATIVE_PATH + "=?";
+				String[] selectionArguments = { displayName, Environment.DIRECTORY_DOWNLOADS + "/" };
+
+				try (Cursor cursor = resolver.query(collection, new String[] { MediaStore.MediaColumns._ID }, selection, selectionArguments, null))
+				{
+					if (cursor != null &amp;&amp; cursor.moveToFirst())
+					{
+						long fileId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID));
+						return ContentUris.withAppendedId(collection, fileId);
+					}
+				}
+				catch (Exception exception)
+				{
+					android.util.Log.e(APEX_LAUNCHER_TAG, "Failed to look up " + displayName + ": " + exception);
+				}
+
+				return null;
+			}
+
+			private Uri ApexFindSharedFile(String fileName)
+			{
+				if (Build.VERSION.SDK_INT &lt; 29)
+				{
+					return null;
+				}
+
+				Uri fileUri = ApexFindSharedFileNamed(fileName);
+				if (fileUri == null &amp;&amp; !fileName.endsWith(".txt"))
+				{
+					fileUri = ApexFindSharedFileNamed(fileName + ".txt");
+				}
+
+				return fileUri;
+			}
+
+			public boolean AndroidThunkJava_FileExists(String fileName)
+			{
+				return ApexFindSharedFile(fileName) != null;
+			}
+
+			public String AndroidThunkJava_WriteFileToSharedStorage(String fileName, String content)
+			{
+				if (Build.VERSION.SDK_INT &lt; 29)
+				{
+					return "";
+				}
+
+				ContentResolver resolver = getApplicationContext().getContentResolver();
+				Uri existingUri = ApexFindSharedFile(fileName);
+				if (existingUri != null)
+				{
+					try
+					{
+						resolver.delete(existingUri, null, null);
+					}
+					catch (Exception exception)
+					{
+						android.util.Log.e(APEX_LAUNCHER_TAG, "Failed to replace " + fileName + ": " + exception);
+					}
+				}
+
+				ContentValues fileValues = new ContentValues();
+				fileValues.put(MediaStore.MediaColumns.DISPLAY_NAME, ApexSharedFileName(fileName));
+				fileValues.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");
+				fileValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+
+				Uri newUri = resolver.insert(MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), fileValues);
+				if (newUri == null)
+				{
+					return "";
+				}
+
+				try (OutputStream outputStream = resolver.openOutputStream(newUri, "w"))
+				{
+					if (outputStream != null)
+					{
+						outputStream.write(content.getBytes(StandardCharsets.UTF_8));
+						return newUri.toString();
+					}
+				}
+				catch (IOException exception)
+				{
+					android.util.Log.e(APEX_LAUNCHER_TAG, "Failed to write " + fileName + ": " + exception);
+				}
+
+				return "";
+			}
+
+			public String AndroidThunkJava_ReadFileFromSharedStorage(String fileName)
+			{
+				Uri fileUri = ApexFindSharedFile(fileName);
+				if (fileUri == null)
+				{
+					return "";
+				}
+
+				ContentResolver resolver = getApplicationContext().getContentResolver();
+				try (InputStream inputStream = resolver.openInputStream(fileUri);
+					BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)))
+				{
+					StringBuilder contentBuilder = new StringBuilder();
+					String line;
+					while ((line = reader.readLine()) != null)
+					{
+						if (contentBuilder.length() > 0)
+						{
+							contentBuilder.append("\n");
+						}
+
+						contentBuilder.append(line);
+					}
+
+					return contentBuilder.toString();
+				}
+				catch (Exception exception)
+				{
+					android.util.Log.e(APEX_LAUNCHER_TAG, "Failed to read " + fileName + ": " + exception);
+				}
+
+				return "";
+			}
+
+			public boolean AndroidThunkJava_DeleteFileFromSharedStorage(String fileName)
+			{
+				Uri fileUri = ApexFindSharedFile(fileName);
+				if (fileUri == null)
+				{
+					return false;
+				}
+
+				try
+				{
+					return getApplicationContext().getContentResolver().delete(fileUri, null, null) > 0;
+				}
+				catch (SecurityException exception)
+				{
+					android.util.Log.e(APEX_LAUNCHER_TAG, "Failed to delete " + fileName + ": " + exception);
+				}
+
+				return false;
+			}
+
+			// The serial ManageXR reports, else the one the system properties give, else "".
+			public String AndroidThunkJava_GetDeviceSerialNumber()
+			{
+				if (ApexDeviceSerialNumber != null &amp;&amp; !ApexDeviceSerialNumber.isEmpty())
+				{
+					return ApexDeviceSerialNumber;
+				}
+
+				String systemSerialNumber = PixoUtilities.getSerialNumber();
+				return systemSerialNumber != null ? systemSerialNumber : "";
+			}
+
+			public String AndroidThunkJava_GetMacAddress()
+			{
+				return PixoUtilities.getMacAddress();
+			}
+
+			public boolean AndroidThunkJava_IsDeviceOwner()
+			{
+				return bApexIsDeviceOwner;
+			}
+		</insert>
+		<if condition="bIsWaveVR">
+			<true>
+				<insert>
+					protected final ConfigPackManager.ConfigPackListener ApexConfigPackListener = new ConfigPackManager.ConfigPackListener()
+					{
+						@Override
+						public void onSuccess()
+						{
+							android.util.Log.i(APEX_LAUNCHER_TAG, "Config pack imported.");
+						}
+
+						@Override
+						public void onFail(int errorCode, String errorMessage)
+						{
+							android.util.Log.e(APEX_LAUNCHER_TAG, "Config pack import failed: " + errorCode + " " + errorMessage);
+						}
+					};
+
+					// Imports PIXOConfigImage.zip with its .key from the app's external files directory.
+					public void ApexImportConfigurationPackages()
+					{
+						try
+						{
+							File externalDirectory = getApplicationContext().getExternalFilesDir(null);
+							File keyFile = new File(externalDirectory, "PIXOConfigImage.key");
+							File imageFile = new File(externalDirectory, "PIXOConfigImage.zip");
+							if (!keyFile.exists() || !imageFile.exists())
+							{
+								android.util.Log.w(APEX_LAUNCHER_TAG, "No config pack in " + externalDirectory);
+								return;
+							}
+
+							CustomizedService.importConfigPackThirdParty(imageFile.getAbsolutePath(), keyFile.getAbsolutePath(), ApexConfigPackListener);
+						}
+						catch (Exception exception)
+						{
+							android.util.Log.e(APEX_LAUNCHER_TAG, "Config pack import failed: " + exception);
+						}
+					}
+				</insert>
+			</true>
+		</if>
+	</gameActivityClassAdditions>
+
+	<gameActivityOnCreateAdditions>
+		<insert>
+			DeviceOwnerReceiver.setTargetApplicationName("com.PixoVR.PixoHub");
+
+			if (PermissionHelper.checkPermission("android.permission.ACCESS_WIFI_STATE") == false)
+			{
+				PermissionHelper.acquirePermissions(new String[] { "android.permission.ACCESS_WIFI_STATE" });
+			}
+
+			MXRAdminAppMessenger apexAdminAppMessenger = new MXRAdminAppMessenger(this);
+			apexAdminAppMessenger.onSerialUpdated((serial) -> {
+				ApexDeviceSerialNumber = serial;
+			});
+			bApexIsDeviceOwner = apexAdminAppMessenger.isManaged();
+		</insert>
+		<if condition="bIsHTCBusiness">
+			<true>
+				<insert>
+					DevicePolicyManager apexPolicyManager = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
+					if (apexPolicyManager != null)
+					{
+						ComponentName apexAdmin = new ComponentName(getApplicationContext(), com.Pixo.PixoPlatform.DeviceOwnerReceiver.class);
+						if (apexPolicyManager.isDeviceOwnerApp(getPackageName()) &amp;&amp; apexPolicyManager.isAdminActive(apexAdmin))
+						{
+							apexPolicyManager.setPermissionGrantState(apexAdmin, getPackageName(), android.Manifest.permission.INSTALL_PACKAGES, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
+						}
+					}
+				</insert>
+			</true>
+		</if>
+		<if condition="bIsWaveVR">
+			<true>
+				<insert>
+					try
+					{
+						CustomizedService.init(getApplicationContext(), new CustomizedService.InitListener()
+						{
+							@Override
+							public void onConnected()
+							{
+								String configPackCode = CustomizedService.getConfigPackRecognitionCode();
+								if (configPackCode == null || configPackCode.isEmpty())
+								{
+									ApexImportConfigurationPackages();
+								}
+							}
+
+							@Override
+							public void onDisconnected()
+							{
+							}
+						});
+					}
+					catch (Exception exception)
+					{
+						android.util.Log.e(APEX_LAUNCHER_TAG, "Failed to start the HTC customized service: " + exception);
+					}
+				</insert>
+			</true>
+		</if>
+		<if condition="bIsPico">
+			<true>
+				<insert>
+					ToBServiceHelper.getInstance().bindTobService(getApplicationContext(), new ToBServiceHelper.BindCallBack()
+					{
+						@Override
+						public void bindCallBack(Boolean status)
+						{
+							android.util.Log.i(APEX_LAUNCHER_TAG, "Pico ToB service bound: " + status);
+						}
+					});
+				</insert>
+			</true>
+		</if>
+	</gameActivityOnCreateAdditions>
+</root>

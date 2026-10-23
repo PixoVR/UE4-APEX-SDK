@@ -1,670 +1,451 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2022-2026 PixoVR Corp. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ApexSDKDefines.h"
-#include "ApexJSON.h"
-#include "XAPITypes.h"
 #include "ApexTypes.generated.h"
 
-USTRUCT(BlueprintType)
-struct APEXSDK_API FJoinSessionData : public FJsonable
+// The C interface (apex/Apex.h) already uses the names EApexError, EApexEnvironment, EApexLifecycle,
+// EApexModuleSort and EApexTelemetrySink, so the Unreal types below are named differently.
+
+/** Which Apex platform the SDK talks to. Values match the core's EApexEnvironment. */
+UENUM(BlueprintType)
+enum class EApexServerEnvironment : uint8
 {
-    GENERATED_BODY()
+	NA_PRODUCTION = 0 UMETA(DisplayName = "North America - Production"),
+	NA_STAGING = 1 UMETA(DisplayName = "North America - Staging"),
+	NA_DEVELOPMENT = 2 UMETA(DisplayName = "North America - Development"),
+	SA_PRODUCTION = 3 UMETA(DisplayName = "Saudi Arabia - Production"),
+	LOCAL = 4 UMETA(DisplayName = "Local (localhost:8001 and :8000)"),
+	CUSTOM = 5 UMETA(DisplayName = "Custom (both URLs from the settings)"),
+};
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    FString Uuid = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    FString EventType = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    int ModuleId = -1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    FString DeviceId = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    FString IpAddress = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Join Session")
-    FXAPIStatement JsonData;
+/** Why a call failed. Values match the core's EApexError. */
+UENUM(BlueprintType)
+enum class EApexErrorCode : uint8
+{
+	OK = 0,
+	NETWORK = 1 UMETA(ToolTip = "No HTTP response: DNS, TLS, timeout, offline"),
+	HTTP = 2 UMETA(ToolTip = "HTTP status outside 2xx with no platform error body"),
+	PARSE = 3 UMETA(ToolTip = "The response was not what the platform should send"),
+	PLATFORM = 4 UMETA(ToolTip = "The platform reported an error; see the message"),
+	NOT_LOGGED_IN = 5,
+	CANCELLED = 6,
+	INVALID_ARGUMENT = 7,
+	INVALID_STATE = 8 UMETA(ToolTip = "For example an event sent with no active session"),
+	NO_TRANSPORT = 9 UMETA(ToolTip = "No way to send HTTP requests on this platform"),
+	INTERNAL = 10,
+};
 
-    virtual ~FJoinSessionData() {}
+/** Module version lifecycles, as flags. Values match the core's EApexLifecycle. */
+UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
+enum class EApexModuleLifecycle : uint8
+{
+	NONE = 0 UMETA(Hidden),
+	RELEASED = 1,
+	DEVELOPMENT = 2,
+	QA = 4,
+	UAT = 8,
+	OTHER = 16 UMETA(ToolTip = "Any other lifecycle name, or none"),
+};
+ENUM_CLASS_FLAGS(EApexModuleLifecycle);
 
-    virtual TSharedPtr<FJsonObject> ToJsonObject() const
-    {
-        TSharedPtr<FJsonObject> Result(new FJsonObject);
-        if (!Uuid.IsEmpty())
-        {
-            Result->SetStringField("uuid", Uuid);
-        }
+/** Order of a module page. Values match the core's EApexModuleSort. */
+UENUM(BlueprintType)
+enum class EApexModuleSortOrder : uint8
+{
+	PLATFORM = 0 UMETA(ToolTip = "The order the platform returns"),
+	NAME = 1 UMETA(ToolTip = "Name A-Z, ignoring case"),
+	ID = 2 UMETA(ToolTip = "Module ID, lowest first"),
+	NEWEST_VERSION = 3 UMETA(ToolTip = "Newest matching version first"),
+};
 
-        if (!EventType.IsEmpty())
-        {
-            Result->SetStringField("eventType", EventType);
-        }
+/** Where telemetry packets go. */
+UENUM(BlueprintType)
+enum class EApexTelemetrySinkType : uint8
+{
+	NONE UMETA(ToolTip = "Nothing is recorded"),
+	LOG UMETA(ToolTip = "Each packet is written to the log"),
+	FILE UMETA(ToolTip = "Each packet is saved under Saved/ApexTelemetry"),
+	HTTP UMETA(ToolTip = "The core POSTs each packet to the telemetry URL with the user's token"),
+};
 
-        Result->SetNumberField("moduleId", ModuleId);
+/** The outcome of a call: what every result carries. */
+USTRUCT(BlueprintType)
+struct APEXSDK_API FApexResponse
+{
+	GENERATED_BODY()
 
-        if (!DeviceId.IsEmpty())
-        {
-            Result->SetStringField("deviceId", DeviceId);
-        }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex")
+	EApexErrorCode Error = EApexErrorCode::OK;
 
-        if (!IpAddress.IsEmpty())
-        {
-            Result->SetStringField("ipAddress", IpAddress);
-        }
+	/** 0 when no HTTP response was received, including answers the core served from its cache. */
+	UPROPERTY(BlueprintReadOnly, Category = "Apex")
+	int32 HttpStatus = 0;
 
-        JsonData.Stamp();
+	/** Empty on success. */
+	UPROPERTY(BlueprintReadOnly, Category = "Apex")
+	FString Message;
 
-        if (!JsonData.IsEmpty())
-        {
-            Result->SetObjectField("jsonData", JsonData.ToJsonObject());
-        }
+	bool IsSuccess() const
+	{
+		return Error == EApexErrorCode::OK;
+	}
 
-        return Result;
-    }
+	static FApexResponse MakeFailure(EApexErrorCode error, const FString& message);
 };
 
 USTRUCT(BlueprintType)
-struct APEXSDK_API FAPEXRequestFailed : public FJsonable
+struct APEXSDK_API FApexOrganization
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
-    bool Error = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	int32 OrganizationId = 0;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
-    FString HttpCode = TEXT("0");
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString Name;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Failed Request")
-    FString Message = TEXT("");
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString Status;
 
-    FAPEXRequestFailed()
-    {
-        // Create a default
-        Error = true;
-        HttpCode = TEXT("400");
-        Message = TEXT("There is a server connection error. Please check that there is a valid URL being used or check if APEX is down.");
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString DownloadRegion;
 
-    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
-    {
-        if (JObject->HasField("Error"))
-        {
-            if (JObject->HasTypedField<EJson::Boolean>("Error"))
-            {
-                Error = JObject->GetBoolField("Error");
-            }
-            else
-            {
-                Error = true;
-                Message = JObject->GetStringField("error");
-            }
-        }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString Type;
 
-        if (JObject->HasField("HttpCode"))
-            HttpCode = JObject->GetStringField("HttpCode");
-    
-        if (JObject->HasField("Message"))
-            Message = JObject->GetStringField("Message");
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString HubLogoLink;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString PrimaryColor;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString SecondaryColor;
+};
+
+/** A logged-in user (spec/schema/user.json in apex-sdk-core). */
+USTRUCT(BlueprintType)
+struct APEXSDK_API FApexUser
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	int32 UserId = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	int32 OrganizationId = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString FirstName;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString LastName;
+
+	/** Only Quick ID logins return it. */
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString Username;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString Email;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString Role;
+
+	/** The bearer token; launching another module passes it on. Never log it. */
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString Token;
+
+	/** Set from the module access check when the platform sends a passing score. */
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	float MinimumPassingScore = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FApexOrganization Organization;
+};
+
+/** The current user's access to a module. */
+USTRUCT(BlueprintType)
+struct APEXSDK_API FApexModuleAccess
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 UserId = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 ModuleId = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	bool bHasAccess = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	bool bHasPassingScore = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	float PassingScore = 0.0f;
 };
 
 USTRUCT(BlueprintType)
-struct APEXSDK_API FPSessionData : public FAPEXRequestFailed
+struct APEXSDK_API FApexQuickIdUser
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Platform|Session")
-    int SessionId = -1;
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Quick ID")
+	FString FirstName;
 
-    FPSessionData() : FAPEXRequestFailed()
-    {
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Quick ID")
+	FString LastName;
 
-    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
-    {
-        FAPEXRequestFailed::FromJsonObject(JObject);
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Quick ID")
+	FString Username;
 
-        if (JObject->HasField("Data"))
-        {
-            const TSharedPtr<FJsonObject>& DataObject = JObject->GetObjectField("Data");
-            if (DataObject->HasField("SessionId"))
-            {
-                SessionId = DataObject->GetIntegerField("SessionId");
-            }
-        }
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Quick ID")
+	FString Email;
+};
+
+/** The users enrolled for Quick ID on a device, and their organization's branding. */
+USTRUCT(BlueprintType)
+struct APEXSDK_API FApexQuickIdUsers
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Quick ID")
+	FString OrganizationName;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Quick ID")
+	FString PrimaryColor;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Quick ID")
+	FString SecondaryColor;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Quick ID")
+	FString HubLogoUrl;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Quick ID")
+	TArray<FApexQuickIdUser> Users;
+};
+
+/** A one-time login code. */
+USTRUCT(BlueprintType)
+struct APEXSDK_API FApexLoginCode
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString Code;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|User")
+	FString ExpiresAt;
 };
 
 USTRUCT(BlueprintType)
-struct APEXSDK_API FSessionData : public FJsonable
+struct APEXSDK_API FApexUserModules
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    bool Complete = false;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    bool Success = false;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    float Score = 0.0f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    float ScoreScaled = 0.0f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    float ScoreMin = 0.0f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    float ScoreMax = 0.0f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    int Duration = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 UserId = 0;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    FXAPIExtension AdditionalContextData;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Data")
-    FXAPIExtension AdditionalResultData;
-
-    virtual ~FSessionData() { }
-
-    FSessionData() { }
-
-    FSessionData(bool InComplete, bool InSuccess, float InScore, float InScoreScaled, 
-        float InScoreMin, float InScoreMax, int InDuration, 
-        FXAPIExtension InContextExtension, FXAPIExtension InResultExtension)
-        : Complete(InComplete), Success(InSuccess), Score(InScore), ScoreScaled(InScoreScaled),
-        ScoreMin(InScoreMin), ScoreMax(InScoreMax), Duration(InDuration),
-        AdditionalContextData(InContextExtension), AdditionalResultData(InResultExtension)
-    { }
-
-    // TODO: Implement a FromJsonObject function. IMPORTANT TO DO!
-    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
-    {
-        Score = JObject->GetNumberField("score");
-        ScoreScaled = JObject->GetNumberField("scoreScaled");
-        ScoreMin = JObject->GetNumberField("scoreMin");
-        ScoreMax = JObject->GetNumberField("scoreMax");
-        Duration = JObject->GetNumberField("sessionDuration");
-        Complete = JObject->GetBoolField("success");
-        FString LessonStatus = JObject->GetStringField("lessonStatus");
-        
-        if (LessonStatus.Equals("passed"))
-        {
-            Complete = true;
-        }
-        else
-        {
-            Complete = false;
-        }
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	TArray<int32> ModuleIds;
 };
 
 USTRUCT(BlueprintType)
-struct APEXSDK_API FCompleteSessionData : public FJsonable
+struct APEXSDK_API FApexModuleLifecycleInfo
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
-    FString Uuid = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
-    FString EventType = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
-    int ModuleId = -1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
-    FString DeviceId = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Complete Session")
-    FXAPIStatement JsonData;
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 LifecycleId = 0;
 
-    // TODO: This data will get packed into the FXAPIStatement instead of an extra layer
-    FSessionData SessionData;
+	/** As the platform names it; empty when the version has no lifecycle. */
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Name;
 
-    virtual ~FCompleteSessionData() { }
-
-    // TODO: Implement a FromJsonObject function. IMPORTANT TO DO!
-    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
-    {
-        if (JObject->HasField("uuid"))
-        {
-            Uuid = JObject->GetStringField("uuid");
-        }
-
-        if (JObject->HasField("eventType"))
-        {
-            EventType = JObject->GetStringField("eventType");
-        }
-
-        ModuleId = JObject->GetNumberField("moduleId");
-
-        if (JObject->HasField("deviceId"))
-        {
-            DeviceId = JObject->GetStringField("deviceId");
-        }
-
-        if (JObject->HasField("jsonData"))
-        {
-            JsonData.FromJsonObject(JObject->GetObjectField("jsonData"));
-            SessionData.FromJsonObject(JObject->GetObjectField("jsonData"));
-        }
-    }
-
-    virtual TSharedPtr<FJsonObject> ToJsonObject() const override
-    {
-        TSharedPtr<FJsonObject> Result(new FJsonObject);
-
-        if (!Uuid.IsEmpty())
-        {
-            Result->SetStringField("uuid", Uuid);
-        }
-
-        if (!EventType.IsEmpty())
-        {
-            Result->SetStringField("eventType", EventType);
-        }
-
-        Result->SetNumberField("moduleId", ModuleId);
-
-        if (!DeviceId.IsEmpty())
-        {
-            Result->SetStringField("deviceId", DeviceId);
-        }
-
-        // Update the time stamp
-        JsonData.Stamp();
-
-        if (!JsonData.IsEmpty())
-        {
-            TSharedPtr<FJsonObject> JsonDataObject = JsonData.ToJsonObject();
-            JsonDataObject->SetNumberField("score", SessionData.Score);
-            JsonDataObject->SetNumberField("scoreScaled", SessionData.ScoreScaled);
-            JsonDataObject->SetNumberField("scoreMin", SessionData.ScoreMin);
-            JsonDataObject->SetNumberField("scoreMax", SessionData.ScoreMax);
-            JsonDataObject->SetNumberField("sessionDuration", SessionData.Duration);
-            JsonDataObject->SetBoolField("success", SessionData.Success);
-            FString LessonStatus = "failed";
-            if (SessionData.Success)
-            {
-                LessonStatus = "passed";
-            }
-            JsonDataObject->SetStringField("lessonStatus", LessonStatus);
-            JsonDataObject->SetStringField("moduleName", FString::FromInt(ModuleId));
-
-            Result->SetObjectField("jsonData", JsonDataObject);
-        }
-
-        return Result;
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	EApexModuleLifecycle Stage = EApexModuleLifecycle::OTHER;
 };
 
 USTRUCT(BlueprintType)
-struct APEXSDK_API FSessionEventData : public FJsonable
+struct APEXSDK_API FApexModuleVersion
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
-    FString Uuid = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
-    FString EventType = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
-    int ModuleId = -1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
-    FString DeviceId = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Event")
-    FXAPIStatement JsonData;
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 VersionId = 0;
 
-public:
-    virtual ~FSessionEventData() { }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Version;
 
-    virtual TSharedPtr<FJsonObject> ToJsonObject() const override
-    {
-        TSharedPtr<FJsonObject> Result(new FJsonObject);
+	/** Android package name. */
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Package;
 
-        if (!Uuid.IsEmpty())
-        {
-            Result->SetStringField("uuid", Uuid);
-        }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString CreatedAt;
 
-        if (!EventType.IsEmpty())
-        {
-            Result->SetStringField("eventType", EventType);
-        }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	TArray<FString> Controls;
 
-        Result->SetNumberField("moduleId", ModuleId);
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	TArray<FString> Platforms;
 
-        if (!DeviceId.IsEmpty())
-        {
-            Result->SetStringField("deviceId", DeviceId);
-        }
-
-        // Update the time stamp
-        JsonData.Stamp();
-
-        if (!JsonData.IsEmpty())
-        {
-            Result->SetObjectField("jsonData", JsonData.ToJsonObject());
-        }
-
-        return Result;
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FApexModuleLifecycleInfo Lifecycle;
 };
 
 USTRUCT(BlueprintType)
-struct APEXSDK_API FAPEXOrganization : public FJsonable
+struct APEXSDK_API FApexModulePlayerVersion
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Apex Org")
-    int ID = -1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Apex Org")
-    FString Name = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Apex Org")
-    FString Status = TEXT("");
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 VersionId = 0;
 
-public:
-    virtual ~FAPEXOrganization() { }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Version;
 
-    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
-    {
-        ID = JObject->GetIntegerField("ID");
-        Name = JObject->GetStringField("Name");
-        Status = JObject->GetStringField("Status");
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Status;
 
-    virtual TSharedPtr<FJsonObject> ToJsonObject() const override
-    {
-        TSharedPtr<FJsonObject> Result(new FJsonObject);
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Package;
 
-        Result->SetNumberField("ID", ID);
-        Result->SetStringField("Name", Name);
-        Result->SetStringField("Status", Status);
-
-        return Result;
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	TArray<FString> Platforms;
 };
 
+/** The app that plays a module's content, when it has one. */
 USTRUCT(BlueprintType)
-struct APEXSDK_API FUserSessionData : public FJsonable
+struct APEXSDK_API FApexModulePlayer
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    int ID = -1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    int OrgId = -1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    int OrgUnit = -1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    FString FirstName = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    FString LastName = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    FString Email = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    FString SessionToken = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Session Data")
-    FAPEXOrganization Organization;
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	bool bIsSet = false;
 
-public:
-    virtual ~FUserSessionData() { }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 PlayerId = 0;
 
-    bool IsSet()
-    {
-        return (!SessionToken.IsEmpty());
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Name;
 
-    void Invalidate()
-    {
-        SessionToken = TEXT("");
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString LaunchProtocol;
 
-    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
-    {
-        ID = JObject->GetIntegerField("ID");
-        OrgId = JObject->GetIntegerField("OrgId");
-        if (JObject->HasField("OrgUnit"))
-        {
-            OrgUnit = JObject->GetIntegerField("OrgUnit");
-        }
-        else
-        {
-            OrgUnit = -1;
-        }
-        FirstName = JObject->GetStringField("First");
-        LastName = JObject->GetStringField("Last");
-        Email = JObject->GetStringField("Email");
-        SessionToken = JObject->GetStringField("Token");
-        Organization.FromJsonObject(JObject->GetObjectField("Org"));
-    }
-
-    virtual TSharedPtr<FJsonObject> ToJsonObject() const override
-    {
-        TSharedPtr<FJsonObject> Result(new FJsonObject);
-
-        Result->SetNumberField("ID", ID);
-        Result->SetNumberField("OrgId", OrgId);
-        if (OrgUnit >= 0)
-        {
-            Result->SetNumberField("OrgUnit", OrgUnit);
-        }
-        Result->SetStringField("First", FirstName);
-        Result->SetStringField("Last", LastName);
-        Result->SetStringField("Email", Email);
-        Result->SetStringField("Token", SessionToken);
-        Result->SetObjectField("Org", Organization.ToJsonObject());
-
-        return Result;
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	TArray<FApexModulePlayerVersion> Versions;
 };
 
+/** A module available to the user (spec/schema/module_list.json in apex-sdk-core). */
 USTRUCT(BlueprintType)
-struct APEXSDK_API FApexUserData : public FJsonable
+struct APEXSDK_API FApexModule
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    int Id = -1;
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 ModuleId = 0;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    int OrgUnit = -1;
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Name;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    FString FirstName = TEXT("");
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Abbreviation;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    FString LastName = TEXT("");
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString ExternalId;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    FString Email = TEXT("");
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString IconUrl;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|User Data")
-    FString Username = TEXT("");
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Distributor;
 
-    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
-    {
-        Id = JObject->GetIntegerField("id");
-        if (JObject->HasField("orgunit"))
-        {
-            OrgUnit = JObject->GetIntegerField("orgunit");
-        }
-        else
-        {
-            OrgUnit = -1;
-        }
-        FirstName = JObject->GetStringField("first");
-        LastName = JObject->GetStringField("last");
-        Email = JObject->GetStringField("email");
-        Username = JObject->GetStringField("username");
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString ShortDescription;
 
-    virtual TSharedPtr<FJsonObject> ToJsonObject() const override
-    {
-        TSharedPtr<FJsonObject> Result(new FJsonObject);
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString LongDescription;
 
-        Result->SetNumberField("id", Id);
-        if (OrgUnit >= 0)
-        {
-            Result->SetNumberField("orgunit", OrgUnit);
-        }
-        Result->SetStringField("first", FirstName);
-        Result->SetStringField("last", LastName);
-        Result->SetStringField("email", Email);
-        Result->SetStringField("username", Username);
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Industry;
 
-        return Result;
-    }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Details;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FString Categories;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	bool bIsAvailable = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	bool bIsAuthenticatedLaunch = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	TArray<FString> Languages;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	FApexModulePlayer Player;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	TArray<FApexModuleVersion> Versions;
 };
 
+/** One page of modules (spec/schema/module_page.json in apex-sdk-core). */
 USTRUCT(BlueprintType)
-struct APEXSDK_API FSessionReportData : public FJsonable
+struct APEXSDK_API FApexModulePage
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    FString Id = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    FString EventType = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    int UserId = -1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    int ModuleId = -1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    int SessionId = -1;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    float SessionDuration = 0.0f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    bool LessonStatus = false;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    FString CreatedAt = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    FString UpdatedAt = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Session Report")
-    FXAPIStatement JsonData;
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	TArray<FApexModule> Modules;
 
-    virtual ~FSessionReportData() { }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 PageIndex = 0;
 
-    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
-    {
-        if (JObject->HasField("id"))
-        {
-            Id = JObject->GetStringField("id");
-        }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 PageSize = 0;
 
-        if (JObject->HasField("eventType"))
-        {
-            EventType = JObject->GetStringField("eventType");
-        }
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 PageCount = 0;
 
-        if (JObject->HasField("sessionId"))
-        {
-            SessionId = JObject->GetNumberField("sessionId");
-        }
-
-        if (JObject->HasField("userId"))
-        {
-            UserId = JObject->GetNumberField("userId");
-        }
-
-        if (JObject->HasField("moduleId"))
-        {
-            ModuleId = JObject->GetNumberField("moduleId");
-        }
-
-        if (JObject->HasField("createdAt"))
-        {
-            CreatedAt = JObject->GetStringField("createdAt");
-        }
-
-        if (JObject->HasField("updatedAt"))
-        {
-            UpdatedAt = JObject->GetStringField("updatedAt");
-        }
-
-        if (JObject->HasField("jsonData"))
-        {
-            TSharedPtr<FJsonObject> JsonDataObject = JObject->GetObjectField("jsonData");
-            JsonData.FromJsonObject(JsonDataObject);
-            if (JsonDataObject->HasField("sessionDuration"))
-            {
-                SessionDuration = JsonDataObject->GetNumberField("sessionDuration");
-            }
-
-            if (JsonDataObject->HasField("lessonStatus"))
-            {
-                LessonStatus = JsonDataObject->GetBoolField("lessonStatus");
-            }
-        }
-    }
+	/** Modules matching the filters, across every page. */
+	UPROPERTY(BlueprintReadOnly, Category = "Apex|Modules")
+	int32 TotalCount = 0;
 };
 
+/**
+ * How a session ended, sent with CompleteSession. With ScaledScore 0, a score and a maximum
+ * score, the SDK sends Score / MaximumScore * 100 as the scaled score.
+ */
 USTRUCT(BlueprintType)
-struct APEXSDK_API FTopTenData : public FJsonable
+struct APEXSDK_API FApexSessionResult
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
-    bool Error = false;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
-    FString Message = TEXT("");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
-    FApexUserData User;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Top Ten Data")
-    TArray<FSessionReportData> Sessions;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Sessions")
+	float Score = 0.0f;
 
-public:
-    virtual ~FTopTenData() { }
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Sessions")
+	float ScaledScore = 0.0f;
 
-    virtual void FromJsonObject(const TSharedPtr<FJsonObject>& JObject) override
-    {
-        Error = JObject->GetBoolField("error");
-        Message = JObject->GetStringField("message");
-        
-        TArray<TSharedPtr<FJsonValue>> SessionDataArray;
-        // This confirms if it's a user with session data or just session data
-        if (JObject->HasTypedField<EJson::Array>("data"))
-        {
-            SessionDataArray = JObject->GetArrayField("data");
-        }
-        else
-        {
-            auto DataObject = JObject->GetObjectField("data");
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Sessions")
+	float MinimumScore = 0.0f;
 
-            User.FromJsonObject(DataObject->GetObjectField("user"));
-            SessionDataArray = DataObject->GetArrayField("sessions");
-        }
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Sessions")
+	float MaximumScore = 0.0f;
 
-        FSessionReportData CompleteSessionData;
-        for (auto SessionData : SessionDataArray)
-        {
-            CompleteSessionData.FromJsonObject(SessionData->AsObject());
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Sessions")
+	float DurationSeconds = 0.0f;
 
-            Sessions.Push(CompleteSessionData);
-        }
-    }
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Sessions")
+	bool bComplete = true;
 
-    virtual TSharedPtr<FJsonObject> ToJsonObject() const override
-    {
-        TSharedPtr<FJsonObject> Result(new FJsonObject);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Apex|Sessions")
+	bool bSuccess = false;
 
-        // TODO (MGruber): Fill this in later. It's not super important right now.
-
-        return Result;
-    }
-};
-
-USTRUCT(BlueprintType)
-struct APEXSDK_API FHeartbeatEvent : public FJsonable
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PixoVR|Hearbeat Event")
-    int SessionId;
-
-public:
-    virtual ~FHeartbeatEvent() { }
-
-    virtual TSharedPtr<FJsonObject> ToJsonObject() const override
-    {
-        TSharedPtr<FJsonObject> Result(new FJsonObject);
-
-        Result->SetNumberField("sessionId", SessionId);
-
-        return Result;
-    }
+	float GetEffectiveScaledScore() const;
 };
