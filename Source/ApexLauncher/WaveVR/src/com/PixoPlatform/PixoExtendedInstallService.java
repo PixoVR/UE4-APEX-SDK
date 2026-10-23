@@ -27,14 +27,15 @@ public class PixoExtendedInstallService extends PixoInstallerService {
                 MoveFileTask.execute(APKPackage);
             }
             else {
-                PixoEventNotifier.getInstance().InstallationCompleted(appPath);
+                // The download manager follows installs by package name, not the APK path.
+                PixoEventNotifier.getInstance().InstallationCompleted(APKPackage.PackageName);
             }
         }
     
         @Override
         public void onFail(String appPath, int errorCode, String errorMessage) {
             Log.e(TAG, "onFail, appPath:" + appPath + ", errorCode = " + errorCode + ", errorMessage = " + errorMessage);
-            PixoEventNotifier.getInstance().InstallationFailed(appPath);
+            PixoEventNotifier.getInstance().InstallationFailed(APKPackage.PackageName);
         }
     };
 

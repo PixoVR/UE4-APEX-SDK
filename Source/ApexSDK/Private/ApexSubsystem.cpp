@@ -239,6 +239,8 @@ void UApexSubsystem::ChangeEnvironment(EApexServerEnvironment newEnvironment)
 {
 	UE_LOG(LogApex, Log, TEXT("Changing environment to %d."), static_cast<int32>(newEnvironment));
 	const bool wasLoggedIn = m_isLoggedIn;
+	TMap<ApexCallId, FPayloadCallback> abandonedCalls = MoveTemp(m_pendingCalls);
+	m_pendingCalls.Reset();
 	m_environment = newEnvironment;
 	DestroyClient();
 	CreateClient();
@@ -246,6 +248,16 @@ void UApexSubsystem::ChangeEnvironment(EApexServerEnvironment newEnvironment)
 	{
 		OnLoggedOutNative.Broadcast();
 		OnLoggedOut.Broadcast();
+	}
+
+	// Every call still gets its one result, so async nodes and components finish.
+	for (TPair<ApexCallId, FPayloadCallback>& abandonedCall : abandonedCalls)
+	{
+		if (abandonedCall.Value)
+		{
+			abandonedCall.Value(FApexResponse::MakeFailure(EApexErrorCode::CANCELLED, TEXT("The environment changed.")),
+								FString());
+		}
 	}
 }
 
@@ -1415,6 +1427,26 @@ void UApexSubsystem::SetOptionalData(const FString& optionalData)
 
 void UApexSubsystem::ExitToLauncher(const FString& nextTarget)
 {
+	// On Android the app's process ends with the hand-off, before Deinitialize could complete the session.
+	if (m_sessionInProgress && GetDefault<UApexSDKSettings>()->bCompleteSessionOnShutdown)
+	{
+		TWeakObjectPtr<UApexSubsystem> weakThis(this);
+		CompleteSession(FApexSessionResult(), FString(), [weakThis, nextTarget](const FApexResponse& /*response*/)
+		{
+			if (weakThis.IsValid())
+			{
+				weakThis->HandOffToLauncher(nextTarget);
+			}
+		});
+		return;
+	}
+
+	HandOffToLauncher(nextTarget);
+}
+
+void UApexSubsystem::HandOffToLauncher(const FString& nextTarget)
+{
+	TelemetryFlush();
 	FString exitTargetJson = TEXT("{\"action\":\"none\"}");
 	if (m_client.IsValid())
 	{

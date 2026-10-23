@@ -3,6 +3,7 @@
 #include "ApexAuthorizationCodeSocket.h"
 
 #include "ApexJson.h"
+#include "Async/Async.h"
 #include "IWebSocket.h"
 #include "WebSocketsModule.h"
 
@@ -37,7 +38,10 @@ void FApexAuthorizationCodeSocket::RequestCode(const FString& webSocketUrl, FCod
 	m_webSocket->OnConnectionError().AddLambda([this](const FString& errorText)
 	{
 		UE_LOG(LogApexAuthorizationCode, Error, TEXT("Failed to connect: %s"), *errorText);
-		m_onFailed.ExecuteIfBound(errorText);
+		RunLater([this, errorText]()
+		{
+			m_onFailed.ExecuteIfBound(errorText);
+		});
 	});
 	m_webSocket->OnClosed().AddLambda([](int32 statusCode, const FString& reason, bool /*wasClean*/)
 	{
@@ -45,7 +49,10 @@ void FApexAuthorizationCodeSocket::RequestCode(const FString& webSocketUrl, FCod
 	});
 	m_webSocket->OnMessage().AddLambda([this](const FString& messageText)
 	{
-		HandleMessage(messageText);
+		RunLater([this, messageText]()
+		{
+			HandleMessage(messageText);
+		});
 	});
 	m_webSocket->Connect();
 }
@@ -73,6 +80,18 @@ void FApexAuthorizationCodeSocket::Close()
 	}
 
 	m_webSocket.Reset();
+}
+
+void FApexAuthorizationCodeSocket::RunLater(TFunction<void()> work)
+{
+	TWeakPtr<bool, ESPMode::ThreadSafe> lifetimeToken = m_lifetimeToken;
+	AsyncTask(ENamedThreads::GameThread, [lifetimeToken, work = MoveTemp(work)]()
+	{
+		if (lifetimeToken.IsValid())
+		{
+			work();
+		}
+	});
 }
 
 FString FApexAuthorizationCodeSocket::MakeWebSocketUrl(const FString& headsetApiUrl)

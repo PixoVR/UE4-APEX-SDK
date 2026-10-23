@@ -37,8 +37,7 @@ public:
 
 	/**
 	 * Adds android:sharedUserId="android.uid.system" (not on Pico), which silent installs need on
-	 * managed headsets. Only builds signed with the platform key install with it; turn it off for
-	 * store or sideloaded builds.
+	 * managed headsets. Only builds signed with the platform key install with it, so it is off by default.
 	 */
 	UPROPERTY(Config, EditAnywhere, Category = "Android", meta = (DisplayName = "Use System Shared User ID"))
 	bool bUseSystemSharedUserId;

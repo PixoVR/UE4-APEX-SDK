@@ -32,6 +32,14 @@ public class ApexCore : ModuleRules
 
 		PrivateDependencyModuleNames.Add("Core");
 
+		// In modular builds (the editor) ApexCore is its own DLL: export the C interface from it and
+		// import it everywhere else. Monolithic games link it statically, where APEX_API stays empty.
+		if (Target.LinkType == TargetLinkType.Modular)
+		{
+			PrivateDefinitions.Add("APEX_BUILD_SHARED");
+			PublicDefinitions.Add("APEX_USE_SHARED");
+		}
+
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
 			PrivateDefinitions.Add("APEX_TRANSPORT_WINHTTP");

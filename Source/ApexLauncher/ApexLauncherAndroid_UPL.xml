@@ -12,7 +12,7 @@
 	<init>
 		<log text="ApexLauncher init"/>
 		<setStringFromProperty result="HeadsetType" ini="Engine" section="/Script/ApexLauncher.ApexLauncherSettings" property="HeadsetType" default="OTHER"/>
-		<setBoolFromProperty result="bUseSystemSharedUserId" ini="Engine" section="/Script/ApexLauncher.ApexLauncherSettings" property="bUseSystemSharedUserId" default="true"/>
+		<setBoolFromProperty result="bUseSystemSharedUserId" ini="Engine" section="/Script/ApexLauncher.ApexLauncherSettings" property="bUseSystemSharedUserId" default="false"/>
 		<setStringFromProperty result="HostString" ini="Engine" section="/Script/AndroidRuntimeSettings.AndroidRuntimeSettings" property="PackageName" default="com.pixovr.blank"/>
 		<setBoolIsEqual result="bIsOther" arg1="$S(HeadsetType)" arg2="OTHER"/>
 		<setBoolIsEqual result="bIsQuest" arg1="$S(HeadsetType)" arg2="QUEST"/>
@@ -98,7 +98,7 @@
 			<service android:name="com.Pixo.PixoPlatform.PixoDownloaderService" />
 			<service android:name="com.Pixo.PixoPlatform.PixoInstallerService" />
 			<service android:name="com.Pixo.PixoPlatform.PixoExtendedInstallService" />
-			<receiver android:name="com.Pixo.PixoPlatform.PackageInstallerStatusReceiver" android:exported="true">
+			<receiver android:name="com.Pixo.PixoPlatform.PackageInstallerStatusReceiver" android:exported="false">
 				<intent-filter>
 					<action android:name="PACKAGE_INSTALLED_ACTION" />
 				</intent-filter>
@@ -378,7 +378,7 @@
 				startActivity(launchIntent);
 				if (bQuitAfterLaunch)
 				{
-					AndroidThunkJava_ForceQuit();
+					AndroidThunkJava_PixoQuit();
 				}
 
 				return true;
@@ -405,8 +405,7 @@
 					startActivity(browserIntent);
 					if (bQuitAfterLaunch)
 					{
-						AndroidThunkJava_ForceQuit();
-						finishAndRemoveTask();
+						AndroidThunkJava_PixoQuit();
 					}
 
 					return true;
@@ -419,10 +418,11 @@
 				return false;
 			}
 
+			// Removes the task from recents first: ForceQuit ends the process.
 			public void AndroidThunkJava_PixoQuit()
 			{
-				AndroidThunkJava_ForceQuit();
 				finishAndRemoveTask();
+				AndroidThunkJava_ForceQuit();
 			}
 
 			public String AndroidThunkJava_GetIntentData()

@@ -237,7 +237,8 @@ public:
 
 	/**
 	 * Hands control back to the launcher (or the app it named), passing the login on, then quits.
-	 * nextTarget (optional) is passed to the launcher as "returntarget".
+	 * nextTarget (optional) is passed to the launcher as "returntarget". An active session is
+	 * completed first when Complete Session On Shutdown is set.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Apex|Launcher")
 	void ExitToLauncher(const FString& nextTarget = TEXT(""));
@@ -310,6 +311,7 @@ private:
 	void ReadLaunchArguments();
 	void ApplyLaunchArgument(const FString& key, const FString& value);
 	void PollDeviceSerialNumber(double nowSeconds);
+	void HandOffToLauncher(const FString& nextTarget);
 
 	/** Remembers onResult for the call and returns true, or delivers a failure for a call that has none. */
 	bool TrackCall(ApexCallId callId, FPayloadCallback onResult);

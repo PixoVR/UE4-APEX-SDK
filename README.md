@@ -36,9 +36,9 @@ Upgrading from 1.x? Read [docs/MIGRATING.md](docs/MIGRATING.md).
    Name**, **Module Version** (`MAJOR.MINOR.PATCH`) and the **Environment**.
 3. Android only, **Project Settings > Plugins > Apex Launcher**: pick the
    **Headset Type** (it chooses how packages are installed). Builds need
-   Android SDK API level 29 or later for shared-storage files. Turn off **Use
-   System Shared User ID** for builds that are not signed with the platform
-   key.
+   Android SDK API level 29 or later for shared-storage files. Turn on **Use
+   System Shared User ID** only for builds signed with the platform key that
+   must install silently on managed headsets.
 
 The subsystem starts with the game instance, reads the launcher's arguments
 (`pixotoken`, `returntarget`, `optional` and so on, from the command line, a

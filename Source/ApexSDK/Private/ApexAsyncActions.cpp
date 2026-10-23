@@ -246,8 +246,9 @@ void UApexRequestAsyncAction::ReportMissingSubsystem(const FApexResponse& respon
 // Each of these finishes the same way: Success or Failure with the response and the parsed result.
 namespace
 {
+// Returns the lambda itself: TFunction will not wrap a TFunction of another signature.
 template <typename TAsyncAction, typename TResult>
-TFunction<void(const FApexResponse&, const TResult&)> MakeFinishCallback(TAsyncAction* asyncAction)
+auto MakeFinishCallback(TAsyncAction* asyncAction)
 {
 	return
 		[weakAction = TWeakObjectPtr<TAsyncAction>(asyncAction)](const FApexResponse& response, const TResult& result)

@@ -29,8 +29,9 @@ UApexAnalyticsSubsystem* UApexAnalyticsSubsystem::Get(const UObject* worldContex
 void UApexAnalyticsSubsystem::Initialize(FSubsystemCollectionBase& collection)
 {
 	Super::Initialize(collection);
-	UApexSubsystem* apexSubsystem =
-		Cast<UApexSubsystem>(collection.InitializeDependency(UApexSubsystem::StaticClass()));
+	// InitializeDependency's return type differs between engine versions; ask the game instance instead.
+	collection.InitializeDependency(UApexSubsystem::StaticClass());
+	UApexSubsystem* apexSubsystem = GetGameInstance()->GetSubsystem<UApexSubsystem>();
 	m_apexSubsystem = apexSubsystem;
 	if (apexSubsystem != nullptr)
 	{

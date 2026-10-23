@@ -69,6 +69,17 @@ the enum changed.
   unless **Complete Session On Shutdown** is off. The heartbeat keeps the
   session alive meanwhile.
 - **Logs never contain tokens, passwords or response bodies.**
-- **Android:** `android:sharedUserId` now goes on `<manifest>`, where Android
-  reads it, and can be turned off. The HTC Business install-permission grant
-  uses the app's own package name.
+- **Android `sharedUserId`:** 1.x and PixoCore put `android:sharedUserId` on
+  `<application>`, where Android ignores it. 2.0 puts it on `<manifest>` behind
+  **Use System Shared User ID**, which is off by default: with it, only builds
+  signed with the platform key install.
+- **Android installs (Quest, HTC Business, other headsets)** go through a
+  PackageInstaller session and report their real outcome. PixoCore's version
+  read the APK as an app asset and reported completion before the install
+  ran. Uninstalling works; it did nothing before. HTC Focus installs report the
+  package name instead of the APK path, so the download manager finishes them.
+  The HTC Business install-permission grant uses the app's own package name.
+- **Exit To Launcher** completes an active session before handing over,
+  because on Android the app's process ends with the hand-off.
+- **Changing environment** fails the calls still in flight with `CANCELLED`
+  instead of dropping them.

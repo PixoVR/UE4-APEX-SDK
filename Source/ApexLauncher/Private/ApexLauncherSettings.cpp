@@ -2,7 +2,7 @@
 
 #include "ApexLauncherSettings.h"
 
-UApexLauncherSettings::UApexLauncherSettings() : HeadsetType(EApexHeadsetType::OTHER), bUseSystemSharedUserId(true)
+UApexLauncherSettings::UApexLauncherSettings() : HeadsetType(EApexHeadsetType::OTHER), bUseSystemSharedUserId(false)
 {
 }
 

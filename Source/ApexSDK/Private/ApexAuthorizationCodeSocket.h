@@ -33,8 +33,14 @@ public:
 private:
 	void SendCodeRequest();
 	void HandleMessage(const FString& messageText);
+	/**
+	 * Runs work on a later game-thread tick, unless this object is gone by then. The socket's
+	 * callbacks use it, so user callbacks (which may close or replace the socket) never run inside them.
+	 */
+	void RunLater(TFunction<void()> work);
 
 	TSharedPtr<IWebSocket> m_webSocket;
+	TSharedRef<bool, ESPMode::ThreadSafe> m_lifetimeToken = MakeShared<bool, ESPMode::ThreadSafe>(true);
 	FString m_webSocketUrl;
 	FCodeReceived m_onCodeReceived;
 	FTokenReceived m_onTokenReceived;
