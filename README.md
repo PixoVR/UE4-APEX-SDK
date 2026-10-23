@@ -35,7 +35,9 @@ Upgrading from 1.x? Read [docs/MIGRATING.md](docs/MIGRATING.md).
 2. **Project Settings > Plugins > Apex SDK**: set the **Module ID**, **Module
    Name**, **Module Version** (`MAJOR.MINOR.PATCH`) and the **Environment**.
 3. Android only, **Project Settings > Plugins > Apex Launcher**: pick the
-   **Headset Type** (it chooses how packages are installed). Builds need
+   **Headset Type**. Only **Pico** and **HTC Focus 3** can install and
+   uninstall packages, through their vendors' services; Quest, HTC Business
+   and other Android headsets (Android XR included) cannot. Builds need
    Android SDK API level 29 or later for shared-storage files. Turn on **Use
    System Shared User ID** only for builds signed with the platform key that
    must install silently on managed headsets.
@@ -153,9 +155,9 @@ does the following. Each item is Android only unless it says otherwise.
 | --- | --- |
 | Launch an app with extras, or open a URL (URLs everywhere) | `LaunchApplication`, `LaunchUrl` |
 | Read how this app was launched | `GetIntentData`, `GetApplicationExtra` |
-| Install or update from a URL to an APK or a zip holding one | `InstallApplication`, `UpdateApplication` |
+| Install or update from a URL to an APK or a zip holding one (Pico and HTC Focus only) | `SupportsPackageInstalls`, `InstallApplication`, `UpdateApplication` |
 | Compare installed and available versions | `GetApplicationVersionName`, `IsUpdateAvailable`, `CompareVersions` |
-| Uninstall | `UninstallApplication` |
+| Uninstall (Pico and HTC Focus only) | `UninstallApplication` |
 | Text files in the shared Download folder (Android 10+) | `DoesSharedFileExist`, `WriteSharedFile`, `ReadSharedFile`, `DeleteSharedFile` |
 | Device details | `GetDeviceSerialNumber` (ManageXR's, else the system's), `GetDeviceMacAddress`, `IsDeviceManaged` |
 

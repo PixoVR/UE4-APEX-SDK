@@ -98,7 +98,17 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Apex|Launcher")
 	FString GetApplicationVersionName(const FString& packageName) const;
 
-	/** Downloads an APK (or a zip holding it) from url and installs it. Progress: OnPackageEvent. */
+	/**
+	 * True when this build can install and uninstall packages: on Android, only with the Pico or HTC
+	 * Focus headset type (their vendor services install silently); elsewhere, with the mock downloader.
+	 */
+	UFUNCTION(BlueprintPure, Category = "Apex|Launcher")
+	bool SupportsPackageInstalls() const;
+
+	/**
+	 * Downloads an APK (or a zip holding it) from url and installs it. Progress: OnPackageEvent.
+	 * False, with nothing downloaded, when SupportsPackageInstalls is false.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Apex|Launcher", meta = (WorldContext = "worldContextObject"))
 	bool InstallApplication(UObject* worldContextObject, const FString& packageName, const FString& url);
 
@@ -106,6 +116,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Apex|Launcher", meta = (WorldContext = "worldContextObject"))
 	bool UpdateApplication(UObject* worldContextObject, const FString& packageName, const FString& url);
 
+	/** False when SupportsPackageInstalls is false. */
 	UFUNCTION(BlueprintCallable, Category = "Apex|Launcher")
 	bool UninstallApplication(const FString& packageName);
 

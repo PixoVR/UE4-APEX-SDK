@@ -31,7 +31,10 @@ public:
 
 	virtual FName GetCategoryName() const override;
 
-	/** Picks the Java installer: the standard PackageInstaller, Pico's ToB service, or HTC's service. */
+	/**
+	 * Picks the Java installer. Only Pico (ToB service) and HTC Focus (HTC's library) install and
+	 * uninstall packages; on the other headset types those calls fail.
+	 */
 	UPROPERTY(Config, EditAnywhere, Category = "Android")
 	EApexHeadsetType HeadsetType;
 

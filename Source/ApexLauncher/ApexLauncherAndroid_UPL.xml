@@ -37,7 +37,7 @@
 						<copyDir src="$S(PluginDir)/Pico" dst="$S(BuildDir)" />
 					</true>
 					<false>
-						<!-- OTHER, QUEST and HTC_BUSINESS use the standard PackageInstaller. -->
+						<!-- OTHER, QUEST and HTC_BUSINESS cannot install packages; their installer reports failure. -->
 						<copyDir src="$S(PluginDir)/Other" dst="$S(BuildDir)" />
 					</false>
 				</if>
@@ -82,17 +82,13 @@
 		<addPermission android:name="android.permission.READ_PHONE_STATE"/>
 		<addPermission android:name="android.permission.ACCESS_WIFI_STATE"/>
 		<addPermission android:name="android.permission.QUERY_ALL_PACKAGES"/>
-		<setBoolOr result="bRequestsInstall" arg1="$B(bIsOther)" arg2="$B(bIsHTCBusiness)"/>
-		<setBoolOr result="bRequestsInstall" arg1="$B(bRequestsInstall)" arg2="$B(bIsQuest)"/>
-		<if condition="bRequestsInstall">
+		<!-- Only Pico (ToB service) and HTC Focus (HTC's library) install packages; other headsets cannot. -->
+		<setBoolOr result="bSupportsInstalls" arg1="$B(bIsPico)" arg2="$B(bIsWaveVR)"/>
+		<if condition="bSupportsInstalls">
 			<true>
-				<addPermission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
-				<addPermission android:name="android.permission.REQUEST_DELETE_PACKAGES"/>
-			</true>
-			<false>
 				<addPermission android:name="android.permission.INSTALL_PACKAGES"/>
 				<addPermission android:name="android.permission.DELETE_PACKAGES"/>
-			</false>
+			</true>
 		</if>
 		<addElements tag="application">
 			<service android:name="com.Pixo.PixoPlatform.PixoDownloaderService" />
@@ -171,7 +167,6 @@
 		<insert>
 			import com.managexr.getserialsample.MXRAdminAppMessenger;
 			import com.Pixo.PixoPlatform.*;
-			import android.app.admin.DevicePolicyManager;
 			import android.content.ComponentName;
 			import android.content.ContentResolver;
 			import android.content.ContentUris;
@@ -711,21 +706,6 @@
 			});
 			bApexIsDeviceOwner = apexAdminAppMessenger.isManaged();
 		</insert>
-		<if condition="bIsHTCBusiness">
-			<true>
-				<insert>
-					DevicePolicyManager apexPolicyManager = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
-					if (apexPolicyManager != null)
-					{
-						ComponentName apexAdmin = new ComponentName(getApplicationContext(), com.Pixo.PixoPlatform.DeviceOwnerReceiver.class);
-						if (apexPolicyManager.isDeviceOwnerApp(getPackageName()) &amp;&amp; apexPolicyManager.isAdminActive(apexAdmin))
-						{
-							apexPolicyManager.setPermissionGrantState(apexAdmin, getPackageName(), android.Manifest.permission.INSTALL_PACKAGES, DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED);
-						}
-					}
-				</insert>
-			</true>
-		</if>
 		<if condition="bIsWaveVR">
 			<true>
 				<insert>

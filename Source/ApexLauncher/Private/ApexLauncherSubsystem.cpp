@@ -2,6 +2,7 @@
 
 #include "ApexLauncherSubsystem.h"
 
+#include "ApexLauncherSettings.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
@@ -264,6 +265,13 @@ bool UApexLauncherSubsystem::InstallApplication(UObject* worldContextObject, con
 		return false;
 	}
 
+	if (!SupportsPackageInstalls())
+	{
+		UE_LOG(LogApexLauncher, Warning, TEXT("This headset type cannot install packages; %s was not installed."),
+			   *packageName);
+		return false;
+	}
+
 	UE_LOG(LogApexLauncher, Log, TEXT("Installing %s."), *packageName);
 #if PLATFORM_ANDROID
 	JNIEnv* javaEnvironment = FAndroidApplication::GetJavaEnv();
@@ -296,8 +304,25 @@ bool UApexLauncherSubsystem::UpdateApplication(UObject* worldContextObject, cons
 	return InstallApplication(worldContextObject, packageName, url);
 }
 
+bool UApexLauncherSubsystem::SupportsPackageInstalls() const
+{
+#if PLATFORM_ANDROID
+	const EApexHeadsetType headsetType = GetDefault<UApexLauncherSettings>()->HeadsetType;
+	return headsetType == EApexHeadsetType::PICO || headsetType == EApexHeadsetType::HTC_FOCUS;
+#else
+	return m_mockDownloaderClass != nullptr;
+#endif
+}
+
 bool UApexLauncherSubsystem::UninstallApplication(const FString& packageName)
 {
+	if (!SupportsPackageInstalls())
+	{
+		UE_LOG(LogApexLauncher, Warning, TEXT("This headset type cannot uninstall packages; %s was not uninstalled."),
+			   *packageName);
+		return false;
+	}
+
 	UE_LOG(LogApexLauncher, Log, TEXT("Uninstalling %s."), *packageName);
 #if PLATFORM_ANDROID
 	JNIEnv* javaEnvironment = FAndroidApplication::GetJavaEnv();
